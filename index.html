@@ -582,7 +582,7 @@
                                 }
                             }, (error) => {
                                 console.error("Erreur Sync Firestore:", error);
-                                showToast("⚠️ Erreur de synchronisation, mode local actif.");
+                                setupFallback(`rules-error`);
                             });
                         } else {
                             // Tente l'authentification si non connecté
@@ -594,22 +594,35 @@
                                 }
                             } catch (authError) {
                                 console.error("Échec auth:", authError);
-                                setupFallback();
+                                setupFallback(authError.code || `auth-error`);
                             }
                         }
                     });
                 } catch (e) {
                     console.error("Impossible d'importer les fichiers Firebase. Mode local activé.", e);
-                    setupFallback();
+                    setupFallback(`import-error`);
                 }
             } else {
-                setupFallback();
+                setupFallback(`config-error`);
             }
         };
 
-        function setupFallback() {
-            document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
-            document.getElementById('cloudStatusIndicator').className = "text-[9px] font-bold bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-500/30";
+        function setupFallback(errorCode) {
+            const statusIndicator = document.getElementById('cloudStatusIndicator');
+            if (errorCode) {
+                // Traduction des erreurs courantes pour l'utilisateur
+                let friendlyMsg = errorCode;
+                if (errorCode === 'auth/operation-not-allowed') {
+                    friendlyMsg = "Anonyme désactivé";
+                } else if (errorCode === 'rules-error' || errorCode === 'permission-denied') {
+                    friendlyMsg = "Règles bloquées";
+                }
+                statusIndicator.innerHTML = `⚠️ ${friendlyMsg}`;
+                statusIndicator.className = "text-[9px] font-bold bg-rose-950 text-rose-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-rose-500/30";
+            } else {
+                statusIndicator.innerHTML = '🟡 Local';
+                statusIndicator.className = "text-[9px] font-bold bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-500/30";
+            }
             document.getElementById('myFirebaseUid').innerText = `Mode local autonome (sans Cloud)`;
             updateUI();
             changeReportTruckDropdown();

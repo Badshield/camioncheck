@@ -458,10 +458,8 @@
 
     <!-- FIREBASE AND CORE REALTIME SYNCHRONIZATION MODULE -->
     <script type="module">
-        // Import Firebase components
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Variables globales pour stocker les fonctions Firebase importées dynamiquement
+        let docFn = null, setDocFn = null, onSnapshotFn = null;
 
         // Vos identifiants de configuration Firebase réels intégrés !
         const firebaseConfig = {
@@ -476,7 +474,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'camioncheck-app';
         let isOnline = false;
         let userId = null;
-        let db, auth;
+        let db = null, auth = null;
 
         const initialEquipment = [
             // Camion A
@@ -537,13 +535,22 @@
             setupLocalEventListeners();
             
             // 2. Dessine l'interface tout de suite avec les données locales 
-            // pour éviter d'attendre la réponse du réseau Firebase (PWA ultra-rapide)
+            // pour que les onglets et les boutons soient réactifs à 100% sans aucun temps d'attente !
             updateUI();
             changeReportTruckDropdown();
             
-            // 3. Tente la synchronisation Cloud silencieuse en tâche de fond
+            // 3. Tente la connexion Cloud de manière asynchrone pour ne jamais bloquer l'application
             if (firebaseConfig) {
                 try {
+                    // Chargement dynamique des scripts Firebase
+                    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+                    const { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+                    const { getFirestore, doc, setDoc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    
+                    docFn = doc;
+                    setDocFn = setDoc;
+                    onSnapshotFn = onSnapshot;
+
                     const app = initializeApp(firebaseConfig);
                     auth = getAuth(app);
                     db = getFirestore(app);
@@ -560,8 +567,8 @@
                             isOnline = true;
                             
                             // Ecouteur temps réel (Synchronisation instantanée avec l'équipe)
-                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
-                            onSnapshot(docRef, (docSnap) => {
+                            const docRef = docFn(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
+                            onSnapshotFn(docRef, (docSnap) => {
                                 if (docSnap.exists()) {
                                     const data = docSnap.data();
                                     if (data.trucks) trucks = data.trucks;
@@ -592,7 +599,7 @@
                         }
                     });
                 } catch (e) {
-                    console.error("Firebase init failed, switching to offline fallback", e);
+                    console.error("Impossible d'importer les fichiers Firebase. Mode local activé.", e);
                     setupFallback();
                 }
             } else {
@@ -609,10 +616,10 @@
         }
 
         async function pushStateToCloud() {
-            if (!isOnline || !userId) return;
+            if (!isOnline || !userId || !docFn || !setDocFn) return;
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
-                await setDoc(docRef, {
+                const docRef = docFn(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
+                await setDocFn(docRef, {
                     trucks: trucks,
                     feed: feed,
                     teamScores: teamScores,

@@ -90,7 +90,7 @@
             
             <div class="flex justify-between items-start">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-full">Score d'équipe actuel</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-50/10 border border-amber-500/30 px-2.5 py-1 rounded-full">Score d'équipe actuel</span>
                     <h2 class="text-4xl font-black mt-3 tracking-tight flex items-baseline space-x-1">
                         <span id="teamScore">--%</span>
                         <span class="text-xs font-semibold text-slate-400">de dispo</span>
@@ -109,25 +109,6 @@
             </div>
         </div>
 
-        <!-- SECTIONS NAV / TABS -->
-        <div class="flex space-x-1 bg-slate-200/80 p-1 rounded-xl shadow-sm">
-            <button id="tabBtn-dashboard" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm">
-                <i class="fa-solid fa-chart-simple text-sm"></i>
-                <span>Tableau</span>
-            </button>
-            <button id="tabBtn-report" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-bolt text-sm"></i>
-                <span>Signaler</span>
-            </button>
-            <button id="tabBtn-inventory" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-calendar-check text-sm"></i>
-                <span>Mensuel</span>
-            </button>
-            <button id="tabBtn-team" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-award text-sm"></i>
-                <span>Équipe</span>
-            </button>
-        </div>
 
         <!-- ================= PAGE 1 : DASHBOARD ================= -->
         <div id="page-dashboard" class="space-y-6">
@@ -483,23 +464,24 @@
         <span id="toastText">Action enregistrée !</span>
     </div>
 
+
     <!-- NAV BAR - FOOTER -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-30 shadow-lg pb-safe">
-        <div class="max-w-md mx-auto px-4 py-2 flex justify-around text-slate-400">
-            <button id="navBtn-dashboard" class="flex flex-col items-center space-y-1 text-amber-500">
-                <i class="fa-solid fa-truck text-base"></i>
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200/80 z-30 shadow-lg pb-safe pt-2 px-4">
+        <div class="max-w-md mx-auto flex space-x-1 bg-slate-200/80 p-1 rounded-xl shadow-inner">
+            <button id="navBtn-dashboard" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm">
+                <i class="fa-solid fa-truck text-sm"></i>
                 <span class="text-[9px] font-bold">Mes Camions</span>
             </button>
-            <button id="navBtn-report" class="flex flex-col items-center space-y-1 hover:text-slate-600 transition text-slate-400">
-                <i class="fa-solid fa-bolt text-base"></i>
+            <button id="navBtn-report" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
+                <i class="fa-solid fa-bolt text-sm"></i>
                 <span class="text-[9px] font-bold">Signaler</span>
             </button>
-            <button id="navBtn-inventory" class="flex flex-col items-center space-y-1 hover:text-slate-600 transition text-slate-400">
-                <i class="fa-solid fa-calendar-check text-base"></i>
+            <button id="navBtn-inventory" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
+                <i class="fa-solid fa-calendar-check text-sm"></i>
                 <span class="text-[9px] font-bold">Mensuel</span>
             </button>
-            <button id="navBtn-team" class="flex flex-col items-center space-y-1 hover:text-slate-600 transition text-slate-400">
-                <i class="fa-solid fa-award text-base"></i>
+            <button id="navBtn-team" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
+                <i class="fa-solid fa-award text-sm"></i>
                 <span class="text-[9px] font-bold">Équipe</span>
             </button>
         </div>
@@ -687,11 +669,6 @@
                 showToast(`👤 Utilisateur actif : ${currentUser}`);
             });
 
-            // Tabs Click listeners
-            document.getElementById('tabBtn-dashboard').addEventListener('click', () => switchTab('dashboard'));
-            document.getElementById('tabBtn-report').addEventListener('click', () => switchTab('report'));
-            document.getElementById('tabBtn-inventory').addEventListener('click', () => switchTab('inventory'));
-            document.getElementById('tabBtn-team').addEventListener('click', () => switchTab('team'));
 
             document.getElementById('navBtn-dashboard').addEventListener('click', () => switchTab('dashboard'));
             document.getElementById('navBtn-report').addEventListener('click', () => switchTab('report'));
@@ -780,6 +757,7 @@
             }
         }
 
+
         // Switch Screen Tabs
         function switchTab(tabId) {
             playSound('pop');
@@ -797,25 +775,14 @@
 
             const tabs = ['dashboard', 'report', 'inventory', 'team'];
 
-            // Reset top buttons
-            tabs.forEach(t => {
-                const btn = document.getElementById('tabBtn-' + t);
-                if (!btn) return;
-                if (t === tabId) {
-                    btn.className = "flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm";
-                } else {
-                    btn.className = "flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900";
-                }
-            });
-
-            // Reset footer buttons
+            // Reset footer buttons to sliding pill color scheme
             tabs.forEach(t => {
                 const navBtn = document.getElementById('navBtn-' + t);
                 if (!navBtn) return;
                 if (t === tabId) {
-                    navBtn.className = "flex flex-col items-center space-y-1 text-amber-500";
+                    navBtn.className = "flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm";
                 } else {
-                    navBtn.className = "flex flex-col items-center space-y-1 hover:text-slate-600 transition text-slate-400";
+                    navBtn.className = "flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900";
                 }
             });
 

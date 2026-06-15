@@ -2,7 +2,7 @@
 <html lang="fr" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>CamionCheck - Inventaire Ludique de Chantier</title>
     
     <!-- PWA Meta Tags -->
@@ -100,26 +100,6 @@
             </div>
         </div>
 
-        <!-- SECTIONS NAV / TABS -->
-        <div class="flex space-x-1 bg-slate-200/80 p-1 rounded-xl">
-            <button id="tabBtn-dashboard" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm">
-                <i class="fa-solid fa-chart-simple text-sm"></i>
-                <span>Tableau</span>
-            </button>
-            <button id="tabBtn-report" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-bolt text-sm"></i>
-                <span>Signaler</span>
-            </button>
-            <button id="tabBtn-inventory" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-calendar-check text-sm"></i>
-                <span>Mensuel</span>
-            </button>
-            <button id="tabBtn-team" class="flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-award text-sm"></i>
-                <span>Équipe</span>
-            </button>
-        </div>
-
         <!-- ================= PAGE 1 : DASHBOARD ================= -->
         <div id="page-dashboard" class="space-y-6">
             
@@ -127,14 +107,14 @@
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">État des Camions</h3>
-                    <button id="btnOpenManageTools" class="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center space-x-1 animate-pulse">
+                    <button id="btnOpenManageTools" class="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center space-x-1">
                         <i class="fa-solid fa-plus-circle"></i>
                         <span>Gérer le matériel</span>
                     </button>
                 </div>
                 
                 <div class="grid grid-cols-1 gap-3">
-                    <!-- Camion 1 -->
+                    <!-- Camion A -->
                     <div id="truckCard-0" class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-3">
@@ -155,7 +135,7 @@
                         </div>
                     </div>
 
-                    <!-- Camion 2 -->
+                    <!-- Camion B -->
                     <div id="truckCard-1" class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-3">
@@ -551,24 +531,27 @@
             "Yann": { score: 45, checks: 2, badges: [] }
         };
 
-        // Initialize App & Firebase connection
-        window.addEventListener('DOMContentLoaded', async () => {
+        // Execution immediate au chargement du script (Garantit le bon fonctionnement sur mobile et Web)
+        const init = async () => {
+            // 1. Enregistre TOUS les écouteurs de clics immédiatement
             setupLocalEventListeners();
             
+            // 2. Dessine l'interface tout de suite avec les données locales 
+            // pour éviter d'attendre la réponse du réseau Firebase (PWA ultra-rapide)
+            updateUI();
+            changeReportTruckDropdown();
+            
+            // 3. Tente la synchronisation Cloud silencieuse en tâche de fond
             if (firebaseConfig) {
                 try {
                     const app = initializeApp(firebaseConfig);
                     auth = getAuth(app);
                     db = getFirestore(app);
+                    
+                    document.getElementById('cloudStatusIndicator').innerHTML = '☁️ Connexion...';
+                    document.getElementById('cloudStatusIndicator').className = "text-[9px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full flex items-center gap-1";
 
-                    // Auth first before querying
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    onAuthStateChanged(auth, (user) => {
+                    onAuthStateChanged(auth, async (user) => {
                         if (user) {
                             userId = user.uid;
                             document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
@@ -576,7 +559,7 @@
                             document.getElementById('cloudStatusIndicator').className = "text-[9px] font-bold bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
                             isOnline = true;
                             
-                            // Setup Realtime synchronization listener (RULE 1 & 2)
+                            // Ecouteur temps réel (Synchronisation instantanée avec l'équipe)
                             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
                             onSnapshot(docRef, (docSnap) => {
                                 if (docSnap.exists()) {
@@ -588,13 +571,24 @@
                                     changeReportTruckDropdown();
                                     if (activeTab === 'inventory') renderInventoryPage();
                                 } else {
-                                    // First time initialization in firestore
                                     pushStateToCloud();
                                 }
                             }, (error) => {
                                 console.error("Erreur Sync Firestore:", error);
                                 showToast("⚠️ Erreur de synchronisation, mode local actif.");
                             });
+                        } else {
+                            // Tente l'authentification si non connecté
+                            try {
+                                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                    await signInWithCustomToken(auth, __initial_auth_token);
+                                } else {
+                                    await signInAnonymously(auth);
+                                }
+                            } catch (authError) {
+                                console.error("Échec auth:", authError);
+                                setupFallback();
+                            }
                         }
                     });
                 } catch (e) {
@@ -604,7 +598,7 @@
             } else {
                 setupFallback();
             }
-        });
+        };
 
         function setupFallback() {
             document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
@@ -614,7 +608,6 @@
             changeReportTruckDropdown();
         }
 
-        // Cloud write state (RULE 1)
         async function pushStateToCloud() {
             if (!isOnline || !userId) return;
             try {
@@ -631,58 +624,53 @@
             }
         }
 
-        // Setup App UI bindings
+        // Configuration des écouteurs d'événements (SÉCURISÉE)
         function setupLocalEventListeners() {
-            // User Selector change
+            // Sélecteur d'utilisateur
             document.getElementById('userSelector').addEventListener('change', (e) => {
                 currentUser = e.target.value;
                 showToast(`👤 Utilisateur actif : ${currentUser}`);
             });
 
-            // Tabs Click listeners
-            document.getElementById('tabBtn-dashboard').addEventListener('click', () => switchTab('dashboard'));
-            document.getElementById('tabBtn-report').addEventListener('click', () => switchTab('report'));
-            document.getElementById('tabBtn-inventory').addEventListener('click', () => switchTab('inventory'));
-            document.getElementById('tabBtn-team').addEventListener('click', () => switchTab('team'));
-
+            // Écouteurs de la barre d'onglets du bas (Unique navigation)
             document.getElementById('navBtn-dashboard').addEventListener('click', () => switchTab('dashboard'));
             document.getElementById('navBtn-report').addEventListener('click', () => switchTab('report'));
             document.getElementById('navBtn-inventory').addEventListener('click', () => switchTab('inventory'));
             document.getElementById('navBtn-team').addEventListener('click', () => switchTab('team'));
 
-            // Click on truck cards
+            // Clic sur les camions
             document.getElementById('truckCard-0').addEventListener('click', () => openTruckDetails(0));
             document.getElementById('truckCard-1').addEventListener('click', () => openTruckDetails(1));
 
-            // Notifier page select truck
+            // Sélection camion page signaler
             document.getElementById('reportTruck-0').addEventListener('click', () => selectReportTruck(0));
             document.getElementById('reportTruck-1').addEventListener('click', () => selectReportTruck(1));
 
-            // Submit notifications
+            // Envoi des formulaires
             document.getElementById('btnSubmitMissing').addEventListener('click', () => submitReport('missing'));
             document.getElementById('btnSubmitPresent').addEventListener('click', () => submitReport('present'));
 
-            // Monthly inventory select truck
+            // Sélection camion page mensuel
             document.getElementById('invTruckBtn-0').addEventListener('click', () => selectInventoryTruck(0));
             document.getElementById('invTruckBtn-1').addEventListener('click', () => selectInventoryTruck(1));
 
-            // Monthly categories filters
+            // Filtres de catégories
             document.getElementById('catFilter-All').addEventListener('click', () => filterInventoryCategory('All'));
             document.getElementById('catFilter-Outillage').addEventListener('click', () => filterInventoryCategory('Outillage'));
             document.getElementById('catFilter-Sécurité').addEventListener('click', () => filterInventoryCategory('Sécurité'));
             document.getElementById('catFilter-Consommables').addEventListener('click', () => filterInventoryCategory('Consommables'));
 
-            // Final validate monthly inventory
+            // Validation finale mensuel
             document.getElementById('btnFinishMonthly').addEventListener('click', () => finishMonthlyInventory());
 
-            // Modal actions
+            // Modales
             document.getElementById('btnCloseDetails').addEventListener('click', () => closeTruckDetails());
             document.getElementById('btnDetailsReport').addEventListener('click', () => {
                 closeTruckDetails();
                 switchTab('report');
             });
 
-            // Management model actions
+            // Modale de gestion du matériel
             document.getElementById('btnOpenManageTools').addEventListener('click', () => openManageToolsModal());
             document.getElementById('btnCloseManageTools').addEventListener('click', () => closeManageToolsModal());
             document.getElementById('manageTab-0').addEventListener('click', () => switchManageTruckTab(0));
@@ -690,7 +678,7 @@
             document.getElementById('btnSaveNewTool').addEventListener('click', () => addNewTool());
         }
 
-        // Audio synthesis for micro interactions
+        // Effets sonores
         function playSound(type) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -737,34 +725,23 @@
             }
         }
 
-        // Switch Screen Tabs
+        // Changement d'écran d'onglet
         function switchTab(tabId) {
             playSound('pop');
             activeTab = tabId;
             
-            // Hide all pages
+            // Masquer toutes les sections
             document.getElementById('page-dashboard').classList.add('hidden');
             document.getElementById('page-report').classList.add('hidden');
             document.getElementById('page-inventory').classList.add('hidden');
             document.getElementById('page-team').classList.add('hidden');
             
-            // Show requested
+            // Afficher l'onglet actif
             document.getElementById('page-' + tabId).classList.remove('hidden');
 
             const tabs = ['dashboard', 'report', 'inventory', 'team'];
 
-            // Reset top buttons
-            tabs.forEach(t => {
-                const btn = document.getElementById('tabBtn-' + t);
-                if (!btn) return;
-                if (t === tabId) {
-                    btn.className = "flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm";
-                } else {
-                    btn.className = "flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900";
-                }
-            });
-
-            // Reset footer buttons
+            // Réinitialiser les boutons d'onglets du bas
             tabs.forEach(t => {
                 const navBtn = document.getElementById('navBtn-' + t);
                 if (!navBtn) return;
@@ -782,7 +759,7 @@
             }
         }
 
-        // Global UI Update
+        // Mise à jour de l'interface utilisateur
         function updateUI() {
             let totalItems = 0;
             let presentItems = 0;
@@ -821,7 +798,6 @@
                 }
             });
 
-            // Update team score
             const teamScore = totalItems > 0 ? Math.round((presentItems / totalItems) * 100) : 100;
             const teamScoreEl = document.getElementById('teamScore');
             const teamScoreLabel = document.getElementById('teamScoreLabel');
@@ -841,7 +817,7 @@
             renderTeamPage();
         }
 
-        // Render Activity Feed
+        // Historique des activités
         function renderActivityFeed() {
             const feedEl = document.getElementById('activityFeed');
             if (!feedEl) return;
@@ -854,7 +830,7 @@
 
             feed.forEach(item => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-start space-x-3 text-xs border-b border-slate-50 pb-3 last:border-0 last:pb-0 animate-fade-in";
+                itemDiv.className = "flex items-start space-x-3 text-xs border-b border-slate-50 pb-3 last:border-0 last:pb-0";
 
                 let icon = '';
                 let bgStyle = '';
@@ -894,7 +870,7 @@
             });
         }
 
-        // Render dynamic team score & badges page
+        // Classement & Badges d'équipe
         function renderTeamPage() {
             const teamContainer = document.getElementById('teamList');
             if (!teamContainer) return;
@@ -907,11 +883,10 @@
                 "Yann": "👨"
             };
 
-            // Convert and dynamically update badges based on scores to keep game aspect active
             Object.keys(teamScores).forEach(user => {
                 const data = teamScores[user];
+                if (!data) return;
                 
-                // Recalculate badges based on performance
                 let badges = [];
                 if (data.score >= 140) badges.push("👑 Grand Maître");
                 else if (data.score >= 100) badges.push("🛡️ Gardien");
@@ -950,17 +925,17 @@
             });
         }
 
-        // --- MANAGE DETAILED TRUCK VIEW (MODAL) ---
+        // Fenêtre détails camion (Inspecter)
         function openTruckDetails(truckIndex) {
             playSound('pop');
             selectedTruckIndexForDetails = truckIndex;
             const truck = trucks[truckIndex];
+            if (!truck) return;
 
             document.getElementById('modalTruckName').innerText = truck.name;
             document.getElementById('modalTruckDesc').innerText = truck.desc;
             document.getElementById('modalTruckIcon').innerText = truck.emoji;
 
-            // Progress bar
             const truckTotal = truck.equipment.length;
             const truckPresent = truck.equipment.filter(e => e.present).length;
             const score = truckTotal > 0 ? Math.round((truckPresent / truckTotal) * 100) : 100;
@@ -971,7 +946,6 @@
             else if (score >= 80) progress.className = "bg-amber-500 h-2.5 rounded-full";
             else progress.className = "bg-rose-500 h-2.5 rounded-full";
 
-            // List items
             const listEl = document.getElementById('modalEquipmentList');
             listEl.innerHTML = '';
 
@@ -1015,12 +989,11 @@
             modal.classList.remove('opacity-100');
         }
 
-        // --- NOTIFIER / REPORT PAGE LOGIC ---
+        // Section Signalement rapide
         function selectReportTruck(truckIndex) {
             playSound('pop');
             currentReportTruck = truckIndex;
             
-            // Highlight button selection
             document.getElementById('reportTruck-0').className = truckIndex === 0 
                 ? "py-3 px-4 border-2 border-amber-500 bg-amber-50/30 text-slate-900 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all"
                 : "py-3 px-4 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all";
@@ -1038,7 +1011,7 @@
             selectEl.innerHTML = '';
             
             const truck = trucks[currentReportTruck];
-            if (truck.equipment.length === 0) {
+            if (!truck || !truck.equipment || truck.equipment.length === 0) {
                 selectEl.innerHTML = '<option value="">(Aucun équipement disponible)</option>';
                 return;
             }
@@ -1058,7 +1031,9 @@
                 return;
             }
             const truck = trucks[currentReportTruck];
+            if (!truck || !truck.equipment) return;
             const itemIndex = truck.equipment.findIndex(e => e.id === itemId);
+            if (itemIndex === -1) return;
             const item = truck.equipment[itemIndex];
 
             const isPresent = action === 'present';
@@ -1075,7 +1050,6 @@
                 reason = document.getElementById('reportReason').value;
             }
 
-            // Log activity
             feed.unshift({
                 user: currentUser,
                 action: action,
@@ -1085,9 +1059,8 @@
                 time: "À l'instant"
             });
 
-            // Reward User score
             if (teamScores[currentUser]) {
-                teamScores[currentUser].score += 5; // +5 pts for quick signal
+                teamScores[currentUser].score += 5;
             }
 
             playSound('success');
@@ -1095,19 +1068,18 @@
             
             updateUI();
             changeReportTruckDropdown();
-            await pushStateToCloud(); // Synchronize with firestore
+            await pushStateToCloud();
 
             setTimeout(() => {
                 switchTab('dashboard');
             }, 800);
         }
 
-        // --- INVENTAIRE MENSUEL LOGIC ---
+        // Section Inventaire Mensuel
         function selectInventoryTruck(truckIndex) {
             playSound('pop');
             currentInventoryTruck = truckIndex;
 
-            // Style buttons
             document.getElementById('invTruckBtn-0').className = truckIndex === 0
                 ? "flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-950 shadow-sm transition"
                 : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/50 transition";
@@ -1123,7 +1095,6 @@
             playSound('pop');
             activeCategoryFilter = category;
 
-            // Render categories button styles
             const categories = ['All', 'Outillage', 'Sécurité', 'Consommables'];
             categories.forEach(cat => {
                 const btn = document.getElementById('catFilter-' + cat);
@@ -1140,7 +1111,9 @@
         async function toggleItemStatus(itemId) {
             playSound('pop');
             const truck = trucks[currentInventoryTruck];
+            if (!truck || !truck.equipment) return;
             const item = truck.equipment.find(e => e.id === itemId);
+            if (!item) return;
             item.present = !item.present;
             
             renderInventoryPage();
@@ -1154,12 +1127,12 @@
             container.innerHTML = '';
             
             const truck = trucks[currentInventoryTruck];
+            if (!truck || !truck.equipment) return;
             const filteredEquipment = truck.equipment.filter(item => {
                 if (activeCategoryFilter === "All") return true;
                 return item.category === activeCategoryFilter;
             });
 
-            // Update stats
             const total = truck.equipment.length;
             const checked = truck.equipment.filter(e => e.present).length;
             document.getElementById('inventoryProgressText').innerText = `${checked} / ${total} éléments à bord`;
@@ -1194,7 +1167,6 @@
                     </button>
                 `;
 
-                // Add button action
                 itemDiv.querySelector('.toggle-item-btn').addEventListener('click', () => toggleItemStatus(item.id));
                 container.appendChild(itemDiv);
             });
@@ -1205,6 +1177,7 @@
             
             const truckName = currentInventoryTruck === 0 ? "Camion A" : "Camion B";
             const truck = trucks[currentInventoryTruck];
+            if (!truck || !truck.equipment) return;
             const missingCount = truck.equipment.filter(e => !e.present).length;
 
             feed.unshift({
@@ -1216,7 +1189,6 @@
                 time: "À l'instant"
             });
 
-            // Reward User score (Bigger points for complete monthly validation!)
             if (teamScores[currentUser]) {
                 teamScores[currentUser].score += 25;
                 teamScores[currentUser].checks += 1;
@@ -1231,7 +1203,7 @@
             }, 1000);
         }
 
-        // --- MANAGE TOOLS SYSTEM ---
+        // Section Paramètres de gestion des outils
         function openManageToolsModal() {
             playSound('pop');
             const modal = document.getElementById('manageToolsModal');
@@ -1267,7 +1239,7 @@
             listEl.innerHTML = '';
 
             const truck = trucks[currentManageTruck];
-            if (truck.equipment.length === 0) {
+            if (!truck || !truck.equipment || truck.equipment.length === 0) {
                 listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucun matériel.</p>';
                 return;
             }
@@ -1286,7 +1258,6 @@
                     </span>
                 `;
 
-                // Assign delete tool handler
                 itemDiv.querySelector('.delete-tool-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     deleteTool(item.id);
@@ -1318,8 +1289,6 @@
             };
 
             trucks[targetTruckIdx].equipment.push(newItem);
-            
-            // Clean input
             document.getElementById('addToolName').value = '';
 
             playSound('success');
@@ -1333,6 +1302,7 @@
 
         async function deleteTool(id) {
             const truck = trucks[currentManageTruck];
+            if (!truck || !truck.equipment) return;
             const itemIdx = truck.equipment.findIndex(e => e.id === id);
             if (itemIdx === -1) return;
 
@@ -1348,7 +1318,7 @@
             await pushStateToCloud();
         }
 
-        // --- TOAST NOTIFICATIONS ---
+        // Toasts
         let toastTimeout;
         function showToast(text) {
             const toast = document.getElementById('toast');
@@ -1363,6 +1333,9 @@
                 toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none";
             }, 3000);
         }
+
+        // Lancement immédiat de l'initialisation de l'application
+        init();
     </script>
 </body>
 </html>

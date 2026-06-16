@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-slate-50">
+<html lang="fr" class="h-full bg-slate-950">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamionCheck - Inventaire Ludique de Chantier</title>
+    <title>CamionCheck Pro - Gestion de Flotte de Chantier</title>
     
     <!-- PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,9 +12,9 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=192&h=192&q=80">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS pour un rendu graphique professionnel -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome pour charger les icônes de chantier et d'interface -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -24,20 +24,22 @@
             -webkit-tap-highlight-color: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
+            height: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: rgba(15, 23, 42, 0.3);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
+            background: #475569;
+            border-radius: 6px;
         }
-        /* PARE-FEU DE SECOURS (Fallback CSS) : Si Tailwind ne charge pas, l'application reste propre */
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
+        }
         .hidden {
             display: none !important;
         }
-        /* Animation fade-in pour les transitions d'onglets */
         .animate-fade-in {
             animation: fadeIn 0.25s ease-out forwards;
         }
@@ -47,462 +49,589 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col antialiased text-slate-800 select-none">
+<body class="h-full min-h-screen text-slate-100 antialiased overflow-x-hidden select-none">
 
-    <!-- TOP HEADER -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 pt-safe">
-        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <div class="bg-amber-500 text-slate-950 p-2 rounded-xl flex items-center justify-center font-black text-xl shadow-inner animate-bounce">
-                    🚚
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight">CamionCheck</h1>
-                    <p class="text-xs text-slate-400">Vos outils toujours au complet</p>
-                </div>
-            </div>
-            
-            <div class="flex flex-col items-end space-y-1">
-                <!-- User Selector -->
-                <div class="relative inline-block">
-                    <select id="userSelector" class="bg-slate-800 text-xs text-amber-400 font-semibold py-1.5 px-3 pr-8 rounded-lg border border-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500">
-                        <!-- Rempli dynamiquement en JS pour refléter l'équipe en temps réel -->
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-amber-400">
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </div>
-                </div>
-                <!-- Cloud Status Indicator -->
-                <span id="cloudStatusIndicator" class="text-[9px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    ☁️ Connexion...
-                </span>
-            </div>
-        </div>
-    </header>
+    <!-- CONTENEUR GLOBAL SPLIT (Mobile Simulator Left, PC Control Center Right) -->
+    <div class="min-h-screen w-full flex flex-col lg:flex-row bg-slate-950">
 
-    <!-- MAIN CONTAINER (Mobile Centered) -->
-    <main class="flex-1 max-w-md w-full mx-auto p-4 pb-28 overflow-y-auto space-y-6">
-
-        <!-- SYSTEME DE GAMIFICATION / SCORE DE L'EQUIPE -->
-        <div class="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-slate-800">
-            <!-- Decorative light reflection -->
-            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
-            
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-50/10 border border-amber-500/30 px-2.5 py-1 rounded-full">Score d'équipe actuel</span>
-                    <h2 class="text-4xl font-black mt-3 tracking-tight flex items-baseline space-x-1">
-                        <span id="teamScore">--%</span>
-                        <span class="text-xs font-semibold text-slate-400">de dispo</span>
-                    </h2>
-                    <p class="text-xs text-slate-300 mt-1" id="teamScoreLabel">Chargement des données...</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <span class="text-3xl filter drop-shadow">🏆</span>
-                    <span class="text-[9px] text-amber-400 font-bold tracking-wider uppercase mt-1">Niveau 3</span>
-                </div>
-            </div>
-            
-            <div class="mt-5 pt-4 border-t border-slate-800 flex justify-between text-xs text-slate-400 font-medium">
-                <div>🔥 Série : <span class="font-bold text-amber-400" id="streakDays">12 jours</span></div>
-                <div>⚡ Actifs ce mois : <span class="font-bold text-white">Actif</span></div>
-            </div>
-        </div>
-
-
-        <!-- ================= PAGE 1 : DASHBOARD ================= -->
-        <div id="page-dashboard" class="space-y-6">
-            
-            <!-- NOS CAMIONS DYNAMIQUES -->
-            <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">État des Camions</h3>
-                    <button id="btnOpenManageTools" class="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center space-x-1 animate-pulse">
-                        <i class="fa-solid fa-plus-circle"></i>
-                        <span>Gérer l'application</span>
-                    </button>
-                </div>
+        <!-- ================= COLONNE GAUCHE : LE SIMULATEUR MOBILE ================= -->
+        <div class="w-full lg:max-w-md lg:w-[450px] flex-shrink-0 flex items-center justify-center p-0 sm:p-4 lg:p-8 bg-slate-950">
+            <!-- Mockup physique de smartphone visible uniquement sur PC, devient fluide sur mobile -->
+            <div class="relative w-full h-screen lg:h-[88vh] lg:aspect-[9/19.5] bg-slate-50 text-slate-800 lg:rounded-[40px] lg:border-[12px] lg:border-slate-800 lg:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col">
                 
-                <!-- Zone d'injection dynamique des cartes camions ( Thomas, Lucas, Yann et d'autres ) -->
-                <div id="trucksListContainer" class="grid grid-cols-1 gap-3">
-                    <!-- Les cartes des camions seront injectées dynamiquement par le script JS -->
-                </div>
-            </div>
+                <!-- TOP HEADER MOBILE -->
+                <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 pt-safe flex-shrink-0">
+                    <div class="px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="bg-amber-500 text-slate-950 p-2 rounded-xl flex items-center justify-center font-black text-lg shadow-inner animate-bounce">
+                                🚚
+                            </div>
+                            <div>
+                                <h1 class="text-sm font-bold tracking-tight">CamionCheck</h1>
+                                <p class="text-[10px] text-slate-400">Vos outils de chantier</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col items-end space-y-0.5">
+                            <!-- User Selector -->
+                            <div class="relative inline-block">
+                                <select id="userSelector" class="bg-slate-800 text-[10px] text-amber-400 font-bold py-1 px-2.5 pr-6 rounded-lg border border-slate-700 appearance-none focus:outline-none">
+                                    <!-- Rempli dynamiquement en JS -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-amber-400">
+                                    <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                                </div>
+                            </div>
+                            <!-- Cloud Status Indicator -->
+                            <span id="cloudStatusIndicator" class="text-[8px] font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                                ☁️ Connexion...
+                            </span>
+                        </div>
+                    </div>
+                </header>
 
-            <!-- FIL D'ACTUALITÉ COLLABORATIF -->
-            <div class="space-y-3">
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Activité de l'équipe</h3>
-                <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar" id="activityFeed">
-                    <!-- Dynamic Feed items -->
-                </div>
-            </div>
+                <!-- PORT DE VUE MOBILE DEFILABLE -->
+                <main class="flex-1 p-4 pb-24 overflow-y-auto space-y-5 relative bg-slate-50">
 
-            <!-- CARTE OBJECTIF SEMAINE -->
-            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-4 flex items-start space-x-3">
-                <span class="text-2xl">🎯</span>
-                <div>
-                    <h5 class="font-extrabold text-amber-950 text-xs uppercase tracking-wide">Défi de la semaine</h5>
-                    <p class="text-xs text-amber-900 mt-1 font-medium">Atteignez 100% de dispo sur vos véhicules de chantier pour débloquer le badge de réputation générale !</p>
-                </div>
+                    <!-- SCORE GLOBAL DE LA FLOTTE -->
+                    <div class="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 rounded-3xl p-4 text-white shadow-lg relative overflow-hidden border border-slate-800">
+                        <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-500/15 rounded-full blur-xl pointer-events-none"></div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">Score Général</span>
+                                <h2 class="text-3xl font-black mt-2 tracking-tight flex items-baseline space-x-1">
+                                    <span id="teamScore">--%</span>
+                                    <span class="text-[10px] font-semibold text-slate-400">disponible</span>
+                                </h2>
+                                <p class="text-[10px] text-slate-300 mt-1 leading-snug" id="teamScoreLabel">Calcul en cours...</p>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-2xl filter drop-shadow">🏆</span>
+                                <span class="text-[8px] text-amber-400 font-bold tracking-wider uppercase mt-1">Niveau 3</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between text-[10px] text-slate-400 font-medium">
+                            <div>🔥 Série : <span class="font-bold text-amber-400" id="streakDays">12 jours</span></div>
+                            <div>⚡ Actifs : <span class="font-bold text-white">4 / 4</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PAGE 1 MOBILE : TABLEAU DE BORD ================= -->
+                    <div id="page-dashboard" class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">État des Camions</h3>
+                            <button id="btnOpenManageTools" class="text-[10px] font-bold text-amber-600 hover:text-amber-700 flex items-center space-x-1 animate-pulse">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                <span>Gérer le matériel</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Conteneur d'injection des cartes de camions -->
+                        <div id="trucksListContainer" class="space-y-2.5">
+                            <!-- Rempli en JS -->
+                        </div>
+
+                        <!-- FIL D'ACTUALITÉ COLLABORATIF -->
+                        <div class="space-y-2">
+                            <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Activité de l'équipe</h3>
+                            <div class="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm space-y-3 max-h-[180px] overflow-y-auto custom-scrollbar" id="activityFeed">
+                                <!-- Injecté en JS -->
+                            </div>
+                        </div>
+
+                        <!-- CARTE OBJECTIF SEMAINE -->
+                        <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-3 flex items-start space-x-2.5">
+                            <span class="text-xl">🎯</span>
+                            <div>
+                                <h5 class="font-extrabold text-amber-950 text-[10px] uppercase tracking-wide">Défi de la semaine</h5>
+                                <p class="text-[10px] text-amber-900 mt-0.5 font-medium leading-normal">Atteignez 100% de dispo sur vos véhicules de chantier pour débloquer le badge collectif !</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PAGE 2 MOBILE : NOTIFIER UN MANQUE ================= -->
+                    <div id="page-report" class="space-y-3 hidden">
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
+                            <div class="text-center pb-2 border-b border-slate-100">
+                                <h3 class="font-extrabold text-slate-900 text-sm">Signalement Instantané ⚡</h3>
+                                <p class="text-[10px] text-slate-400">Déclarez un état en 3 clics.</p>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">1. Sélectionnez le camion</label>
+                                <div id="reportTruckButtonsContainer" class="grid grid-cols-2 gap-2">
+                                    <!-- Populated in JS -->
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">2. Choisissez le matériel</label>
+                                <select id="reportItemSelect" class="w-full bg-slate-50 border border-slate-200 text-xs py-2 px-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500">
+                                    <!-- Dynamique -->
+                                </select>
+                            </div>
+
+                            <div class="space-y-1.5" id="reasonContainer">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">3. Raison (Optionnel)</label>
+                                <select id="reportReason" class="w-full bg-slate-50 border border-slate-200 text-xs py-2 px-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500">
+                                    <option value="Emprunté pour le chantier">👤 Emprunté pour le chantier</option>
+                                    <option value="Perdu / Introuvable">🔍 Perdu / Introuvable</option>
+                                    <option value="Cassé / À remplacer">💥 Cassé / À remplacer</option>
+                                    <option value="Consommé / Vide">📦 Consommé / Vide</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1.5 pt-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">4. Quel est l'état ?</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button id="btnSubmitMissing" class="py-2.5 px-2 bg-rose-50 border border-rose-100 text-rose-700 rounded-xl text-[10px] font-bold flex items-center justify-center space-x-1 active:scale-95 transition">
+                                        <span>MANQUANT ❌</span>
+                                    </button>
+                                    <button id="btnSubmitPresent" class="py-2.5 px-2 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl text-[10px] font-bold flex items-center justify-center space-x-1 active:scale-95 transition">
+                                        <span>À BORD ✅</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PAGE 3 MOBILE : INVENTAIRE MENSUEL ================= -->
+                    <div id="page-inventory" class="space-y-3 hidden">
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
+                            <div class="text-center pb-2 border-b border-slate-100">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Mode Chrono 🕹️</span>
+                                <h3 class="font-extrabold text-slate-900 text-sm mt-1">Inventaire Complet</h3>
+                            </div>
+
+                            <div id="inventoryTruckButtonsContainer" class="flex space-x-1 p-1 bg-slate-100 rounded-xl">
+                                <!-- Rempli en JS -->
+                            </div>
+
+                            <div class="flex space-x-1 overflow-x-auto pb-1 custom-scrollbar" id="categoryFilters">
+                                <button id="catFilter-All" class="px-2 py-1 bg-slate-900 text-white rounded-lg text-[9px] font-bold whitespace-nowrap">Tout</button>
+                                <button id="catFilter-Outillage" class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold whitespace-nowrap">Outillage</button>
+                                <button id="catFilter-Sécurité" class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold whitespace-nowrap">Sécurité</button>
+                                <button id="catFilter-Consommables" class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold whitespace-nowrap">Consommables</button>
+                            </div>
+
+                            <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
+                                <!-- Rempli en JS -->
+                            </div>
+
+                            <div class="pt-3 border-t border-slate-100 space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold">
+                                    <span>Vérification :</span>
+                                    <span id="inventoryProgressText">0 / 0</span>
+                                </div>
+                                <button id="btnFinishMonthly" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black rounded-xl text-[10px] shadow-sm active:scale-95 transition flex items-center justify-center space-x-1">
+                                    <i class="fa-solid fa-clipboard-check"></i>
+                                    <span>VALIDER L'INVENTAIRE</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PAGE 4 MOBILE : CLASSEMENT TEAM ================= -->
+                    <div id="page-team" class="space-y-3 hidden">
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
+                            <div class="text-center pb-2 border-b border-slate-100">
+                                <h3 class="font-extrabold text-slate-900 text-sm">La Tribu des Camions 🏆</h3>
+                            </div>
+                            <div class="space-y-3" id="teamList">
+                                <!-- Rempli en JS -->
+                            </div>
+                            <div class="pt-3 border-t border-slate-100 text-center">
+                                <p class="text-[8px] text-slate-400 font-mono" id="myFirebaseUid">ID : Connexion...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+
+                <!-- NAV FOOTER MOBILE PREMIUM (Aux couleurs du haut demandées) -->
+                <nav class="absolute bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200/80 z-35 shadow-lg pb-safe pt-2 px-3 flex-shrink-0">
+                    <div class="flex space-x-1 bg-slate-200/85 p-1 rounded-2xl shadow-inner">
+                        <button id="navBtn-dashboard" class="flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm">
+                            <i class="fa-solid fa-truck text-xs"></i>
+                            <span class="text-[8px] font-extrabold">Mes Camions</span>
+                        </button>
+                        <button id="navBtn-report" class="flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-950">
+                            <i class="fa-solid fa-bolt text-xs"></i>
+                            <span class="text-[8px] font-extrabold">Signaler</span>
+                        </button>
+                        <button id="navBtn-inventory" class="flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-950">
+                            <i class="fa-solid fa-calendar-check text-xs"></i>
+                            <span class="text-[8px] font-extrabold">Mensuel</span>
+                        </button>
+                        <button id="navBtn-team" class="flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-950">
+                            <i class="fa-solid fa-award text-xs"></i>
+                            <span class="text-[8px] font-extrabold">Équipe</span>
+                        </button>
+                    </div>
+                </nav>
+
             </div>
         </div>
 
-        <!-- ================= PAGE 2 : NOTIFIER UN MANQUE (QUOTIDIEN) ================= -->
-        <div id="page-report" class="space-y-4 hidden">
-            <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
-                <div class="text-center pb-3 border-b border-slate-100">
-                    <h3 class="font-extrabold text-slate-900 text-base">Signalement Instantané ⚡</h3>
-                    <p class="text-[11px] text-slate-400 mt-1">Un outil manque ou vient d'être remis ? Notez-le en 3 clics.</p>
+        <!-- ================= COLONNE DROITE : L'INTERFACE DE GESTION PC GÉANTE ================= -->
+        <div class="hidden lg:flex flex-1 flex-col p-8 bg-slate-900 border-l border-slate-800 h-screen overflow-y-auto space-y-6 custom-scrollbar">
+            
+            <!-- EN-TÊTE PC -->
+            <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                        <span>💻</span> CamionCheck Pro — Console de Supervision PC
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Supervisez la flotte, attribuez le matériel et organisez votre équipe de chantier.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                        🔑 Administrateur Général
+                    </span>
+                </div>
+            </div>
+
+            <!-- ENCART DES STATISTIQUES EN TEMPS RÉEL (KPI) -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
+                    <div>
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Véhicules Actifs</span>
+                        <h4 class="text-2xl font-black text-white mt-1" id="pc-kpi-trucks">0</h4>
+                    </div>
+                    <span class="text-3xl bg-slate-900 p-2.5 rounded-xl">🚛</span>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
+                    <div>
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Matériels Suivis</span>
+                        <h4 class="text-2xl font-black text-white mt-1" id="pc-kpi-tools">0</h4>
+                    </div>
+                    <span class="text-3xl bg-slate-900 p-2.5 rounded-xl">🛠️</span>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
+                    <div>
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Disponibilité Moyenne</span>
+                        <h4 class="text-2xl font-black text-amber-500 mt-1" id="pc-kpi-avail">--%</h4>
+                    </div>
+                    <span class="text-3xl bg-slate-900 p-2.5 rounded-xl">📈</span>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
+                    <div>
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Équipe de Chantier</span>
+                        <h4 class="text-2xl font-black text-white mt-1" id="pc-kpi-members">0</h4>
+                    </div>
+                    <span class="text-3xl bg-slate-900 p-2.5 rounded-xl">👥</span>
+                </div>
+            </div>
+
+            <!-- SECTION PRINCIPALE PC DIVISÉE -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                <!-- COLONNE 1 PC : CRÉATION ET GESTION (CAMIONS & ÉQUIPE) -->
+                <div class="space-y-6">
+                    
+                    <!-- AJOUT CAMION FORM -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                        <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            <span>🚛</span> Ajouter un nouveau véhicule
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Nom du camion</label>
+                                <input type="text" id="pcAddTruckName" placeholder="Ex: Fourgon C - Chef d'équipe" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Émoji</label>
+                                    <select id="pcAddTruckEmoji" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                        <option value="🚛">🚛 Gros Porteur</option>
+                                        <option value="🚐">🚐 Fourgonnette</option>
+                                        <option value="🚚">🚚 Camion Plat</option>
+                                        <option value="🚜">🚜 Tractopelle</option>
+                                        <option value="🚗">🚗 Utilitaire</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Activité cible</label>
+                                    <input type="text" id="pcAddTruckDesc" placeholder="Ex: Électricité" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+                            <button id="pcBtnSaveTruck" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-xl text-xs transition duration-200">
+                                + Enregistrer le camion
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AJOUT ÉQUIPIER FORM -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                        <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            <span>👥</span> Ajouter un équipier
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="col-span-2">
+                                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Nom de l'équipier</label>
+                                    <input type="text" id="pcAddMemberName" placeholder="Ex: Bastien" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Avatar Émoji</label>
+                                <select id="pcAddMemberAvatar" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                                    <option value="👨">👨 Ouvrier</option>
+                                    <option value="👩">👩 Ouvrière</option>
+                                    <option value="🧔">🧔 Maçon</option>
+                                    <option value="😎">😎 Chef de chantier</option>
+                                    <option value="👦">👦 Apprenti</option>
+                                </select>
+                            </div>
+                            <button id="pcBtnSaveMember" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-extrabold rounded-xl text-xs transition duration-200">
+                                + Intégrer cet équipier
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GESTION DES CATEGORIES FORM -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                        <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            <span>🏷️</span> Gérer les Catégories
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Nouvelle catégorie</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="pcAddCatName" placeholder="Ex: Matériel Électrique" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                    <button id="pcBtnSaveCat" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-4 rounded-xl text-xs transition duration-200">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-2">Catégories Actives</label>
+                                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar" id="pcCategoriesList">
+                                    <!-- Populated in JS with edit/delete buttons -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Etape 1 : Choisir le Camion Dynamique -->
-                <div class="space-y-2">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Sélectionnez le camion</label>
-                    <div id="reportTruckButtonsContainer" class="grid grid-cols-2 gap-2">
-                        <!-- Les boutons des camions seront peuplés par JS -->
+                <!-- COLONNE 2 PC : SUPERVISION & SUPPRESSION (FLOTTE ET COMPAGNONS) -->
+                <div class="space-y-6 xl:col-span-2">
+                    
+                    <!-- SUPERVISION DE LA FLOTTE (TABLEAU PC) -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
+                            <span>🚛 Ma Flotte de Véhicules Actifs</span>
+                            <span class="text-xs text-slate-500 font-normal">Cliquez sur un camion pour le supprimer</span>
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="pcTrucksGrid">
+                            <!-- Populated in JS with advanced full-width cards showing active counters and delete trigger -->
+                        </div>
+                    </div>
+
+                    <!-- GESTION DE LA TRIBU DE CHANTIER -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
+                            <span>👥 Ma Tribu de Compagnons</span>
+                            <span class="text-xs text-slate-500 font-normal">Consultez l'implication en temps réel</span>
+                        </h3>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left text-xs text-slate-400">
+                                <thead class="text-[10px] text-slate-500 uppercase border-b border-slate-850">
+                                    <tr>
+                                        <th class="py-3 px-2">Équipier</th>
+                                        <th class="py-3 px-2">Score d'implication</th>
+                                        <th class="py-3 px-2">Inventaires terminés</th>
+                                        <th class="py-3 px-2">Badges accumulés</th>
+                                        <th class="py-3 px-2 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pcTeamTableBody" class="divide-y divide-slate-850">
+                                    <!-- Populated in JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- GESTION ET CATALOGUE TOTAL DU MATÉRIEL DES CAMIONS (PC TABLE) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-850 pb-4">
+                    <div>
+                        <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                            <span>🛠️</span> Base de Données Globale du Matériel de Chantier
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Gérez, modifiez le statut, supprimez ou **transférez instantanément** des outils d'un camion à un autre.</p>
+                    </div>
+                    <!-- Formulaire d'ajout rapide d'outil intégré -->
+                    <div class="flex flex-wrap items-center gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                        <input type="text" id="pcFastToolName" placeholder="Nouveau matériel..." class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
+                        <select id="pcFastToolEmoji" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+                            <option value="🛠️">🛠️</option>
+                            <option value="🔧">🔧</option>
+                            <option value="🪚">🪚</option>
+                            <option value="🔌">🔌</option>
+                            <option value="🧯">🧯</option>
+                            <option value="🦺">🦺</option>
+                        </select>
+                        <select id="pcFastToolCategory" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+                            <!-- Populated in JS dynamically -->
+                        </select>
+                        <select id="pcFastToolTruck" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+                            <!-- Populated in JS -->
+                        </select>
+                        <button id="pcBtnFastSaveTool" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-lg transition duration-200">
+                            + Ajouter
+                        </button>
                     </div>
                 </div>
 
-                <!-- Etape 2 : Choisir le Matériel -->
-                <div class="space-y-2">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Choisissez le matériel</label>
-                    <div class="relative">
-                        <select id="reportItemSelect" class="w-full bg-slate-50 border border-slate-200 text-sm py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            <!-- Populated dynamically -->
+                <!-- Filtres et recherche PC -->
+                <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div class="relative w-full sm:max-w-xs">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="pcSearchTools" placeholder="Rechercher un matériel..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-500">Filtrer par véhicule :</span>
+                        <select id="pcFilterTruckSelect" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white focus:outline-none">
+                            <option value="all">🚚 Tous les camions</option>
+                            <!-- Populated in JS -->
                         </select>
                     </div>
                 </div>
 
-                <!-- Etape 3 : Spécifier la raison -->
-                <div class="space-y-2" id="reasonContainer">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">3. Raison (Optionnel)</label>
-                    <select id="reportReason" class="w-full bg-slate-50 border border-slate-200 text-xs py-2 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
-                        <option value="Emprunté pour le chantier">👤 Emprunté pour le chantier</option>
-                        <option value="Perdu / Introuvable">🔍 Perdu / Introuvable</option>
-                        <option value="Cassé / À remplacer">💥 Cassé / À remplacer</option>
-                        <option value="Consommé / Vide">📦 Consommé / Vide</option>
-                    </select>
-                </div>
-
-                <!-- Etape 4 : Action -->
-                <div class="space-y-2 pt-2">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">4. Quel est l'état ?</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="btnSubmitMissing" class="py-3 px-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 active:scale-95 transition">
-                            <i class="fa-solid fa-circle-xmark text-sm"></i>
-                            <span>MANQUANT ❌</span>
-                        </button>
-                        <button id="btnSubmitPresent" class="py-3 px-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 active:scale-95 transition">
-                            <i class="fa-solid fa-circle-check text-sm"></i>
-                            <span>À BORD  ✅</span>
-                        </button>
-                    </div>
+                <!-- Tableau du matériel -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs text-slate-400">
+                        <thead class="text-[10px] text-slate-500 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="py-3 px-4">Équipement</th>
+                                <th class="py-3 px-4">Catégorie</th>
+                                <th class="py-3 px-4">État Actuel</th>
+                                <th class="py-3 px-4">Camion d'Affectation</th>
+                                <th class="py-3 px-4 text-center">Actions rapides</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pcToolsTableBody" class="divide-y divide-slate-850">
+                            <!-- Populated in JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
         </div>
+    </div>
 
-        <!-- ================= PAGE 3 : INVENTAIRE MENSUEL COMPLET ================= -->
-        <div id="page-inventory" class="space-y-4 hidden">
-            <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
-                <div class="text-center pb-2 border-b border-slate-100">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">Mode Ludique Actif 🕹️</span>
-                    <h3 class="font-extrabold text-slate-900 text-base mt-2">L'Inventaire Mensuel Chrono</h3>
-                    <p class="text-[11px] text-slate-400 mt-1">Vérifiez les outils présents d'un simple clic.</p>
-                </div>
-
-                <!-- Choix camion pour inventaire dynamique -->
-                <div id="inventoryTruckButtonsContainer" class="flex space-x-1 p-1 bg-slate-100 rounded-xl">
-                    <!-- Onglets de choix de camions injectés dynamiquement en JS -->
-                </div>
-
-                <!-- Filtres par catégorie -->
-                <div class="flex space-x-1 overflow-x-auto pb-1 custom-scrollbar scrollbar-none" id="categoryFilters">
-                    <button id="catFilter-All" class="px-2.5 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-bold whitespace-nowrap">Tout</button>
-                    <button id="catFilter-Outillage" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold whitespace-nowrap">Outillage</button>
-                    <button id="catFilter-Sécurité" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold whitespace-nowrap">Sécurité</button>
-                    <button id="catFilter-Consommables" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold whitespace-nowrap">Consommables</button>
-                </div>
-
-                <!-- Liste du matériel -->
-                <div class="space-y-2.5 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
-                    <!-- Populated by JS -->
-                </div>
-
-                <!-- Validation finale -->
-                <div class="pt-4 border-t border-slate-100 space-y-2">
-                    <div class="flex justify-between items-center text-xs text-slate-500 font-bold px-1">
-                        <span>Progression :</span>
-                        <span id="inventoryProgressText">0 / 0 vérifiés</span>
-                    </div>
-                    <button id="btnFinishMonthly" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-extrabold rounded-xl text-xs shadow-md active:scale-95 transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-clipboard-check text-sm"></i>
-                        <span>VALIDER L'INVENTAIRE DU MOIS</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= PAGE 4 : CLASSEMENT ET TEAM ================= -->
-        <div id="page-team" class="space-y-4 hidden">
-            <!-- Profils & Badges -->
-            <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
-                <div class="text-center pb-2 border-b border-slate-100">
-                    <h3 class="font-extrabold text-slate-900 text-base">La Tribu des Camions 🏆</h3>
-                    <p class="text-[11px] text-slate-400">Suivez l'implication de l'équipe et vos badges débloqués.</p>
-                </div>
-
-                <!-- Liste des membres de l'équipe -->
-                <div class="space-y-4" id="teamList">
-                    <!-- Dynamically populated -->
-                </div>
-
-                <!-- Display Firebase Unique ID for user discoverability -->
-                <div class="pt-4 border-t border-slate-100 text-center">
-                    <p class="text-[9px] text-slate-400 font-mono tracking-tight" id="myFirebaseUid">
-                        ID Cloud : Connexion en cours...
-                    </p>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- TRUCK DETAILS MODAL -->
-    <div id="detailsModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm flex items-end justify-center z-50 hidden transition-all duration-300">
-        <div class="bg-white rounded-t-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+    <!-- MOCKUP DETAILS MODAL (Pour le simulateur mobile à gauche) -->
+    <div id="detailsModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-end lg:items-center justify-center z-50 hidden transition-all duration-300">
+        <div class="bg-white text-slate-850 rounded-t-3xl lg:rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] lg:max-h-[75vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-2">
                     <span id="modalTruckIcon" class="text-2xl">🚛</span>
                     <div>
-                        <h3 id="modalTruckName" class="font-extrabold text-slate-900 text-base">Détails Camion</h3>
-                        <p id="modalTruckDesc" class="text-xs text-slate-400">Liste complète des équipements</p>
+                        <h3 id="modalTruckName" class="font-extrabold text-slate-900 text-sm">Détails Camion</h3>
+                        <p id="modalTruckDesc" class="text-[10px] text-slate-400">Liste complète des équipements</p>
                     </div>
                 </div>
-                <button id="btnCloseDetails" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2 rounded-full transition w-8 h-8 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
+                <button id="btnCloseDetails" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2 rounded-full transition w-7 h-7 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
 
-            <div class="w-full bg-slate-100 rounded-full h-2.5">
-                <div id="modalTruckProgress" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+                <div id="modalTruckProgress" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
             </div>
 
-            <!-- Liste dynamique du matériel -->
-            <div class="space-y-2 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar" id="modalEquipmentList">
+            <div class="space-y-2 max-h-[35vh] overflow-y-auto pr-1 custom-scrollbar" id="modalEquipmentList">
                 <!-- Dynamique -->
             </div>
 
-            <div class="pt-4 border-t border-slate-100 flex space-x-2">
-                <button id="btnDetailsReport" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-extrabold transition">
+            <div class="pt-2 flex space-x-2">
+                <button id="btnDetailsReport" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition">
                     📝 Signaler un changement
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MANAGE TOOLS MODAL -->
-    <div id="manageToolsModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm flex items-end justify-center z-50 hidden transition-all duration-300">
-        <div class="bg-white rounded-t-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+    <!-- MODAL DE GESTION ADMINISTRATIVE MOBILE -->
+    <div id="manageToolsModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-end justify-center z-50 hidden transition-all duration-300">
+        <div class="bg-white text-slate-850 rounded-t-3xl max-w-md w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <span class="text-2xl">⚙️</span>
+                    <span class="text-xl">⚙️</span>
                     <div>
-                        <h3 class="font-extrabold text-slate-900 text-base">Panneau d'Administration</h3>
-                        <p class="text-xs text-slate-400">Configurez votre flotte, équipe et matériel</p>
+                        <h3 class="font-black text-slate-900 text-sm">Gestion Rapide du Matériel</h3>
+                        <p class="text-[10px] text-slate-400">Ajoutez de l'outillage à votre flotte</p>
                     </div>
                 </div>
-                <button id="btnCloseManageTools" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2 rounded-full transition w-8 h-8 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
+                <button id="btnCloseManageTools" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2 rounded-full transition w-7 h-7 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
 
-            <!-- Menu d'onglets de l'administration globale -->
-            <div class="flex space-x-1 p-1 bg-slate-100 rounded-xl text-xs font-bold shadow-sm">
-                <button id="adminTabBtn-tools" class="flex-1 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition">🛠️ Outils</button>
-                <button id="adminTabBtn-trucks" class="flex-1 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition">🚛 Camions</button>
-                <button id="adminTabBtn-team" class="flex-1 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition">👥 Équipe</button>
-            </div>
-
-            <!-- SECTION 1 : GESTION DES OUTILS -->
-            <div id="adminSection-tools" class="space-y-4">
-                <!-- Formulaire ajout outil -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
-                    <h4 class="text-xs font-bold text-slate-700 uppercase">Ajouter un nouvel outil</h4>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-400 font-bold mb-1">Camion cible</label>
-                            <select id="addToolTruck" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold">
-                                <!-- Rempli dynamiquement par JS -->
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 font-bold mb-1">Catégorie</label>
-                            <select id="addToolCategory" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold">
-                                <option value="Outillage">Outillage</option>
-                                <option value="Sécurité">Sécurité</option>
-                                <option value="Consommables">Consommables</option>
-                            </select>
-                        </div>
+            <!-- Formulaire d'ajout rapide mobile -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                <h4 class="text-[10px] font-bold text-slate-500 uppercase">Nouvel Outil</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[9px] text-slate-400 font-bold uppercase mb-1">Camion cible</label>
+                        <select id="addToolTruck" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-700">
+                            <!-- Populated in JS -->
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 font-bold mb-1">Nom de l'outil / matériel</label>
-                        <div class="flex space-x-2">
-                            <input type="text" id="addToolName" placeholder="Ex: Multimètre Fluke" class="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-amber-500">
-                            <select id="addToolEmoji" class="bg-white border border-slate-200 rounded-lg p-2 text-xs">
-                                <option value="🛠️">🛠️</option>
-                                <option value="🔧">🔧</option>
-                                <option value="🪚">🪚</option>
-                                <option value="🔌">🔌</option>
-                                <option value="🧯">🧯</option>
-                                <option value="🦺">🦺</option>
-                                <option value="📦">📦</option>
-                                <option value="📏">📏</option>
-                                <option value="🔦">🔦</option>
-                                <option value="🔨">🔨</option>
-                                <option value="🩹">🩹</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button id="btnSaveNewTool" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs transition">
-                        + Enregistrer ce matériel
-                    </button>
-                </div>
-
-                <!-- Liste des outils par camion pour suppression -->
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold text-slate-700 uppercase">Équipements enregistrés (Cliquez pour supprimer)</h4>
-                    
-                    <div id="manageTruckTabsContainer" class="flex space-x-2 p-1 bg-slate-100 rounded-xl">
-                        <!-- Rempli dynamiquement en JS -->
-                    </div>
-
-                    <div class="max-h-[25vh] overflow-y-auto pr-1 custom-scrollbar space-y-1.5" id="manageToolsList">
-                        <!-- Populated by JS -->
+                        <label class="block text-[9px] text-slate-400 font-bold uppercase mb-1">Catégorie</label>
+                        <select id="addToolCategory" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-700">
+                            <!-- Populated in JS dynamically -->
+                        </select>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-[9px] text-slate-400 font-bold uppercase mb-1">Désignation du matériel</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="addToolName" placeholder="Ex: Multimètre Fluke" class="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs focus:outline-none">
+                        <select id="addToolEmoji" class="bg-white border border-slate-200 rounded-lg p-2 text-xs text-slate-700">
+                            <option value="🛠️">🛠️</option>
+                            <option value="🔧">🔧</option>
+                            <option value="🪚">🪚</option>
+                            <option value="🔌">🔌</option>
+                            <option value="🧯">🧯</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="btnSaveNewTool" class="w-full py-2 bg-slate-900 text-white font-bold rounded-lg text-xs transition active:scale-95">
+                    + Enregistrer le matériel
+                </button>
             </div>
 
-            <!-- SECTION 2 : GESTION DES CAMIONS -->
-            <div id="adminSection-trucks" class="space-y-4 hidden">
-                <!-- Formulaire ajout camion -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
-                    <h4 class="text-xs font-bold text-slate-700 uppercase">Ajouter un nouveau camion</h4>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-2">
-                            <label class="block text-[10px] text-slate-400 font-bold mb-1">Nom du camion</label>
-                            <input type="text" id="addTruckName" placeholder="Ex: Fourgon C" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-amber-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 font-bold mb-1">Émoji</label>
-                            <select id="addTruckEmoji" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold">
-                                <option value="🚛">🚛</option>
-                                <option value="🚐">🚐</option>
-                                <option value="🚚">🚚</option>
-                                <option value="🚜">🚜</option>
-                                <option value="🚗">🚗</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 font-bold mb-1">Description d'activité</label>
-                        <input type="text" id="addTruckDesc" placeholder="Ex: Maçonnerie, Électricité générale..." class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-amber-500">
-                    </div>
-                    <button id="btnSaveNewTruck" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs transition">
-                        + Enregistrer ce camion
-                    </button>
+            <div class="space-y-3">
+                <h4 class="text-[10px] font-bold text-slate-500 uppercase">Équipements par Camion</h4>
+                <div class="flex space-x-1 p-1 bg-slate-100 rounded-xl" id="manageTruckTabsContainer">
+                    <!-- Populated dynamically -->
                 </div>
-
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase">Camions actifs (Cliquez pour supprimer)</h4>
-                    <div class="max-h-[25vh] overflow-y-auto pr-1 custom-scrollbar space-y-1.5" id="manageTrucksList">
-                        <!-- Populated by JS -->
-                    </div>
+                <div class="max-h-[220px] overflow-y-auto space-y-1.5" id="manageToolsList">
+                    <!-- Populated dynamically -->
                 </div>
             </div>
-
-            <!-- SECTION 3 : GESTION DE L'ÉQUIPE -->
-            <div id="adminSection-team" class="space-y-4 hidden">
-                <!-- Formulaire ajout équipier -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
-                    <h4 class="text-xs font-bold text-slate-700 uppercase">Ajouter un équipier</h4>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-2">
-                            <label class="block text-[10px] text-slate-400 font-bold mb-1">Nom de l'équipier</label>
-                            <input type="text" id="addMemberName" placeholder="Ex: Bastien" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-amber-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 font-bold mb-1">Avatar</label>
-                            <select id="addMemberAvatar" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold">
-                                <option value="👨">👨</option>
-                                <option value="👩">👩</option>
-                                <option value="👦">👦</option>
-                                <option value="👧">👧</option>
-                                <option value="🧔">🧔</option>
-                                <option value="😎">😎</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button id="btnSaveNewMember" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs transition">
-                        + Enregistrer cet équipier
-                    </button>
-                </div>
-
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase">Membres actuels (Cliquez pour supprimer)</h4>
-                    <div class="max-h-[25vh] overflow-y-auto pr-1 custom-scrollbar space-y-1.5" id="manageMembersList">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800">
+    <!-- TOAST NOTIFICATION UNIQUE -->
+    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-[11px] font-semibold py-2 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800">
         <span id="toastIcon">✨</span>
         <span id="toastText">Action enregistrée !</span>
     </div>
 
-
-    <!-- NAV BAR - FOOTER -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200/80 z-30 shadow-lg pb-safe pt-2 px-4">
-        <div class="max-w-md mx-auto flex space-x-1 bg-slate-200/80 p-1 rounded-xl shadow-inner">
-            <button id="navBtn-dashboard" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm">
-                <i class="fa-solid fa-truck text-sm"></i>
-                <span class="text-[9px] font-bold">Mes Camions</span>
-            </button>
-            <button id="navBtn-report" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-bolt text-sm"></i>
-                <span class="text-[9px] font-bold">Signaler</span>
-            </button>
-            <button id="navBtn-inventory" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-calendar-check text-sm"></i>
-                <span class="text-[9px] font-bold">Mensuel</span>
-            </button>
-            <button id="navBtn-team" class="flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900">
-                <i class="fa-solid fa-award text-sm"></i>
-                <span class="text-[9px] font-bold">Équipe</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- PWA Service Worker Registration script -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('PWA Service Worker enregistré !', reg.scope))
-                .catch(err => console.log('Erreur Service Worker PWA', err));
-            });
-        }
-    </script>
-
-    <!-- FIREBASE AND CORE REALTIME SYNCHRONIZATION MODULE -->
+    <!-- MODULE FIREBASE ET SYNCHRONISATION EN DIRECT -->
     <script type="module">
-        // Import Firebase components
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -519,7 +648,7 @@
         let userId = null;
         let db, auth;
 
-        // Déclaration propre des variables globales pour éviter les ReferenceError en mode strict
+        // Variables globales d'état de l'application
         let currentUser = "Moi (Chef)";
         let activeTab = "dashboard";
         let currentReportTruck = 0;
@@ -527,9 +656,13 @@
         let activeCategoryFilter = "All";
         let currentManageTruck = 0;
         let selectedTruckIndexForDetails = 0;
+        let editingCategoryIndex = null; // Track index of the category being renamed inline
 
+        // Dynamic categories list
+        let categories = ["Outillage", "Sécurité", "Consommables", "Matériel Électrique", "Logistique"];
+
+        // Données d'équipements par défaut
         const initialEquipment = [
-            // Camion A
             [
                 { id: "a1", name: "Perforeuse sans fil", category: "Outillage", present: true, emoji: "🛠️" },
                 { id: "a2", name: "Visseuse à chocs", category: "Outillage", present: true, emoji: "⚙️" },
@@ -540,7 +673,6 @@
                 { id: "a7", name: "Boite de vis Spax", category: "Consommables", present: false, emoji: "📦" },
                 { id: "a8", name: "Niveau à bulle", category: "Outillage", present: true, emoji: "📏" }
             ],
-            // Camion B
             [
                 { id: "b1", name: "Scie circulaire", category: "Outillage", present: true, emoji: "🪚" },
                 { id: "b2", name: "Ponceuse vibrante", category: "Outillage", present: true, emoji: "⚙️" },
@@ -554,24 +686,23 @@
 
         let trucks = [
             {
-                name: "Camion A - Master \"Gros Œuvre\"",
-                desc: "Gros œuvre, maçonnerie et électricité générale.",
+                name: "Camion Blanc - Master \"Gros Œuvre\"",
+                desc: "Gros œuvre et maçonnerie.",
                 emoji: "🚛",
                 equipment: JSON.parse(JSON.stringify(initialEquipment[0]))
             },
             {
-                name: "Camion B - Kangoo \"Finitions\"",
-                desc: "Dépannage rapide, placo, peinture et finitions.",
+                name: "Camion Gris - Kangoo \"Finitions\"",
+                desc: "Placo, peinture et finitions.",
                 emoji: "🚐",
                 equipment: JSON.parse(JSON.stringify(initialEquipment[1]))
             }
         ];
 
         let feed = [
+            { user: "Angelo", action: "missing", reason: "Emprunté pour le chantier", item: "Gaine Boudin", truck: "Camion Blanc", time: "À l'instant" },
             { user: "Thomas", action: "missing", reason: "Consommé / Vide", item: "Boite de vis Spax", truck: "Camion A", time: "Hier à 17:30" },
-            { user: "Lucas", action: "present", reason: "", item: "Visseuse à chocs", truck: "Camion A", time: "Hier à 14:15" },
-            { user: "Yann", action: "missing", reason: "Perdu / Introuvable", item: "Spot de chantier LED", truck: "Camion B", time: "Il y a 2 jours" },
-            { user: "Thomas", action: "missing", reason: "Consommé / Vide", item: "Cartouches de Silicone (x3)", truck: "Camion B", time: "Il y a 3 jours" }
+            { user: "Lucas", action: "present", reason: "", item: "Visseuse à chocs", truck: "Camion A", time: "Hier à 14:15" }
         ];
 
         let teamScores = {
@@ -581,78 +712,67 @@
             "Yann": { score: 45, checks: 2, badges: [], avatar: "👨" }
         };
 
-        // Initialize App & Firebase connection
+        // INITIALISATION DE L'APPLICATION
         window.addEventListener('DOMContentLoaded', async () => {
-            setupLocalEventListeners();
+            setupEventListeners();
             
-            if (firebaseConfig) {
-                try {
-                    const app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
 
-                    // Auth first before querying (Règle 3 obligatoires)
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
+                await signInAnonymously(auth);
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
+                        document.getElementById('cloudStatusIndicator').innerHTML = '🟢 Partagé';
+                        document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
+                        isOnline = true;
+                        
+                        // Écouteur Firestore Temps Réel
+                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
+                        onSnapshot(docRef, (docSnap) => {
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                if (data.trucks) trucks = data.trucks;
+                                if (data.feed) feed = data.feed;
+                                if (data.teamScores) teamScores = data.teamScores;
+                                updateUI();
+                                changeReportTruckDropdown();
+                                if (activeTab === 'inventory') renderInventoryPage();
+                            } else {
+                                pushStateToCloud();
+                            }
+                        }, (error) => {
+                            console.error("Firestore Error:", error);
+                            setupLocalFallback();
+                        });
                     }
-
-                    onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
-                            document.getElementById('cloudStatusIndicator').innerHTML = '🟢 Partagé';
-                            document.getElementById('cloudStatusIndicator').className = "text-[9px] font-bold bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
-                            isOnline = true;
-                            
-                            // Setup Realtime synchronization listener (RULE 1 & 2)
-                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
-                            onSnapshot(docRef, (docSnap) => {
-                                if (docSnap.exists()) {
-                                    const data = docSnap.data();
-                                    if (data.trucks) trucks = data.trucks;
-                                    if (data.feed) feed = data.feed;
-                                    if (data.teamScores) teamScores = data.teamScores;
-                                    updateUI();
-                                    changeReportTruckDropdown();
-                                    if (activeTab === 'inventory') renderInventoryPage();
-                                } else {
-                                    // First time initialization in firestore
-                                    pushStateToCloud();
-                                }
-                            }, (error) => {
-                                console.error("Erreur Sync Firestore:", error);
-                                showToast("⚠️ Erreur de synchronisation, mode local actif.");
-                            });
-                        }
-                    });
-                } catch (e) {
-                    console.error("Firebase init failed, switching to offline fallback", e);
-                    setupFallback();
-                }
-            } else {
-                setupFallback();
+                });
+            } catch (e) {
+                console.warn("Utilisation autonome en local.", e);
+                setupLocalFallback();
             }
         });
 
-        function setupFallback() {
+        function setupLocalFallback() {
             document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
-            document.getElementById('cloudStatusIndicator').className = "text-[9px] font-bold bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-500/30";
-            document.getElementById('myFirebaseUid').innerText = `Mode local autonome (sans Cloud)`;
+            document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-amber-500/30";
+            document.getElementById('myFirebaseUid').innerText = `Sauvegarde locale active`;
             updateUI();
             changeReportTruckDropdown();
         }
 
-        // Cloud write state (RULE 1)
         async function pushStateToCloud() {
             if (!isOnline || !userId) return;
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
                 await setDoc(docRef, {
-                    trucks: trucks,
-                    feed: feed,
-                    teamScores: teamScores,
+                    trucks,
+                    feed,
+                    teamScores,
                     lastUpdated: new Date().toISOString(),
                     updatedBy: currentUser
                 });
@@ -661,56 +781,1179 @@
             }
         }
 
-        // Setup App UI bindings
-        function setupLocalEventListeners() {
-            // User Selector change
+        // ÉCOUTEURS D'ÉVÉNEMENTS ET ACTIONS
+        function setupEventListeners() {
+            // Sélecteur d'utilisateur mobile
             document.getElementById('userSelector').addEventListener('change', (e) => {
                 currentUser = e.target.value;
-                showToast(`👤 Utilisateur actif : ${currentUser}`);
+                showToast(`👤 Session : ${currentUser}`);
             });
 
+            // Navigation Mobile
+            const navTabs = ['dashboard', 'report', 'inventory', 'team'];
+            navTabs.forEach(tab => {
+                document.getElementById('navBtn-' + tab).addEventListener('click', () => switchTab(tab));
+            });
 
-            document.getElementById('navBtn-dashboard').addEventListener('click', () => switchTab('dashboard'));
-            document.getElementById('navBtn-report').addEventListener('click', () => switchTab('report'));
-            document.getElementById('navBtn-inventory').addEventListener('click', () => switchTab('inventory'));
-            document.getElementById('navBtn-team').addEventListener('click', () => switchTab('team'));
-
-            // Submit notifications
-            document.getElementById('btnSubmitMissing').addEventListener('click', () => submitReport('missing'));
-            document.getElementById('btnSubmitPresent').addEventListener('click', () => submitReport('present'));
-
-            // Monthly categories filters
-            document.getElementById('catFilter-All').addEventListener('click', () => filterInventoryCategory('All'));
-            document.getElementById('catFilter-Outillage').addEventListener('click', () => filterInventoryCategory('Outillage'));
-            document.getElementById('catFilter-Sécurité').addEventListener('click', () => filterInventoryCategory('Sécurité'));
-            document.getElementById('catFilter-Consommables').addEventListener('click', () => filterInventoryCategory('Consommables'));
-
-            // Final validate monthly inventory
-            document.getElementById('btnFinishMonthly').addEventListener('click', () => finishMonthlyInventory());
-
-            // Modal actions
+            // Modale de détails
             document.getElementById('btnCloseDetails').addEventListener('click', () => closeTruckDetails());
             document.getElementById('btnDetailsReport').addEventListener('click', () => {
                 closeTruckDetails();
                 switchTab('report');
             });
 
-            // Management model actions
+            // Boutons d'état dans le signalement rapide mobile
+            document.getElementById('btnSubmitMissing').addEventListener('click', () => submitReport('missing'));
+            document.getElementById('btnSubmitPresent').addEventListener('click', () => submitReport('present'));
+
+            // Filtres inventaire mobile
+            // Note: listeners for category filters are dynamically attached when filters are rendered.
+
+            document.getElementById('btnFinishMonthly').addEventListener('click', () => finishMonthlyInventory());
+
+            // Modale de gestion d'équipements mobile
             document.getElementById('btnOpenManageTools').addEventListener('click', () => openManageToolsModal());
             document.getElementById('btnCloseManageTools').addEventListener('click', () => closeManageToolsModal());
-            document.getElementById('btnSaveNewTool').addEventListener('click', () => addNewTool());
+            document.getElementById('btnSaveNewTool').addEventListener('click', () => addNewToolMobile());
 
-            // Clics sur les onglets du panneau d'administration global
-            document.getElementById('adminTabBtn-tools').addEventListener('click', () => switchAdminTab('tools'));
-            document.getElementById('adminTabBtn-trucks').addEventListener('click', () => switchAdminTab('trucks'));
-            document.getElementById('adminTabBtn-team').addEventListener('click', () => switchAdminTab('team'));
-
-            // Soumission des formulaires d'ajout de camions et d'équipiers
-            document.getElementById('btnSaveNewTruck').addEventListener('click', () => addNewTruck());
-            document.getElementById('btnSaveNewMember').addEventListener('click', () => addNewMember());
+            // --- LISTENERS DE LA CONSOLE PC UNIS ---
+            document.getElementById('pcBtnSaveTruck').addEventListener('click', () => addNewTruckPC());
+            document.getElementById('pcBtnSaveMember').addEventListener('click', () => addNewMemberPC());
+            document.getElementById('pcBtnFastSaveTool').addEventListener('click', () => addNewToolPC());
+            document.getElementById('pcBtnSaveCat').addEventListener('click', () => {
+                const name = document.getElementById('pcAddCatName').value.trim();
+                addCategoryAction(name);
+            });
+            
+            // Recherche d'outils PC
+            document.getElementById('pcSearchTools').addEventListener('input', () => renderPCToolsTable());
+            document.getElementById('pcFilterTruckSelect').addEventListener('change', () => renderPCToolsTable());
         }
 
-        // Audio synthesis for micro interactions
+        // --- STREAMING_CHUNK: Injecting category sync into Firestore listeners ---
+        window.addEventListener('DOMContentLoaded', async () => {
+            setupEventListeners();
+            
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                await signInAnonymously(auth);
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
+                        document.getElementById('cloudStatusIndicator').innerHTML = '🟢 Partagé';
+                        document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
+                        isOnline = true;
+                        
+                        // Écouteur Firestore Temps Réel
+                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
+                        onSnapshot(docRef, (docSnap) => {
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                if (data.trucks) trucks = data.trucks;
+                                if (data.feed) feed = data.feed;
+                                if (data.teamScores) teamScores = data.teamScores;
+                                if (data.categories) categories = data.categories;
+                                updateUI();
+                                changeReportTruckDropdown();
+                                if (activeTab === 'inventory') renderInventoryPage();
+                            } else {
+                                pushStateToCloud();
+                            }
+                        }, (error) => {
+                            console.error("Firestore Error:", error);
+                            setupLocalFallback();
+                        });
+                    }
+                });
+            } catch (e) {
+                console.warn("Utilisation autonome en local.", e);
+                setupLocalFallback();
+            }
+        });
+
+        function setupLocalFallback() {
+            document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
+            document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-amber-500/30";
+            document.getElementById('myFirebaseUid').innerText = `Sauvegarde locale active`;
+            updateUI();
+            changeReportTruckDropdown();
+        }
+
+        async function pushStateToCloud() {
+            if (!isOnline || !userId) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
+                await setDoc(docRef, {
+                    trucks,
+                    feed,
+                    teamScores,
+                    categories,
+                    lastUpdated: new Date().toISOString(),
+                    updatedBy: currentUser
+                });
+            } catch (err) {
+                console.error("Problème d'écriture Firestore:", err);
+            }
+        }
+
+        // --- PROCÉDURES DE TRANSITION DE PAGE (MOBILE) ---
+        function switchTab(tabId) {
+            playSound('pop');
+            activeTab = tabId;
+            
+            ['dashboard', 'report', 'inventory', 'team'].forEach(t => {
+                document.getElementById('page-' + t).classList.add('hidden');
+                const btn = document.getElementById('navBtn-' + t);
+                btn.className = "flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-950";
+            });
+            
+            document.getElementById('page-' + tabId).classList.remove('hidden');
+            document.getElementById('page-' + tabId).classList.add('animate-fade-in');
+
+            document.getElementById('navBtn-' + tabId).className = "flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm";
+
+            if (tabId === 'inventory') renderInventoryPage();
+            if (tabId === 'team') renderTeamPage();
+        }
+
+        // --- MISE À JOUR GLOBAL DE TOUTES LES INTERFACES (MOBILE & PC) ---
+        function updateUI() {
+            renderMobileHeaderAndSelectors();
+            renderMobileTruckCards();
+            renderActivityFeed();
+            renderTeamPage();
+            renderCategoryFilters();
+            renderPCCategoriesList();
+
+            // Rendu spécifique de l'interface PC
+            updatePCKPIs();
+            renderPCTrucksGrid();
+            renderPCTeamTable();
+            renderPCToolsTable();
+            populatePCToolDropdowns();
+            populateCategoryDropdowns();
+        }
+
+        function renderMobileHeaderAndSelectors() {
+            // Sélecteur d'utilisateur en haut
+            const userSelector = document.getElementById('userSelector');
+            const currentSelected = currentUser;
+            userSelector.innerHTML = '';
+            Object.keys(teamScores).forEach(user => {
+                const opt = document.createElement('option');
+                opt.value = user;
+                opt.innerText = `${teamScores[user].avatar || '👤'} ${user}`;
+                if (user === currentSelected) opt.selected = true;
+                userSelector.appendChild(opt);
+            });
+            if (!teamScores[currentUser]) currentUser = Object.keys(teamScores)[0] || "Moi (Chef)";
+        }
+
+        function renderMobileTruckCards() {
+            const container = document.getElementById('trucksListContainer');
+            container.innerHTML = '';
+
+            if (trucks.length === 0) {
+                container.innerHTML = '<p class="text-[10px] text-slate-400 text-center py-4">Aucun camion enregistré.</p>';
+                return;
+            }
+
+            trucks.forEach((truck, index) => {
+                const total = truck.equipment.length;
+                const present = truck.equipment.filter(e => e.present).length;
+                const score = total > 0 ? Math.round((present / total) * 100) : 100;
+                
+                let badgeClass = "bg-rose-50 text-rose-700 border border-rose-100";
+                let barClass = "bg-rose-500";
+                let summary = `🚨 ${total - present} matériel(s) manquant(s) !`;
+
+                if (score === 100) {
+                    badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-100";
+                    barClass = "bg-emerald-500";
+                    summary = "🏆 Camion impeccable et complet !";
+                } else if (score >= 80) {
+                    badgeClass = "bg-amber-50 text-amber-700 border border-amber-100";
+                    barClass = "bg-amber-500";
+                    summary = `⚠️ Uniquement ${total - present} manquant(s)`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-100 rounded-2xl p-3.5 shadow-sm hover:shadow-md transition cursor-pointer";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">${truck.emoji}</span>
+                            <div>
+                                <h4 class="font-extrabold text-slate-900 text-xs">${truck.name.split(' - ')[0]}</h4>
+                                <p class="text-[9px] text-slate-400">${truck.desc}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-lg ${badgeClass}">${score}%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5">
+                        <div class="h-1.5 rounded-full transition-all duration-500 ${barClass}" style="width: ${score}%;"></div>
+                    </div>
+                    <div class="mt-2.5 flex justify-between items-center text-[9px] text-slate-400">
+                        <span class="font-bold">${summary}</span>
+                        <span class="text-amber-600 font-extrabold">Inspecter <i class="fa-solid fa-chevron-right ml-0.5"></i></span>
+                    </div>
+                `;
+                card.addEventListener('click', () => openTruckDetails(index));
+                container.appendChild(card);
+            });
+        }
+
+        function renderActivityFeed() {
+            const feedEl = document.getElementById('activityFeed');
+            feedEl.innerHTML = '';
+
+            if (feed.length === 0) {
+                feedEl.innerHTML = '<p class="text-[9px] text-slate-400 text-center py-4">Aucune activité récente.</p>';
+                return;
+            }
+
+            feed.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex items-start space-x-2 border-b border-slate-50 pb-2.5 last:border-0 last:pb-0";
+
+                const isPresent = item.action === 'present';
+                const icon = isPresent ? '✅' : '❌';
+                const bg = isPresent ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100';
+                const status = isPresent ? 'a remis à bord' : 'signale qu\'il MANQUE';
+                const reason = (!isPresent && item.reason) ? `<span class="inline-block bg-rose-50 border border-rose-150 text-rose-700 rounded px-1.5 py-0.5 text-[8px] font-bold mt-1 mr-1">${item.reason}</span>` : '';
+
+                itemDiv.innerHTML = `
+                    <div class="p-1.5 rounded-xl text-center flex-shrink-0 border font-bold text-xs ${bg}">
+                        ${icon}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center">
+                            <span class="font-extrabold text-slate-900 text-[10px]">${item.user}</span>
+                            <span class="text-[8px] text-slate-400">${item.time}</span>
+                        </div>
+                        <p class="text-slate-600 mt-0.5 text-[10px] leading-relaxed">${status} : <strong class="text-slate-900">${item.item}</strong></p>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            ${reason}
+                            <span class="inline-block bg-slate-100 text-slate-500 rounded px-1.5 py-0.5 text-[8px] font-bold uppercase">${item.truck}</span>
+                        </div>
+                    </div>
+                `;
+                feedEl.appendChild(itemDiv);
+            });
+        }
+
+        function renderTeamPage() {
+            const container = document.getElementById('teamList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(teamScores).forEach(user => {
+                const data = teamScores[user];
+                const isMe = user === currentUser;
+
+                let badgesHTML = data.badges.map(b => `<span class="text-[8px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded border border-amber-200">${b}</span>`).join(' ');
+                if (!badgesHTML) badgesHTML = `<span class="text-[8px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded">Débutant</span>`;
+
+                const memberDiv = document.createElement('div');
+                memberDiv.className = `flex items-center justify-between p-2 rounded-2xl ${isMe ? 'bg-amber-50/20 border border-amber-100/30' : 'border border-slate-50'}`;
+
+                memberDiv.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-2xl">${data.avatar || '👤'}</span>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-xs">${user} ${isMe ? '(Vous)' : ''}</h4>
+                            <div class="flex flex-wrap gap-1 mt-1">${badgesHTML}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-black text-amber-600 block">${data.score} pts</span>
+                        <span class="text-[8px] text-slate-400">${data.checks} checks</span>
+                    </div>
+                `;
+                container.appendChild(memberDiv);
+            });
+        }
+
+        // --- LOGIQUE MOBILE SIGNALEMENT RAPIDE ---
+        function selectReportTruck(index) {
+            playSound('pop');
+            currentReportTruck = index;
+            changeReportTruckDropdown();
+            renderReportTruckButtons();
+        }
+
+        function renderReportTruckButtons() {
+            const container = document.getElementById('reportTruckButtonsContainer');
+            container.innerHTML = '';
+            trucks.forEach((truck, index) => {
+                const btn = document.createElement('button');
+                const isSelected = index === currentReportTruck;
+                btn.className = isSelected
+                    ? "py-2 px-3 border-2 border-amber-500 bg-amber-50/25 text-slate-900 rounded-xl text-[10px] font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all"
+                    : "py-2 px-3 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-[10px] font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all";
+                btn.innerHTML = `<span>${truck.emoji}</span><span class="font-extrabold text-[9px]">${truck.name.split(' - ')[0]}</span>`;
+                btn.addEventListener('click', () => selectReportTruck(index));
+                container.appendChild(btn);
+            });
+        }
+
+        function changeReportTruckDropdown() {
+            const selectEl = document.getElementById('reportItemSelect');
+            selectEl.innerHTML = '';
+            if (trucks.length === 0 || currentReportTruck >= trucks.length) return;
+
+            const truck = trucks[currentReportTruck];
+            truck.equipment.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.innerText = `${item.emoji} ${item.name} (${item.present ? 'À bord' : 'Absent ❌'})`;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        async function submitReport(action) {
+            const itemId = document.getElementById('reportItemSelect').value;
+            if (!itemId) return;
+
+            const truck = trucks[currentReportTruck];
+            const item = truck.equipment.find(e => e.id === itemId);
+            const isPresent = action === 'present';
+
+            if (item.present === isPresent) {
+                showToast(`ℹ️ "${item.name}" est déjà déclaré dans cet état.`);
+                return;
+            }
+
+            item.present = isPresent;
+            let reason = isPresent ? "" : document.getElementById('reportReason').value;
+
+            feed.unshift({
+                user: currentUser,
+                action,
+                reason,
+                item: item.name,
+                truck: truck.name.split(' - ')[0],
+                time: "À l'instant"
+            });
+
+            if (teamScores[currentUser]) teamScores[currentUser].score += 5;
+
+            playSound('success');
+            showToast(isPresent ? "✅ Outil remis à bord !" : "❌ Signalé manquant !");
+            updateUI();
+            await pushStateToCloud();
+            setTimeout(() => switchTab('dashboard'), 800);
+        }
+
+        // --- INVENTAIRE MENSUEL MOBILE ---
+        function selectInventoryTruck(index) {
+            playSound('pop');
+            currentInventoryTruck = index;
+            renderInventoryPage();
+        }
+
+        // --- STREAMING_CHUNK: Dynamic Category actions and renderer ---
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoryFilters');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Render first option: "Tout"
+            const btnAll = document.createElement('button');
+            btnAll.id = 'catFilter-All';
+            btnAll.className = activeCategoryFilter === 'All'
+                ? "px-2 py-1 bg-slate-900 text-white rounded-lg text-[9px] font-bold whitespace-nowrap"
+                : "px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold whitespace-nowrap";
+            btnAll.innerText = "Tout";
+            btnAll.addEventListener('click', () => filterInventoryCategory('All'));
+            container.appendChild(btnAll);
+
+            // Render all active dynamic categories
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.id = 'catFilter-' + cat;
+                btn.className = activeCategoryFilter === cat
+                    ? "px-2 py-1 bg-slate-900 text-white rounded-lg text-[9px] font-bold whitespace-nowrap"
+                    : "px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-bold whitespace-nowrap";
+                btn.innerText = cat;
+                btn.addEventListener('click', () => filterInventoryCategory(cat));
+                container.appendChild(btn);
+            });
+        }
+
+        function filterInventoryCategory(cat) {
+            playSound('pop');
+            activeCategoryFilter = cat;
+            renderCategoryFilters();
+            renderInventoryPage();
+        }
+
+        // Populates Category options across both mobile/PC tool builders
+        function populateCategoryDropdowns() {
+            const addToolCategory = document.getElementById('addToolCategory');
+            const pcFastToolCategory = document.getElementById('pcFastToolCategory');
+
+            if (addToolCategory) {
+                const prevVal = addToolCategory.value;
+                addToolCategory.innerHTML = '';
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.innerText = cat;
+                    addToolCategory.appendChild(opt);
+                });
+                if (categories.includes(prevVal)) addToolCategory.value = prevVal;
+            }
+
+            if (pcFastToolCategory) {
+                const prevVal = pcFastToolCategory.value;
+                pcFastToolCategory.innerHTML = '';
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.innerText = cat;
+                    pcFastToolCategory.appendChild(opt);
+                });
+                if (categories.includes(prevVal)) pcFastToolCategory.value = prevVal;
+            }
+        }
+
+        // Renders active categories list in the sidebar with Inline Editing & Delete
+        function renderPCCategoriesList() {
+            const listContainer = document.getElementById('pcCategoriesList');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            if (categories.length === 0) {
+                listContainer.innerHTML = '<p class="text-[10px] text-slate-500 text-center py-2">Aucune catégorie.</p>';
+                return;
+            }
+
+            categories.forEach((cat, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs";
+                
+                if (editingCategoryIndex === idx) {
+                    // Inline editor view
+                    row.innerHTML = `
+                        <input type="text" id="pcEditCatInput-${idx}" value="${cat}" class="flex-1 bg-slate-950 border border-amber-500 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none">
+                        <div class="flex gap-1.5 ml-2">
+                            <button class="save-cat-btn text-emerald-400 hover:text-emerald-300 p-1 font-bold"><i class="fa-solid fa-check"></i></button>
+                            <button class="cancel-cat-btn text-slate-400 hover:text-slate-300 p-1 font-bold"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    `;
+                    row.querySelector('.save-cat-btn').addEventListener('click', () => {
+                        const newName = document.getElementById(`pcEditCatInput-${idx}`).value.trim();
+                        saveCategoryEditAction(idx, newName);
+                    });
+                    row.querySelector('.cancel-cat-btn').addEventListener('click', () => {
+                        editingCategoryIndex = null;
+                        renderPCCategoriesList();
+                    });
+                } else {
+                    // Standard list view
+                    row.innerHTML = `
+                        <span class="font-bold text-slate-300 text-[11px]">${cat}</span>
+                        <div class="flex gap-2">
+                            <button class="edit-cat-btn text-amber-400 hover:text-amber-300 p-0.5"><i class="fa-solid fa-pen"></i></button>
+                            <button class="delete-cat-btn text-rose-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    `;
+                    row.querySelector('.edit-cat-btn').addEventListener('click', () => {
+                        editingCategoryIndex = idx;
+                        renderPCCategoriesList();
+                    });
+                    row.querySelector('.delete-cat-btn').addEventListener('click', () => {
+                        deleteCategoryAction(idx);
+                    });
+                }
+                listContainer.appendChild(row);
+            });
+        }
+
+        async function addCategoryAction(name) {
+            if (!name) {
+                showToast("⚠️ Saisissez le nom de la catégorie !");
+                return;
+            }
+            if (categories.includes(name)) {
+                showToast("⚠️ Cette catégorie existe déjà !");
+                return;
+            }
+            categories.push(name);
+            document.getElementById('pcAddCatName').value = '';
+
+            playSound('success');
+            showToast(`🏷️ Catégorie "${name}" enregistrée !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function saveCategoryEditAction(idx, newName) {
+            if (!newName) {
+                showToast("⚠️ Le nom ne peut pas être vide !");
+                return;
+            }
+            const oldName = categories[idx];
+            if (oldName === newName) {
+                editingCategoryIndex = null;
+                renderPCCategoriesList();
+                return;
+            }
+            if (categories.includes(newName) && categories.indexOf(newName) !== idx) {
+                showToast("⚠️ Une catégorie portant ce nom existe déjà !");
+                return;
+            }
+
+            // Cascade Category rename down to all matching tools in every truck
+            trucks.forEach(truck => {
+                truck.equipment.forEach(item => {
+                    if (item.category === oldName) {
+                        item.category = newName;
+                    }
+                });
+            });
+
+            categories[idx] = newName;
+            editingCategoryIndex = null;
+
+            playSound('success');
+            showToast(`🔄 Catégorie "${oldName}" renommée en "${newName}" !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function deleteCategoryAction(idx) {
+            if (categories.length <= 1) {
+                showToast("⚠️ Vous devez conserver au moins 1 catégorie active !");
+                return;
+            }
+            const catToDelete = categories[idx];
+            categories.splice(idx, 1);
+            const fallbackCat = categories[0];
+
+            // Cascade Category deletion: Remap any orphaned tools to the first remaining category
+            let updatedToolsCount = 0;
+            trucks.forEach(truck => {
+                truck.equipment.forEach(item => {
+                    if (item.category === catToDelete) {
+                        item.category = fallbackCat;
+                        updatedToolsCount++;
+                    }
+                });
+            });
+
+            // Adjust active filter if it was the deleted category
+            if (activeCategoryFilter === catToDelete) {
+                activeCategoryFilter = "All";
+            }
+
+            playSound('delete');
+            if (updatedToolsCount > 0) {
+                showToast(`🗑️ "${catToDelete}" supprimée. ${updatedToolsCount} outil(s) réaffecté(s) à "${fallbackCat}"`);
+            } else {
+                showToast(`🗑️ Catégorie "${catToDelete}" supprimée.`);
+            }
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function toggleItemStatus(id) {
+            playSound('pop');
+            const item = trucks[currentInventoryTruck].equipment.find(e => e.id === id);
+            item.present = !item.present;
+            renderInventoryPage();
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        function renderInventoryPage() {
+            // Mettre à jour les onglets de sélection de camion de l'inventaire mobile
+            const tabContainer = document.getElementById('inventoryTruckButtonsContainer');
+            tabContainer.innerHTML = '';
+            trucks.forEach((truck, idx) => {
+                const btn = document.createElement('button');
+                btn.className = idx === currentInventoryTruck
+                    ? "flex-1 py-1 text-[9px] font-bold rounded-lg bg-white text-slate-950 shadow-sm transition"
+                    : "flex-1 py-1 text-[9px] font-bold text-slate-600 hover:bg-white/50 transition";
+                btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
+                btn.addEventListener('click', () => selectInventoryTruck(idx));
+                tabContainer.appendChild(btn);
+            });
+
+            const container = document.getElementById('inventoryItemsList');
+            container.innerHTML = '';
+
+            if (trucks.length === 0 || currentInventoryTruck >= trucks.length) return;
+
+            const truck = trucks[currentInventoryTruck];
+            const filtered = truck.equipment.filter(e => {
+                if (activeCategoryFilter === 'All') return true;
+                return e.category === activeCategoryFilter;
+            });
+
+            // Barre de progression
+            const total = truck.equipment.length;
+            const checked = truck.equipment.filter(e => e.present).length;
+            document.getElementById('inventoryProgressText').innerText = `${checked} / ${total} vérifiés`;
+
+            filtered.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2.5 rounded-xl border transition-all " + (item.present ? "bg-emerald-50/40 border-emerald-100" : "bg-rose-50/40 border-rose-100");
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-base">${item.emoji}</span>
+                        <div>
+                            <span class="text-[10px] font-bold block text-slate-900">${item.name}</span>
+                            <span class="text-[8px] uppercase text-slate-400 font-extrabold tracking-wider">${item.category}</span>
+                        </div>
+                    </div>
+                    <button class="toggle-status-btn px-2 py-1 rounded-lg text-[8px] font-black uppercase text-white shadow-sm active:scale-95 transition ${item.present ? 'bg-emerald-500' : 'bg-rose-500'}">
+                        ${item.present ? 'À Bord' : 'Absent'}
+                    </button>
+                `;
+                row.querySelector('.toggle-status-btn').addEventListener('click', () => toggleItemStatus(item.id));
+                container.appendChild(row);
+            });
+        }
+
+        async function finishMonthlyInventory() {
+            playSound('success');
+            const truck = trucks[currentInventoryTruck];
+            const missing = truck.equipment.filter(e => !e.present).length;
+
+            feed.unshift({
+                user: currentUser,
+                action: 'present',
+                reason: '',
+                item: `📋 INVENTAIRE MENSUEL VALIDÉ (${missing === 0 ? 'Flotte 100% OK' : missing + ' manquant(s)'})`,
+                truck: truck.name.split(' - ')[0],
+                time: "À l'instant"
+            });
+
+            if (teamScores[currentUser]) {
+                teamScores[currentUser].score += 25;
+                teamScores[currentUser].checks += 1;
+            }
+
+            showToast(`🏆 Inventaire mensuel validé ! (+25 pts)`);
+            updateUI();
+            await pushStateToCloud();
+            setTimeout(() => switchTab('dashboard'), 800);
+        }
+
+        // --- MODALES ET PANNEAU DE CONFIGURATION MOBILE ---
+        function openTruckDetails(idx) {
+            playSound('pop');
+            selectedTruckIndexForDetails = idx;
+            const truck = trucks[idx];
+
+            document.getElementById('modalTruckName').innerText = truck.name;
+            document.getElementById('modalTruckDesc').innerText = truck.desc;
+            document.getElementById('modalTruckIcon').innerText = truck.emoji;
+
+            const total = truck.equipment.length;
+            const present = truck.equipment.filter(e => e.present).length;
+            const score = total > 0 ? Math.round((present / total) * 100) : 100;
+            const progress = document.getElementById('modalTruckProgress');
+            progress.style.width = `${score}%`;
+
+            const list = document.getElementById('modalEquipmentList');
+            list.innerHTML = '';
+
+            truck.equipment.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2 border-b border-slate-50 " + (item.present ? "bg-white" : "bg-rose-50/50");
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span>${item.emoji}</span>
+                        <div>
+                            <span class="text-xs font-bold ${item.present ? 'text-slate-800' : 'text-slate-400 line-through'}">${item.name}</span>
+                            <p class="text-[8px] text-slate-400 font-extrabold uppercase">${item.category}</p>
+                        </div>
+                    </div>
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${item.present ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+                        ${item.present ? 'À bord' : 'Absent'}
+                    </span>
+                `;
+                list.appendChild(row);
+            });
+
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        function closeTruckDetails() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        function openManageToolsModal() {
+            playSound('pop');
+            document.getElementById('manageToolsModal').classList.remove('hidden');
+            renderManageToolsList();
+        }
+
+        function closeManageToolsModal() {
+            document.getElementById('manageToolsModal').classList.add('hidden');
+        }
+
+        function renderManageToolsList() {
+            // Onglets des camions
+            const tabs = document.getElementById('manageTruckTabsContainer');
+            tabs.innerHTML = '';
+            trucks.forEach((truck, idx) => {
+                const btn = document.createElement('button');
+                btn.className = idx === currentManageTruck
+                    ? "flex-1 py-1 text-[9px] font-bold bg-white text-slate-950 rounded-lg shadow-sm"
+                    : "flex-1 py-1 text-[9px] font-bold text-slate-500 rounded-lg";
+                btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
+                btn.addEventListener('click', () => { currentManageTruck = idx; renderManageToolsList(); });
+                tabs.appendChild(btn);
+            });
+
+            const list = document.getElementById('manageToolsList');
+            list.innerHTML = '';
+            if (trucks.length === 0 || currentManageTruck >= trucks.length) return;
+
+            const truck = trucks[currentManageTruck];
+            truck.equipment.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-rose-200 hover:bg-rose-50/20 transition cursor-pointer";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span>${item.emoji}</span>
+                        <span class="text-xs font-semibold text-slate-800">${item.name}</span>
+                    </div>
+                    <button class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                row.querySelector('button').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTool(currentManageTruck, item.id);
+                });
+                list.appendChild(row);
+            });
+        }
+
+        async function addNewToolMobile() {
+            const target = parseInt(document.getElementById('addToolTruck').value);
+            const cat = document.getElementById('addToolCategory').value;
+            const name = document.getElementById('addToolName').value.trim();
+            const emoji = document.getElementById('addToolEmoji').value;
+
+            if (!name) return;
+            const newId = (target === 0 ? 'a' : 'b') + Date.now();
+
+            trucks[target].equipment.push({ id: newId, name, category: cat, present: true, emoji });
+            document.getElementById('addToolName').value = '';
+
+            playSound('success');
+            showToast(`⚙️ "${name}" ajouté !`);
+            updateUI();
+            await pushStateToCloud();
+            renderManageToolsList();
+        }
+
+        async function deleteTool(truckIdx, id) {
+            const truck = trucks[truckIdx];
+            const idx = truck.equipment.findIndex(e => e.id === id);
+            if (idx === -1) return;
+
+            const name = truck.equipment[idx].name;
+            truck.equipment.splice(idx, 1);
+
+            playSound('delete');
+            showToast(`🗑️ "${name}" supprimé.`);
+            updateUI();
+            await pushStateToCloud();
+            renderManageToolsList();
+        }
+
+        // =========================================================================
+        // ================= LOGIQUE ET ACTIONS DU PANNEAU PC PRO ==================
+        // =========================================================================
+
+        function updatePCKPIs() {
+            document.getElementById('pc-kpi-trucks').innerText = trucks.length;
+            
+            let totalTools = 0;
+            let presentTools = 0;
+            trucks.forEach(t => {
+                totalTools += t.equipment.length;
+                presentTools += t.equipment.filter(e => e.present).length;
+            });
+
+            document.getElementById('pc-kpi-tools').innerText = totalTools;
+            document.getElementById('pc-kpi-members').innerText = Object.keys(teamScores).length;
+
+            const globalAvail = totalTools > 0 ? Math.round((presentTools / totalTools) * 100) : 100;
+            const kpiAvail = document.getElementById('pc-kpi-avail');
+            kpiAvail.innerText = `${globalAvail}%`;
+            
+            if (globalAvail === 100) kpiAvail.className = "text-2xl font-black text-emerald-400 mt-1";
+            else if (globalAvail >= 80) kpiAvail.className = "text-2xl font-black text-amber-500 mt-1";
+            else kpiAvail.className = "text-2xl font-black text-rose-500 mt-1";
+        }
+
+        function populatePCToolDropdowns() {
+            // Remplir les sélecteurs de camions dans la console PC
+            const pcFastTruckSelect = document.getElementById('pcFastToolTruck');
+            const pcFilterTruckSelect = document.getElementById('pcFilterTruckSelect');
+            const addToolTruckMobile = document.getElementById('addToolTruck');
+
+            const fastSelected = pcFastTruckSelect.value;
+            const filterSelected = pcFilterTruckSelect.value;
+
+            pcFastTruckSelect.innerHTML = '';
+            addToolTruckMobile.innerHTML = '';
+            pcFilterTruckSelect.innerHTML = '<option value="all">🚚 Tous les camions</option>';
+
+            trucks.forEach((truck, index) => {
+                const optFast = document.createElement('option');
+                optFast.value = index;
+                optFast.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
+                pcFastTruckSelect.appendChild(optFast);
+
+                const optMobile = document.createElement('option');
+                optMobile.value = index;
+                optMobile.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
+                addToolTruckMobile.appendChild(optMobile);
+
+                const optFilter = document.createElement('option');
+                optFilter.value = index;
+                optFilter.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
+                pcFilterTruckSelect.appendChild(optFilter);
+            });
+
+            pcFastTruckSelect.value = fastSelected || "0";
+            pcFilterTruckSelect.value = filterSelected || "all";
+        }
+
+        function renderPCTrucksGrid() {
+            const grid = document.getElementById('pcTrucksGrid');
+            grid.innerHTML = '';
+
+            if (trucks.length === 0) {
+                grid.innerHTML = '<div class="col-span-2 text-center text-slate-500 text-xs py-6">Aucun camion actif. Ajoutez-en un à l\'aide du formulaire de gauche.</div>';
+                return;
+            }
+
+            trucks.forEach((truck, index) => {
+                const total = truck.equipment.length;
+                const present = truck.equipment.filter(e => e.present).length;
+                const score = total > 0 ? Math.round((present / total) * 100) : 100;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition duration-200 group";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl bg-slate-900 p-2 rounded-xl group-hover:bg-slate-850 transition">${truck.emoji}</span>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-white">${truck.name}</h4>
+                                <p class="text-[11px] text-slate-500">${truck.desc}</p>
+                            </div>
+                        </div>
+                        <button class="delete-truck-btn opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-400 p-1 text-xs transition duration-200">
+                            <i class="fa-solid fa-trash-can"></i> Supprimer
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-1.5 mt-4">
+                        <div class="flex justify-between items-center text-[10px]">
+                            <span class="text-slate-400 font-bold">${present} / ${total} outils présents</span>
+                            <span class="font-extrabold ${score >= 80 ? 'text-emerald-400' : 'text-rose-400'}">${score}%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-1.5">
+                            <div class="h-1.5 rounded-full transition-all duration-300 ${score === 100 ? 'bg-emerald-500' : (score >= 80 ? 'bg-amber-500' : 'bg-rose-500')}" style="width: ${score}%;"></div>
+                        </div>
+                    </div>
+                `;
+
+                card.querySelector('.delete-truck-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTruckPC(index);
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        async function addNewTruckPC() {
+            const name = document.getElementById('pcAddTruckName').value.trim();
+            const desc = document.getElementById('pcAddTruckDesc').value.trim();
+            const emoji = document.getElementById('pcAddTruckEmoji').value;
+
+            if (!name) {
+                showToast("⚠️ Le nom du camion est requis !");
+                return;
+            }
+
+            trucks.push({
+                name: `${emoji} ${name}`,
+                desc: desc || "Sans description d'activité",
+                emoji,
+                equipment: []
+            });
+
+            document.getElementById('pcAddTruckName').value = '';
+            document.getElementById('pcAddTruckDesc').value = '';
+
+            playSound('success');
+            showToast(`🚛 Camion "${name}" créé !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function deleteTruckPC(index) {
+            if (trucks.length <= 1) {
+                showToast("⚠️ Vous devez garder au moins 1 camion actif dans votre flotte !");
+                return;
+            }
+            const name = trucks[index].name;
+            trucks.splice(index, 1);
+
+            playSound('delete');
+            showToast(`🗑️ "${name}" supprimé.`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        function renderPCTeamTable() {
+            const tbody = document.getElementById('pcTeamTableBody');
+            tbody.innerHTML = '';
+
+            Object.keys(teamScores).forEach(user => {
+                const member = teamScores[user];
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/30 transition";
+
+                let badges = member.badges.map(b => `<span class="bg-amber-500/10 border border-amber-500/20 text-[9px] font-black text-amber-400 px-2 py-0.5 rounded">${b}</span>`).join(' ');
+                if (!badges) badges = '<span class="text-slate-600 text-[10px]">Aucun badge</span>';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-2 flex items-center gap-2">
+                        <span class="text-xl">${member.avatar || '👤'}</span>
+                        <span class="font-extrabold text-white">${user}</span>
+                    </td>
+                    <td class="py-3 px-2 font-bold text-amber-500">${member.score} points</td>
+                    <td class="py-3 px-2 text-slate-400">${member.checks} checklists validées</td>
+                    <td class="py-3 px-2"><div class="flex gap-1 flex-wrap">${badges}</div></td>
+                    <td class="py-3 px-2 text-right">
+                        <button class="delete-member-btn text-rose-500 hover:text-rose-400 font-bold transition text-xs">
+                            <i class="fa-solid fa-user-slash"></i> Retirer
+                        </button>
+                    </td>
+                `;
+
+                tr.querySelector('.delete-member-btn').addEventListener('click', () => deleteMemberPC(user));
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function addNewMemberPC() {
+            const name = document.getElementById('pcAddMemberName').value.trim();
+            const avatar = document.getElementById('pcAddMemberAvatar').value;
+
+            if (!name) {
+                showToast("⚠️ Le nom de l'équipier est requis !");
+                return;
+            }
+
+            if (teamScores[name]) {
+                showToast("⚠️ Cet équipier existe déjà !");
+                return;
+            }
+
+            teamScores[name] = {
+                score: 0,
+                checks: 0,
+                badges: [],
+                avatar
+            };
+
+            document.getElementById('pcAddMemberName').value = '';
+
+            playSound('success');
+            showToast(`👥 Équipier "${name}" enregistré !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function deleteMemberPC(name) {
+            if (Object.keys(teamScores).length <= 1) {
+                showToast("⚠️ Vous devez garder au moins 1 équipier !");
+                return;
+            }
+            if (name === currentUser) {
+                showToast("⚠️ Impossible de vous supprimer vous-même ! Changez de profil en haut d'abord.");
+                return;
+            }
+
+            delete teamScores[name];
+
+            playSound('delete');
+            showToast(`🗑️ Équipier "${name}" retiré de l'équipe.`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        // --- LOGIQUE PC : GRANDE TABLE DES ÉQUIPEMENTS AVEC RECHERCHE ET CHANGER LE TRUCK ---
+        function renderPCToolsTable() {
+            const tbody = document.getElementById('pcToolsTableBody');
+            tbody.innerHTML = '';
+
+            const searchValue = document.getElementById('pcSearchTools').value.toLowerCase().trim();
+            const filterValue = document.getElementById('pcFilterTruckSelect').value;
+
+            let rowCount = 0;
+
+            trucks.forEach((truck, truckIndex) => {
+                // Filtrage si on ne regarde qu'un seul camion
+                if (filterValue !== 'all' && parseInt(filterValue) !== truckIndex) return;
+
+                truck.equipment.forEach(item => {
+                    // Filtrage par moteur de recherche textuel
+                    if (searchValue && !item.name.toLowerCase().includes(searchValue) && !item.category.toLowerCase().includes(searchValue)) return;
+
+                    rowCount++;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-900/30 transition";
+
+                    // Sélection dynamique pour changer de camion (Transfert instantané de matériel)
+                    let transferOptions = '';
+                    trucks.forEach((targetTruck, targetIdx) => {
+                        const isCurrent = targetIdx === truckIndex;
+                        transferOptions += `<option value="${targetIdx}" ${isCurrent ? 'selected disabled' : ''}>${isCurrent ? '📍 Rattaché à :' : '🔄 Transférer vers :'} ${targetTruck.name.split(' - ')[0]}</option>`;
+                    });
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 flex items-center gap-2">
+                            <span class="text-base">${item.emoji}</span>
+                            <span class="font-extrabold text-white text-xs">${item.name}</span>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-slate-500">${item.category}</td>
+                        <td class="py-3 px-4">
+                            <button class="pc-toggle-tool-btn px-2.5 py-1 text-[10px] font-black uppercase rounded-lg shadow-sm transition ${item.present ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'}">
+                                ${item.present ? '✅ Présent à bord' : '❌ Absent / Manquant'}
+                            </button>
+                        </td>
+                        <td class="py-3 px-4">
+                            <select class="pc-transfer-select bg-slate-900 border border-slate-800 text-[11px] font-bold p-1 rounded-lg text-slate-300 focus:outline-none">
+                                ${transferOptions}
+                            </select>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button class="pc-delete-tool-btn text-rose-500 hover:text-rose-400 p-1 font-bold"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+                        </td>
+                    `;
+
+                    // Listeners de la ligne
+                    tr.querySelector('.pc-toggle-tool-btn').addEventListener('click', () => togglePCToolStatus(truckIndex, item.id));
+                    tr.querySelector('.pc-delete-tool-btn').addEventListener('click', () => deletePCTool(truckIndex, item.id));
+                    tr.querySelector('.pc-transfer-select').addEventListener('change', (e) => transferToolPC(truckIndex, item.id, parseInt(e.target.value)));
+
+                    tbody.appendChild(tr);
+                });
+            });
+
+            if (rowCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-500">Aucun outil ne correspond à vos filtres de recherche.</td></tr>';
+            }
+        }
+
+        async function togglePCToolStatus(truckIdx, itemId) {
+            playSound('pop');
+            const item = trucks[truckIdx].equipment.find(e => e.id === itemId);
+            item.present = !item.present;
+
+            // Ajouter à l'activité
+            feed.unshift({
+                user: currentUser,
+                action: item.present ? 'present' : 'missing',
+                reason: 'Ajusté via la console d\'administration PC',
+                item: item.name,
+                truck: trucks[truckIdx].name.split(' - ')[0],
+                time: "À l'instant"
+            });
+
+            showToast(`⚙️ Statut de "${item.name}" modifié.`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function deletePCTool(truckIdx, itemId) {
+            const truck = trucks[truckIdx];
+            const idx = truck.equipment.findIndex(e => e.id === itemId);
+            const name = truck.equipment[idx].name;
+
+            truck.equipment.splice(idx, 1);
+            playSound('delete');
+            showToast(`🗑️ "${name}" supprimé définitivement.`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function transferToolPC(srcTruckIdx, itemId, destTruckIdx) {
+            const srcTruck = trucks[srcTruckIdx];
+            const destTruck = trucks[destTruckIdx];
+
+            const itemIdx = srcTruck.equipment.findIndex(e => e.id === itemId);
+            if (itemIdx === -1) return;
+
+            const item = srcTruck.equipment.splice(itemIdx, 1)[0];
+            destTruck.equipment.push(item);
+
+            playSound('success');
+            showToast(`🔄 "${item.name}" transféré vers "${destTruck.name.split(' - ')[0]}" !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function addNewToolPC() {
+            const name = document.getElementById('pcFastToolName').value.trim();
+            const emoji = document.getElementById('pcFastToolEmoji').value;
+            const cat = document.getElementById('pcFastToolCategory').value;
+            const targetIdx = parseInt(document.getElementById('pcFastToolTruck').value);
+
+            if (!name) {
+                showToast("⚠️ Le nom du matériel est requis !");
+                return;
+            }
+
+            const newId = (targetIdx === 0 ? 'pc-a' : 'pc-b') + Date.now();
+            trucks[targetIdx].equipment.push({
+                id: newId,
+                name,
+                category: cat,
+                present: true,
+                emoji
+            });
+
+            document.getElementById('pcFastToolName').value = '';
+
+            playSound('success');
+            showToast(`⚙️ Outil "${name}" enregistré !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        // --- PROCÉDURES DE NOTIFICATIONS TOAST & AUDIO SIMPLES ---
+        let toastTimeout;
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            toastText.innerText = text;
+            toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-100 translate-y-0 border border-slate-800";
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none";
+            }, 3000);
+        }
+
         function playSound(type) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -753,950 +1996,8 @@
                     osc.stop(ctx.currentTime + 0.2);
                 }
             } catch (e) {
-                console.log('Audio Blocked');
+                // Bloqué
             }
-        }
-
-
-        // Switch Screen Tabs
-        function switchTab(tabId) {
-            playSound('pop');
-            activeTab = tabId;
-            
-            // Hide all pages
-            document.getElementById('page-dashboard').classList.add('hidden');
-            document.getElementById('page-report').classList.add('hidden');
-            document.getElementById('page-inventory').classList.add('hidden');
-            document.getElementById('page-team').classList.add('hidden');
-            
-            // Show requested
-            document.getElementById('page-' + tabId).classList.remove('hidden');
-            document.getElementById('page-' + tabId).classList.add('animate-fade-in');
-
-            const tabs = ['dashboard', 'report', 'inventory', 'team'];
-
-            // Reset footer buttons to sliding pill color scheme
-            tabs.forEach(t => {
-                const navBtn = document.getElementById('navBtn-' + t);
-                if (!navBtn) return;
-                if (t === tabId) {
-                    navBtn.className = "flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm";
-                } else {
-                    navBtn.className = "flex-1 py-2 px-1 rounded-lg text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 text-slate-600 hover:text-slate-900";
-                }
-            });
-
-            if (tabId === 'inventory') {
-                renderInventoryPage();
-            } else if (tabId === 'team') {
-                renderTeamPage();
-            }
-        }
-
-        // Reconstruit dynamiquement tous les sélecteurs, boutons de choix et cartes de camions/équipe de la page
-        function rebuildDynamicElements() {
-            // 1. Peuplement du sélecteur d'utilisateur dans l'en-tête (TOP HEADER)
-            const userSelector = document.getElementById('userSelector');
-            if (userSelector) {
-                const currentSelected = currentUser;
-                userSelector.innerHTML = '';
-                Object.keys(teamScores).forEach(user => {
-                    const opt = document.createElement('option');
-                    opt.value = user;
-                    opt.innerText = `${teamScores[user].avatar || '👤'} ${user}`;
-                    if (user === currentSelected) opt.selected = true;
-                    userSelector.appendChild(opt);
-                });
-                // Si l'utilisateur sélectionné a été supprimé entre-temps, basculer sur le premier membre valide
-                if (!teamScores[currentUser]) {
-                    currentUser = Object.keys(teamScores)[0] || "Moi (Chef)";
-                }
-            }
-
-            // 2. Génération dynamique des cartes de camions sur la page d'accueil (Tableau de bord)
-            const trucksContainer = document.getElementById('trucksListContainer');
-            if (trucksContainer) {
-                trucksContainer.innerHTML = '';
-                if (trucks.length === 0) {
-                    trucksContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aucun camion enregistré dans la flotte.</p>';
-                } else {
-                    trucks.forEach((truck, index) => {
-                        const truckTotal = truck.equipment.length;
-                        const truckPresent = truck.equipment.filter(e => e.present).length;
-                        const score = truckTotal > 0 ? Math.round((truckPresent / truckTotal) * 100) : 100;
-                        
-                        const cardDiv = document.createElement('div');
-                        cardDiv.className = "bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer";
-                        cardDiv.innerHTML = `
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-2xl">${truck.emoji}</span>
-                                    <div>
-                                        <h4 class="font-extrabold text-slate-900 text-sm">${truck.name}</h4>
-                                        <p class="text-[11px] text-slate-400">${truck.desc || 'Sans description d\'activité'}</p>
-                                    </div>
-                                </div>
-                                <span id="truckScoreBadge-${index}" class="text-xs font-bold px-2.5 py-1 rounded-lg">${score}%</span>
-                            </div>
-                            <div class="w-full bg-slate-100 rounded-full h-2.5">
-                                <div id="truckProgressBar-${index}" class="h-2.5 rounded-full transition-all duration-500" style="width: ${score}%;"></div>
-                            </div>
-                            <div class="mt-3 flex justify-between items-center text-[11px] text-slate-400">
-                                <span id="truckStatusSummary-${index}" class="font-medium text-slate-500">Calcul d'état en cours...</span>
-                                <span class="text-amber-600 font-semibold">Inspecter <i class="fa-solid fa-chevron-right ml-1"></i></span>
-                            </div>
-                        `;
-                        cardDiv.addEventListener('click', () => openTruckDetails(index));
-                        trucksContainer.appendChild(cardDiv);
-                    });
-                }
-            }
-
-            // 3. Génération dynamique des boutons de camions sur l'onglet de Signalement Rapide
-            const reportTruckContainer = document.getElementById('reportTruckButtonsContainer');
-            if (reportTruckContainer) {
-                reportTruckContainer.innerHTML = '';
-                if (trucks.length === 0) {
-                    reportTruckContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-2 col-span-2">Aucun camion.</p>';
-                } else {
-                    trucks.forEach((truck, index) => {
-                        const btn = document.createElement('button');
-                        btn.id = `reportTruck-${index}`;
-                        btn.className = index === currentReportTruck
-                            ? "py-3 px-4 border-2 border-amber-500 bg-amber-50/30 text-slate-900 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all"
-                            : "py-3 px-4 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all";
-                        btn.innerHTML = `
-                            <span class="text-xl">${truck.emoji}</span>
-                            <span class="font-bold">${truck.name.split(' - ')[0]}</span>
-                        `;
-                        btn.addEventListener('click', () => selectReportTruck(index));
-                        reportTruckContainer.appendChild(btn);
-                    });
-                    if (currentReportTruck >= trucks.length) {
-                        currentReportTruck = 0;
-                    }
-                }
-            }
-
-            // 4. Génération dynamique des boutons de camions sur l'onglet d'Inventaire Mensuel Chrono
-            const invTruckContainer = document.getElementById('inventoryTruckButtonsContainer');
-            if (invTruckContainer) {
-                invTruckContainer.innerHTML = '';
-                trucks.forEach((truck, index) => {
-                    const btn = document.createElement('button');
-                    btn.id = `invTruckBtn-${index}`;
-                    btn.className = index === currentInventoryTruck
-                        ? "flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-950 shadow-sm transition"
-                        : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/50 transition";
-                    btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
-                    btn.addEventListener('click', () => selectInventoryTruck(index));
-                    invTruckContainer.appendChild(btn);
-                });
-                if (currentInventoryTruck >= trucks.length) {
-                    currentInventoryTruck = 0;
-                }
-            }
-
-            // 5. Génération dynamique de la liste déroulante des camions cibles dans l'ajout de matériel (Administration)
-            const addToolTruckSelect = document.getElementById('addToolTruck');
-            if (addToolTruckSelect) {
-                addToolTruckSelect.innerHTML = '';
-                trucks.forEach((truck, index) => {
-                    const opt = document.createElement('option');
-                    opt.value = index;
-                    opt.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
-                    addToolTruckSelect.appendChild(opt);
-                });
-            }
-
-            // 6. Génération dynamique des boutons d'onglets de choix de camions à administrer
-            const manageTruckTabsContainer = document.getElementById('manageTruckTabsContainer');
-            if (manageTruckTabsContainer) {
-                manageTruckTabsContainer.innerHTML = '';
-                trucks.forEach((truck, index) => {
-                    const btn = document.createElement('button');
-                    btn.id = `manageTab-${index}`;
-                    btn.className = index === currentManageTruck
-                        ? "flex-1 py-1 text-xs font-bold bg-white text-slate-950 rounded-lg shadow-sm"
-                        : "flex-1 py-1 text-xs font-bold text-slate-500 rounded-lg";
-                    btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
-                    btn.addEventListener('click', () => switchManageTruckTab(index));
-                    manageTruckTabsContainer.appendChild(btn);
-                });
-                if (currentManageTruck >= trucks.length) {
-                    currentManageTruck = 0;
-                }
-            }
-        }
-
-        // Global UI Update
-        function updateUI() {
-            rebuildDynamicElements();
-
-            let totalItems = 0;
-            let presentItems = 0;
-
-            trucks.forEach((truck, index) => {
-                const truckTotal = truck.equipment.length;
-                const truckPresent = truck.equipment.filter(e => e.present).length;
-                const score = truckTotal > 0 ? Math.round((truckPresent / truckTotal) * 100) : 100;
-
-                totalItems += truckTotal;
-                presentItems += truckPresent;
-
-                const scoreBadge = document.getElementById(`truckScoreBadge-${index}`);
-                const progressBar = document.getElementById(`truckProgressBar-${index}`);
-                const statusSummary = document.getElementById(`truckStatusSummary-${index}`);
-
-                if (scoreBadge && progressBar && statusSummary) {
-                    scoreBadge.innerText = `${score}%`;
-                    progressBar.style.width = `${score}%`;
-
-                    if (score === 100) {
-                        scoreBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800";
-                        progressBar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-500";
-                        statusSummary.innerHTML = "🏆 Camion impeccable et complet !";
-                    } else if (score >= 80) {
-                        scoreBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800";
-                        progressBar.className = "bg-amber-500 h-2.5 rounded-full transition-all duration-500";
-                        const missingCount = truckTotal - truckPresent;
-                        statusSummary.innerHTML = `⚠️ Uniquement ${missingCount} outil${missingCount > 1 ? 's' : ''} manquant${missingCount > 1 ? 's' : ''}`;
-                    } else {
-                        scoreBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800";
-                        progressBar.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-500";
-                        const missingCount = truckTotal - truckPresent;
-                        statusSummary.innerHTML = `🚨 Alerte : ${missingCount} matériels manquants !`;
-                    }
-                }
-            });
-
-            // Update team score
-            const teamScore = totalItems > 0 ? Math.round((presentItems / totalItems) * 100) : 100;
-            const teamScoreEl = document.getElementById('teamScore');
-            const teamScoreLabel = document.getElementById('teamScoreLabel');
-            
-            if (teamScoreEl && teamScoreLabel) {
-                teamScoreEl.innerText = `${teamScore}%`;
-                if (teamScore === 100) {
-                    teamScoreLabel.innerText = "Parfait ! Vos camions de chantier sont au complet. Prêts pour le grand chelem !";
-                } else if (teamScore >= 90) {
-                    teamScoreLabel.innerText = "Très bon boulot de l'équipe, on frôle l'excellence !";
-                } else {
-                    teamScoreLabel.innerText = "Quelques outils manquent. Un petit check à bord ?";
-                }
-            }
-
-            renderActivityFeed();
-            renderTeamPage();
-        }
-
-        // Render Activity Feed
-        function renderActivityFeed() {
-            const feedEl = document.getElementById('activityFeed');
-            if (!feedEl) return;
-            feedEl.innerHTML = '';
-
-            if (feed.length === 0) {
-                feedEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucun événement récent.</p>';
-                return;
-            }
-
-            feed.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-start space-x-3 text-xs border-b border-slate-50 pb-3 last:border-0 last:pb-0 animate-fade-in";
-
-                let icon = '';
-                let bgStyle = '';
-                let statusText = '';
-                let reasonBadge = '';
-
-                if (item.action === 'present') {
-                    icon = '✅';
-                    bgStyle = 'bg-emerald-50 text-emerald-700 border border-emerald-100';
-                    statusText = 'a remis à bord';
-                } else {
-                    icon = '❌';
-                    bgStyle = 'bg-rose-50 text-rose-700 border border-rose-100';
-                    statusText = 'signale qu\'il MANQUE';
-                    if (item.reason) {
-                        reasonBadge = `<span class="inline-block bg-rose-100/50 text-rose-800 rounded px-1.5 py-0.5 text-[9px] font-bold mt-1 mr-1">${item.reason}</span>`;
-                    }
-                }
-
-                itemDiv.innerHTML = `
-                    <div class="p-2 rounded-xl text-center flex-shrink-0 ${bgStyle} font-bold text-xs">
-                        ${icon}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-900">${item.user}</span>
-                            <span class="text-[10px] text-slate-400">${item.time}</span>
-                        </div>
-                        <p class="text-slate-600 mt-0.5">${statusText} : <strong class="text-slate-900 font-extrabold">${item.item}</strong></p>
-                        <div class="flex flex-wrap gap-1 mt-1">
-                            ${reasonBadge}
-                            <span class="inline-block bg-slate-100 text-slate-500 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase">${item.truck}</span>
-                        </div>
-                    </div>
-                `;
-                feedEl.appendChild(itemDiv);
-            });
-        }
-
-        // Render dynamic team score & badges page
-        function renderTeamPage() {
-            const teamContainer = document.getElementById('teamList');
-            if (!teamContainer) return;
-            teamContainer.innerHTML = '';
-
-            // Convert and dynamically update badges based on scores to keep game aspect active
-            Object.keys(teamScores).forEach(user => {
-                const data = teamScores[user];
-                
-                // Recalculate badges based on performance
-                let badges = [];
-                if (data.score >= 140) badges.push("👑 Grand Maître");
-                else if (data.score >= 100) badges.push("🛡️ Gardien");
-                
-                if (data.checks >= 10) badges.push("👁️ Œil de Lynx");
-                if (data.score >= 70) badges.push("⚡ Actif");
-
-                const badgesHTML = badges.length > 0 
-                    ? badges.map(b => `<span class="text-[9px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded border border-amber-200">${b}</span>`).join(' ')
-                    : `<span class="text-[9px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded">Débutant</span>`;
-
-                const isMe = user === currentUser;
-
-                const memberDiv = document.createElement('div');
-                memberDiv.className = `flex items-center justify-between border-b border-slate-50 pb-3 last:border-0 last:pb-0 ${isMe ? 'bg-amber-50/20 p-2 rounded-2xl border border-amber-100/50' : ''}`;
-
-                memberDiv.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="relative">
-                            <span class="text-3xl">${data.avatar || '👤'}</span>
-                            ${isMe ? '<span class="absolute -bottom-1 -right-1 text-xs">👑</span>' : ''}
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-slate-900 text-xs">${user} ${isMe ? '(Vous)' : ''}</h4>
-                            <div class="flex flex-wrap gap-1 mt-1">
-                                ${badgesHTML}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs font-black text-amber-600 block">${data.score} pts</span>
-                        <span class="text-[9px] text-slate-400">${data.checks} inventaires</span>
-                    </div>
-                `;
-                teamContainer.appendChild(memberDiv);
-            });
-        }
-
-        // --- MANAGE DETAILED TRUCK VIEW (MODAL) ---
-        function openTruckDetails(truckIndex) {
-            playSound('pop');
-            selectedTruckIndexForDetails = truckIndex;
-            const truck = trucks[truckIndex];
-
-            document.getElementById('modalTruckName').innerText = truck.name;
-            document.getElementById('modalTruckDesc').innerText = truck.desc;
-            document.getElementById('modalTruckIcon').innerText = truck.emoji;
-
-            // Progress bar
-            const truckTotal = truck.equipment.length;
-            const truckPresent = truck.equipment.filter(e => e.present).length;
-            const score = truckTotal > 0 ? Math.round((truckPresent / truckTotal) * 100) : 100;
-            const progress = document.getElementById('modalTruckProgress');
-            progress.style.width = `${score}%`;
-            
-            if (score === 100) progress.className = "bg-emerald-500 h-2.5 rounded-full";
-            else if (score >= 80) progress.className = "bg-amber-500 h-2.5 rounded-full";
-            else progress.className = "bg-rose-500 h-2.5 rounded-full";
-
-            // List items
-            const listEl = document.getElementById('modalEquipmentList');
-            listEl.innerHTML = '';
-
-            if (truck.equipment.length === 0) {
-                listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aucun matériel assigné à ce camion.</p>';
-            } else {
-                truck.equipment.forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = "flex items-center justify-between p-3 rounded-xl border border-slate-50 " + (item.present ? "bg-white" : "bg-rose-50/50 border-rose-100");
-                    
-                    itemDiv.innerHTML = `
-                        <div class="flex items-center space-x-2.5">
-                            <span class="text-base">${item.emoji}</span>
-                            <div>
-                                <span class="text-xs font-bold ${item.present ? 'text-slate-800' : 'text-rose-850 line-through decoration-rose-300'}">${item.name}</span>
-                                <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">${item.category}</p>
-                            </div>
-                        </div>
-                        <div>
-                            ${item.present 
-                                ? `<span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check mr-1"></i> À bord</span>` 
-                                : `<span class="text-[10px] bg-rose-100 text-rose-850 font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-xmark mr-1"></i> Absent</span>`
-                            }
-                        </div>
-                    `;
-                    listEl.appendChild(itemDiv);
-                });
-            }
-
-            const modal = document.getElementById('detailsModal');
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('opacity-100');
-            }, 10);
-        }
-
-        function closeTruckDetails() {
-            const modal = document.getElementById('detailsModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('opacity-100');
-        }
-
-        // --- NOTIFIER / REPORT PAGE LOGIC ---
-        function selectReportTruck(truckIndex) {
-            playSound('pop');
-            currentReportTruck = truckIndex;
-            
-            // Highlight button selection
-            trucks.forEach((truck, index) => {
-                const btn = document.getElementById(`reportTruck-${index}`);
-                if (btn) {
-                    btn.className = index === truckIndex 
-                        ? "py-3 px-4 border-2 border-amber-500 bg-amber-50/30 text-slate-900 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all"
-                        : "py-3 px-4 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1 transition-all";
-                }
-            });
-
-            changeReportTruckDropdown();
-        }
-
-        function changeReportTruckDropdown() {
-            const selectEl = document.getElementById('reportItemSelect');
-            if (!selectEl) return;
-            selectEl.innerHTML = '';
-            
-            if (trucks.length === 0 || currentReportTruck >= trucks.length) {
-                selectEl.innerHTML = '<option value="">(Aucun équipement disponible)</option>';
-                return;
-            }
-
-            const truck = trucks[currentReportTruck];
-            if (truck.equipment.length === 0) {
-                selectEl.innerHTML = '<option value="">(Aucun équipement disponible)</option>';
-                return;
-            }
-
-            truck.equipment.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.innerText = `${item.emoji} ${item.name} (${item.present ? 'À bord' : 'Manquant ❌'})`;
-                selectEl.appendChild(option);
-            });
-        }
-
-        async function submitReport(action) {
-            const itemId = document.getElementById('reportItemSelect').value;
-            if (!itemId) {
-                showToast("⚠️ Ajoutez du matériel d'abord !");
-                return;
-            }
-            const truck = trucks[currentReportTruck];
-            const itemIndex = truck.equipment.findIndex(e => e.id === itemId);
-            const item = truck.equipment[itemIndex];
-
-            const isPresent = action === 'present';
-            
-            if (item.present === isPresent) {
-                showToast(`ℹ️ L'élément "${item.name}" est déjà déclaré dans cet état.`);
-                return;
-            }
-
-            item.present = isPresent;
-
-            let reason = "";
-            if (!isPresent) {
-                reason = document.getElementById('reportReason').value;
-            }
-
-            // Log activity
-            feed.unshift({
-                user: currentUser,
-                action: action,
-                reason: reason,
-                item: item.name,
-                truck: truck.name.split(' - ')[0],
-                time: "À l'instant"
-            });
-
-            // Reward User score
-            if (teamScores[currentUser]) {
-                teamScores[currentUser].score += 5; // +5 pts for quick signal
-            }
-
-            playSound('success');
-            showToast(isPresent ? "✅ Stock réapprovisionné à bord !" : "❌ Outil manquant signalé !");
-            
-            updateUI();
-            changeReportTruckDropdown();
-            await pushStateToCloud(); // Synchronize with firestore
-
-            setTimeout(() => {
-                switchTab('dashboard');
-            }, 800);
-        }
-
-        // --- INVENTAIRE MENSUEL LOGIC ---
-        function selectInventoryTruck(truckIndex) {
-            playSound('pop');
-            currentInventoryTruck = truckIndex;
-
-            // Style buttons
-            trucks.forEach((truck, index) => {
-                const btn = document.getElementById(`invTruckBtn-${index}`);
-                if (btn) {
-                    btn.className = index === truckIndex
-                        ? "flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-950 shadow-sm transition"
-                        : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/50 transition";
-                }
-            });
-
-            renderInventoryPage();
-        }
-
-        function filterInventoryCategory(category) {
-            playSound('pop');
-            activeCategoryFilter = category;
-
-            // Render categories button styles
-            const categories = ['All', 'Outillage', 'Sécurité', 'Consommables'];
-            categories.forEach(cat => {
-                const btn = document.getElementById('catFilter-' + cat);
-                if (cat === category) {
-                    btn.className = "px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-bold whitespace-nowrap";
-                } else {
-                    btn.className = "px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold whitespace-nowrap";
-                }
-            });
-
-            renderInventoryPage();
-        }
-
-        async function toggleItemStatus(itemId) {
-            playSound('pop');
-            const truck = trucks[currentInventoryTruck];
-            const item = truck.equipment.find(e => e.id === itemId);
-            item.present = !item.present;
-            
-            renderInventoryPage();
-            updateUI();
-            await pushStateToCloud();
-        }
-
-        function renderInventoryPage() {
-            const container = document.getElementById('inventoryItemsList');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            if (trucks.length === 0 || currentInventoryTruck >= trucks.length) {
-                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aucun camion enregistré.</p>';
-                return;
-            }
-
-            const truck = trucks[currentInventoryTruck];
-            const filteredEquipment = truck.equipment.filter(item => {
-                if (activeCategoryFilter === "All") return true;
-                return item.category === activeCategoryFilter;
-            });
-
-            // Update stats
-            const total = truck.equipment.length;
-            const checked = truck.equipment.filter(e => e.present).length;
-            document.getElementById('inventoryProgressText').innerText = `${checked} / ${total} éléments à bord`;
-
-            if (filteredEquipment.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aucun matériel trouvé dans cette catégorie.</p>';
-                return;
-            }
-
-            filteredEquipment.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-center justify-between p-3 rounded-2xl border transition-all duration-200 " + 
-                    (item.present 
-                        ? "bg-emerald-50/50 border-emerald-200" 
-                        : "bg-rose-50/50 border-rose-100");
-
-                itemDiv.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xl">${item.emoji}</span>
-                        <div>
-                            <span class="text-xs font-bold block ${item.present ? 'text-slate-900' : 'text-slate-500 line-through'}">${item.name}</span>
-                            <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">${item.category}</span>
-                        </div>
-                    </div>
-                    
-                    <button class="toggle-item-btn px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition active:scale-95 ${
-                        item.present 
-                            ? "bg-emerald-500 text-white hover:bg-emerald-600" 
-                            : "bg-rose-500 text-white hover:bg-rose-600"
-                    }">
-                        ${item.present ? '✅ Présent' : '❌ Absent'}
-                    </button>
-                `;
-
-                // Add button action
-                itemDiv.querySelector('.toggle-item-btn').addEventListener('click', () => toggleItemStatus(item.id));
-                container.appendChild(itemDiv);
-            });
-        }
-
-        async function finishMonthlyInventory() {
-            playSound('success');
-            
-            const truck = trucks[currentInventoryTruck];
-            const truckName = truck.name.split(' - ')[0];
-            const missingCount = truck.equipment.filter(e => !e.present).length;
-
-            feed.unshift({
-                user: currentUser,
-                action: 'present',
-                reason: '',
-                item: `📋 INVENTAIRE MENSUEL VALIDÉ (${missingCount === 0 ? 'Camion 100% OK' : missingCount + ' manquants'})`,
-                truck: truckName,
-                time: "À l'instant"
-            });
-
-            // Reward User score (Bigger points for complete monthly validation!)
-            if (teamScores[currentUser]) {
-                teamScores[currentUser].score += 25;
-                teamScores[currentUser].checks += 1;
-            }
-
-            updateUI();
-            showToast(`🏆 Inventaire de ${truckName} enregistré ! (+25 pts)`);
-            await pushStateToCloud();
-            
-            setTimeout(() => {
-                switchTab('dashboard');
-            }, 1000);
-        }
-
-        // --- MANAGE TOOLS SYSTEM ---
-        function openManageToolsModal() {
-            playSound('pop');
-            const modal = document.getElementById('manageToolsModal');
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('opacity-100');
-            }, 10);
-            
-            // Re-basculer par défaut sur le premier onglet (Outils) à l'ouverture
-            switchAdminTab('tools');
-        }
-
-        function closeManageToolsModal() {
-            const modal = document.getElementById('manageToolsModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('opacity-100');
-        }
-
-        function switchAdminTab(tabId) {
-            playSound('pop');
-            const tabs = ['tools', 'trucks', 'team'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`adminTabBtn-${t}`);
-                const section = document.getElementById(`adminSection-${t}`);
-                if (t === tabId) {
-                    btn.className = "flex-1 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition";
-                    section.classList.remove('hidden');
-                } else {
-                    btn.className = "flex-1 py-1.5 rounded-lg text-slate-600 hover:bg-white/50 transition";
-                    section.classList.add('hidden');
-                }
-            });
-
-            if (tabId === 'tools') renderManageToolsList();
-            else if (tabId === 'trucks') renderManageTrucksList();
-            else if (tabId === 'team') renderManageMembersList();
-        }
-
-        function switchManageTruckTab(truckIndex) {
-            playSound('pop');
-            currentManageTruck = truckIndex;
-            
-            trucks.forEach((truck, index) => {
-                const btn = document.getElementById(`manageTab-${index}`);
-                if (btn) {
-                    btn.className = index === truckIndex 
-                        ? "flex-1 py-1 text-xs font-bold bg-white text-slate-950 rounded-lg shadow-sm"
-                        : "flex-1 py-1 text-xs font-bold text-slate-500 rounded-lg";
-                }
-            });
-
-            renderManageToolsList();
-        }
-
-        function renderManageToolsList() {
-            const listEl = document.getElementById('manageToolsList');
-            if (!listEl) return;
-            listEl.innerHTML = '';
-
-            if (trucks.length === 0 || currentManageTruck >= trucks.length) {
-                listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucun camion disponible.</p>';
-                return;
-            }
-
-            const truck = trucks[currentManageTruck];
-            if (truck.equipment.length === 0) {
-                listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucun matériel.</p>';
-                return;
-            }
-
-            truck.equipment.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-rose-200 hover:bg-rose-50/20 transition cursor-pointer";
-                
-                itemDiv.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm">${item.emoji}</span>
-                        <span class="text-xs font-semibold text-slate-800">${item.name}</span>
-                    </div>
-                    <span class="delete-tool-btn text-[10px] text-rose-500 hover:text-rose-700 font-bold px-1.5 py-0.5 rounded flex items-center space-x-1">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </span>
-                `;
-
-                itemDiv.querySelector('.delete-tool-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteTool(item.id);
-                });
-                itemDiv.addEventListener('click', () => deleteTool(item.id));
-
-                listEl.appendChild(itemDiv);
-            });
-        }
-
-        async function addNewTool() {
-            const targetTruckIdx = parseInt(document.getElementById('addToolTruck').value);
-            const category = document.getElementById('addToolCategory').value;
-            const name = document.getElementById('addToolName').value.trim();
-            const emoji = document.getElementById('addToolEmoji').value;
-
-            if (!name) {
-                showToast("⚠️ Veuillez entrer un nom pour l'outil");
-                return;
-            }
-
-            const newId = (targetTruckIdx === 0 ? 'a' : 'b') + (Date.now());
-            const newItem = {
-                id: newId,
-                name: name,
-                category: category,
-                present: true,
-                emoji: emoji
-            };
-
-            trucks[targetTruckIdx].equipment.push(newItem);
-            document.getElementById('addToolName').value = '';
-
-            playSound('success');
-            showToast(`⚙️ "${name}" ajouté avec succès !`);
-            
-            updateUI();
-            changeReportTruckDropdown();
-            renderManageToolsList();
-            await pushStateToCloud();
-        }
-
-        async function deleteTool(id) {
-            const truck = trucks[currentManageTruck];
-            const itemIdx = truck.equipment.findIndex(e => e.id === id);
-            if (itemIdx === -1) return;
-
-            const name = truck.equipment[itemIdx].name;
-            truck.equipment.splice(itemIdx, 1);
-
-            playSound('delete');
-            showToast(`🗑️ "${name}" supprimé.`);
-            
-            updateUI();
-            changeReportTruckDropdown();
-            renderManageToolsList();
-            await pushStateToCloud();
-        }
-
-        // --- GESTION DES CAMIONS ---
-        async function addNewTruck() {
-            const name = document.getElementById('addTruckName').value.trim();
-            const desc = document.getElementById('addTruckDesc').value.trim();
-            const emoji = document.getElementById('addTruckEmoji').value;
-
-            if (!name) {
-                showToast("⚠️ Veuillez entrer un nom pour le camion");
-                return;
-            }
-
-            const newTruck = {
-                name: name,
-                desc: desc || "Sans description d'activité",
-                emoji: emoji,
-                equipment: []
-            };
-
-            trucks.push(newTruck);
-            document.getElementById('addTruckName').value = '';
-            document.getElementById('addTruckDesc').value = '';
-
-            playSound('success');
-            showToast(`🚛 Camion "${name}" enregistré !`);
-            
-            updateUI();
-            renderManageTrucksList();
-            await pushStateToCloud();
-        }
-
-        async function deleteTruck(index) {
-            if (trucks.length <= 1) {
-                showToast("⚠️ Vous devez garder au moins 1 camion actif.");
-                return;
-            }
-            const name = trucks[index].name;
-            trucks.splice(index, 1);
-
-            if (currentReportTruck >= trucks.length) currentReportTruck = 0;
-            if (currentInventoryTruck >= trucks.length) currentInventoryTruck = 0;
-            if (currentManageTruck >= trucks.length) currentManageTruck = 0;
-
-            playSound('delete');
-            showToast(`🗑️ Camion "${name}" retiré de la flotte.`);
-
-            updateUI();
-            renderManageTrucksList();
-            await pushStateToCloud();
-        }
-
-        function renderManageTrucksList() {
-            const listEl = document.getElementById('manageTrucksList');
-            if (!listEl) return;
-            listEl.innerHTML = '';
-
-            trucks.forEach((truck, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-rose-200 hover:bg-rose-50/20 transition cursor-pointer";
-                itemDiv.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm">${truck.emoji}</span>
-                        <span class="text-xs font-semibold text-slate-800">${truck.name}</span>
-                    </div>
-                    <span class="delete-truck-btn text-[10px] text-rose-500 hover:text-rose-700 font-bold px-1.5 py-0.5 rounded flex items-center space-x-1">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </span>
-                `;
-                itemDiv.querySelector('.delete-truck-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteTruck(index);
-                });
-                itemDiv.addEventListener('click', () => deleteTruck(index));
-                listEl.appendChild(itemDiv);
-            });
-        }
-
-        // --- GESTION DE L'ÉQUIPE ---
-        async function addNewMember() {
-            const name = document.getElementById('addMemberName').value.trim();
-            const avatar = document.getElementById('addMemberAvatar').value;
-
-            if (!name) {
-                showToast("⚠️ Veuillez entrer un nom pour l'équipier");
-                return;
-            }
-
-            if (teamScores[name]) {
-                showToast("⚠️ Cet équipier existe déjà !");
-                return;
-            }
-
-            teamScores[name] = {
-                score: 0,
-                checks: 0,
-                badges: [],
-                avatar: avatar
-            };
-
-            document.getElementById('addMemberName').value = '';
-
-            playSound('success');
-            showToast(`👥 Équipier "${name}" enregistré dans l'équipe !`);
-
-            updateUI();
-            renderManageMembersList();
-            await pushStateToCloud();
-        }
-
-        async function deleteMember(name) {
-            if (Object.keys(teamScores).length <= 1) {
-                showToast("⚠️ Vous devez garder au moins 1 équipier !");
-                return;
-            }
-            if (name === currentUser) {
-                showToast("⚠️ Impossible de vous supprimer vous-même ! Changez de profil en haut d'abord.");
-                return;
-            }
-
-            delete teamScores[name];
-
-            playSound('delete');
-            showToast(`🗑️ Équipier "${name}" supprimé.`);
-
-            updateUI();
-            renderManageMembersList();
-            await pushStateToCloud();
-        }
-
-        function renderManageMembersList() {
-            const listEl = document.getElementById('manageMembersList');
-            if (!listEl) return;
-            listEl.innerHTML = '';
-
-            Object.keys(teamScores).forEach(user => {
-                const data = teamScores[user];
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-rose-200 hover:bg-rose-50/20 transition cursor-pointer";
-                itemDiv.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm">${data.avatar || '👤'}</span>
-                        <span class="text-xs font-semibold text-slate-800">${user}</span>
-                    </div>
-                    <span class="delete-member-btn text-[10px] text-rose-500 hover:text-rose-700 font-bold px-1.5 py-0.5 rounded flex items-center space-x-1">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </span>
-                `;
-                itemDiv.querySelector('.delete-member-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteMember(user);
-                });
-                itemDiv.addEventListener('click', () => deleteMember(user));
-                listEl.appendChild(itemDiv);
-            });
-        }
-
-        // --- TOAST NOTIFICATIONS ---
-        let toastTimeout;
-        function showToast(text) {
-            const toast = document.getElementById('toast');
-            const toastText = document.getElementById('toastText');
-            
-            toastText.innerText = text;
-            
-            toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-100 translate-y-0 border border-slate-800";
-            
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none";
-            }, 3000);
         }
     </script>
 </body>

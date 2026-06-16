@@ -52,16 +52,6 @@
 </head>
 <body class="h-full min-h-screen text-slate-100 antialiased overflow-x-hidden select-none">
 
-    <!-- SELECTEUR ERGONOMIQUE DE VUE (S'affiche uniquement sur les écrans étroits, masqué sur grand écran PC) -->
-    <div id="viewport-switcher-bar" class="lg:hidden bg-slate-900 border-b border-slate-800 p-2.5 flex justify-center space-x-2 z-50 sticky top-0 shadow-lg">
-        <button id="toggleView-mobile" class="px-4 py-1.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow-md">
-            <span>📱</span> Vue Mobile (Chantier)
-        </button>
-        <button id="toggleView-pc" class="px-4 py-1.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-1.5 bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700">
-            <span>💻</span> Console Admin PC
-        </button>
-    </div>
-
     <!-- CONTENEUR GLOBAL SPLIT (Mobile Simulator Left, PC Control Center Right) -->
     <div class="min-h-screen w-full flex flex-col lg:flex-row bg-slate-950">
 
@@ -665,7 +655,6 @@
         let currentManageTruck = 0;
         let selectedTruckIndexForDetails = 0;
         let editingCategoryIndex = null; // Suivi de l'index de la catégorie en cours d'édition inline
-        let currentViewportView = "mobile"; // Suivi de l'affichage adaptatif ("mobile" ou "pc")
 
         // Liste dynamique des catégories
         let categories = ["Outillage", "Sécurité", "Consommables", "Matériel Électrique", "Logistique"];
@@ -723,7 +712,6 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             setupEventListeners();
-            setupViewportToggle();
             
             try {
                 const app = initializeApp(firebaseConfig);
@@ -836,64 +824,6 @@
             // Recherche et filtres d'outils PC
             document.getElementById('pcSearchTools').addEventListener('input', () => renderPCToolsTable());
             document.getElementById('pcFilterTruckSelect').addEventListener('change', () => renderPCToolsTable());
-        }
-
-        // RESPONSIVE VIEW TOGGLE LOGIC FOR PREVIEW SIDEPANELS
-        function setupViewportToggle() {
-            const btnMobile = document.getElementById('toggleView-mobile');
-            const btnPc = document.getElementById('toggleView-pc');
-
-            if (!btnMobile || !btnPc) return;
-
-            btnMobile.addEventListener('click', () => {
-                currentViewportView = "mobile";
-                updateViewportLayout();
-            });
-
-            btnPc.addEventListener('click', () => {
-                currentViewportView = "pc";
-                updateViewportLayout();
-            });
-
-            window.addEventListener('resize', updateViewportLayout);
-            updateViewportLayout(); // Initialisation layout
-        }
-
-        function updateViewportLayout() {
-            const btnMobile = document.getElementById('toggleView-mobile');
-            const btnPc = document.getElementById('toggleView-pc');
-            const colLeft = document.getElementById('col-left-mobile');
-            const colRight = document.getElementById('col-right-pc');
-
-            if (!btnMobile || !btnPc || !colLeft || !colRight) return;
-
-            // Si largeur d'affichage inférieure au format ordinateur standard (< 1024px)
-            if (window.innerWidth < 1024) {
-                document.getElementById('viewport-switcher-bar').classList.remove('lg:hidden');
-                
-                if (currentViewportView === "mobile") {
-                    colLeft.classList.remove('hidden');
-                    colRight.classList.add('hidden');
-                    
-                    btnMobile.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-slate-950 shadow-md transition-all";
-                    btnPc.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all";
-                } else {
-                    colLeft.classList.add('hidden');
-                    colRight.classList.remove('hidden');
-                    colRight.classList.remove('lg:flex');
-                    colRight.classList.add('flex'); // Rétablir le flex pour l'affichage de la console
-                    
-                    btnMobile.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all";
-                    btnPc.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-slate-950 shadow-md transition-all";
-                }
-            } else {
-                // Sur grand écran PC (≥ 1024px), on affiche les deux blocs en direct côte à côte
-                document.getElementById('viewport-switcher-bar').classList.add('lg:hidden');
-                colLeft.classList.remove('hidden');
-                colRight.classList.remove('hidden');
-                colRight.classList.remove('flex');
-                colRight.classList.add('lg:flex');
-            }
         }
 
         function switchTab(tabId) {

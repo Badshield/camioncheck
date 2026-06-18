@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes"> <!-- Permet l'affichage en plein écran sans barre Safari sur les appareils Apple iOS -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Configure la barre de notification iOS pour qu'elle soit translucide -->
     <meta name="apple-mobile-web-app-title" content="CamionCheck"> <!-- Titre d'installation rapide défini pour l'interface d'iOS -->
-    <link rel="manifest" href="manifest.json"> <!-- Liaison avec le fichier de configuration de l'application progressive PWA -->
+    <link class="w-full" rel="manifest" href="manifest.json"> <!-- Liaison avec le fichier de configuration de l'application progressive PWA -->
     <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=192&h=192&q=80"> <!-- Icône de l'application pour iOS -->
 
     <!-- Tailwind CSS pour un rendu graphique professionnel --> <!-- Chargement du framework CSS Tailwind pour une mise en page moderne rapide et responsive -->
@@ -757,7 +757,7 @@
 
         function setupLocalFallback() {
             document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
-            document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-amber-500/30";
+            document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
             document.getElementById('myFirebaseUid').innerText = `Sauvegarde locale active`;
             updateUI();
             changeReportTruckDropdown();

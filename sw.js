@@ -1,4 +1,4 @@
-// Nom de la version du cache. Je l'ai passé en v2 pour forcer la mise à jour chez les utilisateurs existants
+// Nom de la version du cache. Je l'ai passé en v2 pour forcer la mise à jour chez les utilisateurs existant
 const CACHE_NAME = 'camioncheck-cache-v2'; 
 
 // Liste des fichiers statiques indispensables à mettre en cache

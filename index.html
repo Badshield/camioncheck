@@ -1,66 +1,59 @@
-<!DOCTYPE html> <!-- Déclaration du format de document au standard HTML5 -->
-<html lang="fr" class="h-full bg-slate-950"> <!-- Balise HTML principale paramétrée en Français avec hauteur complète et fond gris ultra sombre -->
-<head> <!-- Début de l'en-tête contenant les métadonnées globales de la page de l'application -->
-    <meta charset="UTF-8"> <!-- Spécification du codage universel des caractères au format UTF-8 pour les accents -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configuration de la taille d'affichage pour une réactivité parfaite sur mobile -->
-    <title>CamionCheck Pro - Gestion de Flotte de Chantier</title> <!-- Titre de l'onglet de navigation et de la fenêtre du navigateur web -->
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-950">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>CamionCheck Pro - Gestion de Flotte de Chantier</title> 
     
-    <!-- PWA Meta Tags --> <!-- Section dédiée aux configurations de l'application web progressive -->
-    <meta name="apple-mobile-web-app-capable" content="yes"> <!-- Permet l'affichage en plein écran sans barre Safari sur les appareils Apple iOS -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Configure la barre de notification iOS pour qu'elle soit translucide -->
-    <meta name="apple-mobile-web-app-title" content="CamionCheck"> <!-- Titre d'installation rapide défini pour l'interface d'iOS -->
-    <link class="w-full" rel="manifest" href="manifest.json"> <!-- Liaison avec le fichier de configuration de l'application progressive PWA -->
-    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=192&h=192&q=80"> <!-- Icône de l'application pour iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes"> 
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+    <meta name="apple-mobile-web-app-title" content="CamionCheck"> 
+    <link class="w-full" rel="manifest" href="manifest.json"> 
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=192&h=192&q=80"> 
 
-    <!-- Tailwind CSS pour un rendu graphique professionnel --> <!-- Chargement du framework CSS Tailwind pour une mise en page moderne rapide et responsive -->
-    <script src="https://cdn.tailwindcss.com"></script> <!-- Inclusion du moteur CDN Tailwind CSS officiel -->
-    <!-- FontAwesome pour charger les icônes de chantier et d'interface --> <!-- Feuille de style externe pour charger tous les pictogrammes de l'interface utilisateur -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Import de l'ensemble d'icônes FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
     
-    <style> /* Balise de style interne pour définir les personnalisations impossibles à faire avec Tailwind brut */
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap'); /* Chargement de la police d'écriture Plus Jakarta Sans */
-        body { /* Règle de style globale appliquée au corps de l'application */
-            font-family: 'Plus Jakarta Sans', sans-serif; /* Application de la police d'écriture Jakarta */
-            -webkit-tap-highlight-color: transparent; /* Désactive la surbrillance bleue par défaut au toucher sur les écrans tactiles */
-            background-color: #020617; /* Fond de secours sombre */
+    <style> 
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap'); 
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #020617; 
         }
-        .custom-scrollbar::-webkit-scrollbar { /* Style personnalisé de la barre de défilement pour les navigateurs basés sur WebKit */
-            width: 6px; /* Définition d'une largeur fine de 6px */
-            height: 6px; /* Hauteur fine pour le défilement horizontal */
+        .custom-scrollbar::-webkit-scrollbar { 
+            width: 6px; 
+            height: 6px; 
         }
-        .custom-scrollbar::-webkit-scrollbar-track { /* Style de la piste de fond de la barre de défilement */
-            background: rgba(15, 23, 42, 0.3); /* Piste sombre transparente */
+        .custom-scrollbar::-webkit-scrollbar-track { 
+            background: rgba(15, 23, 42, 0.3); 
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb { /* Style du bouton d'ascenseur de la barre de défilement */
-            background: #475569; /* Gris de secours discret */
-            border-radius: 6px; /* Arrondi complet */
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+            background: #475569; 
+            border-radius: 6px; 
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { /* Survol de la scrollbar */
-            background: #f59e0b; /* Passage au orange ambré lors du survol */
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+            background: #f59e0b; 
         }
-        .hidden { /* Pare-feu de secours pour garantir le masquage complet des pages */
-            display: none !important; /* Force l'invisibilité des éléments */
+        .hidden { 
+            display: none !important; 
         }
-        .animate-fade-in { /* Animation fluide d'apparition lors du changement d'onglet */
-            animation: fadeIn 0.25s ease-out forwards; /* Transition douce de 250ms */
+        .animate-fade-in { 
+            animation: fadeIn 0.25s ease-out forwards; 
         }
-        @keyframes fadeIn { /* Étapes clés de l'animation d'apparition */
-            from { opacity: 0; transform: translateY(6px); } /* Départ invisible et légèrement décalé vers le bas */
-            to { opacity: 1; transform: translateY(0); } /* Fin visible et calée à sa position initiale */
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(6px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
     </style>
 </head>
 <body class="h-full min-h-screen text-slate-100 antialiased overflow-x-hidden select-none">
 
-    <!-- CONTENEUR GLOBAL SPLIT (Mobile Simulator Left, PC Control Center Right) -->
     <div class="min-h-screen w-full flex flex-col lg:flex-row bg-slate-950">
 
-        <!-- ================= COLONNE GAUCHE : LE SIMULATEUR MOBILE ================= -->
         <div id="col-left-mobile" class="w-full lg:max-w-md lg:w-[450px] flex-shrink-0 flex items-center justify-center p-0 sm:p-4 lg:p-8 bg-slate-950">
-            <!-- Mockup physique de smartphone visible uniquement sur PC, devient fluide sur mobile -->
             <div class="relative w-full h-screen lg:h-[88vh] lg:aspect-[9/19.5] bg-slate-50 text-slate-800 lg:rounded-[40px] lg:border-[12px] lg:border-slate-800 lg:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col">
                 
-                <!-- TOP HEADER MOBILE -->
                 <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 pt-safe flex-shrink-0">
                     <div class="px-4 py-3 flex items-center justify-between">
                         <div class="flex items-center space-x-2">
@@ -74,16 +67,13 @@
                         </div>
                         
                         <div class="flex flex-col items-end space-y-0.5">
-                            <!-- User Selector -->
                             <div class="relative inline-block">
                                 <select id="userSelector" class="bg-slate-800 text-[10px] text-amber-400 font-bold py-1 px-2.5 pr-6 rounded-lg border border-slate-700 appearance-none focus:outline-none">
-                                    <!-- Rempli dynamiquement en JS -->
-                                </select>
+                                    </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-amber-400">
                                     <i class="fa-solid fa-chevron-down text-[8px]"></i>
                                 </div>
                             </div>
-                            <!-- Cloud Status Indicator -->
                             <span id="cloudStatusIndicator" class="text-[8px] font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full flex items-center gap-1">
                                 ☁️ Connexion...
                             </span>
@@ -91,10 +81,8 @@
                     </div>
                 </header>
 
-                <!-- PORT DE VUE MOBILE DEFILABLE -->
                 <main class="flex-1 p-4 pb-24 overflow-y-auto space-y-5 relative bg-slate-50">
 
-                    <!-- SCORE GLOBAL DE LA FLOTTE -->
                     <div class="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 rounded-3xl p-4 text-white shadow-lg relative overflow-hidden border border-slate-800">
                         <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-500/15 rounded-full blur-xl pointer-events-none"></div>
                         <div class="flex justify-between items-start">
@@ -117,7 +105,6 @@
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 1 MOBILE : TABLEAU DE BORD ================= -->
                     <div id="page-dashboard" class="space-y-4">
                         <div class="flex justify-between items-center">
                             <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">État des Camions</h3>
@@ -127,20 +114,15 @@
                             </button>
                         </div>
                         
-                        <!-- Conteneur d'injection des cartes de camions -->
                         <div id="trucksListContainer" class="space-y-2.5">
-                            <!-- Rempli en JS -->
-                        </div>
+                            </div>
 
-                        <!-- FIL D'ACTUALITÉ COLLABORATIF -->
                         <div class="space-y-2">
                             <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Activité de l'équipe</h3>
                             <div class="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm space-y-3 max-h-[180px] overflow-y-auto custom-scrollbar" id="activityFeed">
-                                <!-- Injecté en JS -->
-                            </div>
+                                </div>
                         </div>
 
-                        <!-- CARTE OBJECTIF SEMAINE -->
                         <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-3 flex items-start space-x-2.5">
                             <span class="text-xl">🎯</span>
                             <div>
@@ -150,7 +132,6 @@
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 2 MOBILE : NOTIFIER UN MANQUE ================= -->
                     <div id="page-report" class="space-y-3 hidden">
                         <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
                             <div class="text-center pb-2 border-b border-slate-100">
@@ -161,15 +142,13 @@
                             <div class="space-y-1.5">
                                 <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">1. Sélectionnez le camion</label>
                                 <div id="reportTruckButtonsContainer" class="grid grid-cols-2 gap-2">
-                                    <!-- Popolated in JS -->
-                                </div>
+                                    </div>
                             </div>
 
                             <div class="space-y-1.5">
                                 <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">2. Choisissez le matériel</label>
                                 <select id="reportItemSelect" class="w-full bg-slate-50 border border-slate-200 text-xs py-2 px-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500">
-                                    <!-- Dynamique -->
-                                </select>
+                                    </select>
                             </div>
 
                             <div class="space-y-1.5" id="reasonContainer">
@@ -196,7 +175,6 @@
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 3 MOBILE : INVENTAIRE MENSUEL ================= -->
                     <div id="page-inventory" class="space-y-3 hidden">
                         <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
                             <div class="text-center pb-2 border-b border-slate-100">
@@ -205,16 +183,13 @@
                             </div>
 
                             <div id="inventoryTruckButtonsContainer" class="flex space-x-1 p-1 bg-slate-100 rounded-xl">
-                                <!-- Rempli en JS -->
-                            </div>
+                                </div>
 
                             <div class="flex space-x-1 overflow-x-auto pb-1 custom-scrollbar" id="categoryFilters">
-                                <!-- Rempli de façon dynamique avec renderCategoryFilters() -->
-                            </div>
+                                </div>
 
                             <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
-                                <!-- Rempli en JS -->
-                            </div>
+                                </div>
 
                             <div class="pt-3 border-t border-slate-100 space-y-1.5">
                                 <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold">
@@ -229,15 +204,13 @@
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 4 MOBILE : CLASSEMENT TEAM ================= -->
                     <div id="page-team" class="space-y-3 hidden">
                         <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
                             <div class="text-center pb-2 border-b border-slate-100">
                                 <h3 class="font-extrabold text-slate-900 text-sm">La Tribu des Camions 🏆</h3>
                             </div>
                             <div class="space-y-3" id="teamList">
-                                <!-- Rempli en JS -->
-                            </div>
+                                </div>
                             <div class="pt-3 border-t border-slate-100 text-center">
                                 <p class="text-[8px] text-slate-400 font-mono" id="myFirebaseUid">ID : Connexion...</p>
                             </div>
@@ -246,7 +219,6 @@
 
                 </main>
 
-                <!-- NAV FOOTER MOBILE PREMIUM (Aux couleurs du haut demandées) -->
                 <nav class="absolute bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200/80 z-35 shadow-lg pb-safe pt-2 px-3 flex-shrink-0">
                     <div class="flex space-x-1 bg-slate-200/85 p-1 rounded-2xl shadow-inner">
                         <button id="navBtn-dashboard" class="flex-1 py-2 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-0.5 bg-white text-slate-900 shadow-sm">
@@ -271,10 +243,8 @@
             </div>
         </div>
 
-        <!-- ================= COLONNE DROITE : L'INTERFACE DE GESTION PC GÉANTE ================= -->
         <div id="col-right-pc" class="hidden lg:flex flex-1 flex-col p-8 bg-slate-900 border-l border-slate-800 h-screen overflow-y-auto space-y-6 custom-scrollbar">
             
-            <!-- EN-TÊTE PC -->
             <div class="flex justify-between items-center pb-4 border-b border-slate-800">
                 <div>
                     <h2 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
@@ -289,7 +259,6 @@
                 </div>
             </div>
 
-            <!-- ENCART DES STATISTIQUES EN TEMPS RÉEL (KPI) -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
                     <div>
@@ -321,13 +290,10 @@
                 </div>
             </div>
 
-            <!-- SECTION PRINCIPALE PC DIVISÉE -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                <!-- COLONNE 1 PC : CRÉATION ET GESTION (CAMIONS & ÉQUIPE) -->
                 <div class="space-y-6">
                     
-                    <!-- AJOUT CAMION FORM -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
                             <span>🚛</span> Ajouter un nouveau véhicule
@@ -359,7 +325,6 @@
                         </div>
                     </div>
 
-                    <!-- AJOUT ÉQUIPIER FORM -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
                             <span>👥</span> Ajouter un équipier
@@ -387,7 +352,6 @@
                         </div>
                     </div>
 
-                    <!-- GESTION DES CATEGORIES FORM -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
                             <span>🏷️</span> Gérer les Catégories
@@ -405,29 +369,24 @@
                             <div>
                                 <label class="block text-[10px] text-slate-400 font-bold uppercase mb-2">Catégories Actives</label>
                                 <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar" id="pcCategoriesList">
-                                    <!-- Populated in JS with edit/delete buttons -->
-                                </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- COLONNE 2 PC : SUPERVISION & SUPPRESSION (FLOTTE ET COMPAGNONS) -->
                 <div class="space-y-6 xl:col-span-2">
                     
-                    <!-- SUPERVISION DE LA FLOTTE (TABLEAU PC) -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
                             <span>🚛 Ma Flotte de Véhicules Actifs</span>
                             <span class="text-xs text-slate-500 font-normal">Cliquez sur un camion pour le supprimer</span>
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="pcTrucksGrid">
-                            <!-- Populated in JS with advanced full-width cards showing active counters and delete trigger -->
-                        </div>
+                            </div>
                     </div>
 
-                    <!-- GESTION DE LA TRIBU DE CHANTIER -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
                             <span>👥 Ma Tribu de Compagnons</span>
@@ -445,8 +404,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="pcTeamTableBody" class="divide-y divide-slate-800/50">
-                                    <!-- Populated in JS -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -454,7 +412,6 @@
                 </div>
             </div>
 
-            <!-- GESTION ET CATALOGUE TOTAL DU MATÉRIEL DES CAMIONS (PC TABLE) -->
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                     <div>
@@ -463,7 +420,6 @@
                         </h3>
                         <p class="text-xs text-slate-500 mt-1">Gérez, modifiez le statut, supprimez ou **transférez instantanément** des outils d'un camion à un autre.</p>
                     </div>
-                    <!-- Formulaire d'ajout rapide d'outil intégré -->
                     <div class="flex flex-wrap items-center gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
                         <input type="text" id="pcFastToolName" placeholder="Nouveau matériel..." class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
                         <select id="pcFastToolEmoji" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
@@ -475,18 +431,15 @@
                             <option value="🦺">🦺</option>
                         </select>
                         <select id="pcFastToolCategory" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <!-- Populated in JS dynamically -->
-                        </select>
+                            </select>
                         <select id="pcFastToolTruck" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <!-- Populated in JS -->
-                        </select>
+                            </select>
                         <button id="pcBtnFastSaveTool" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-lg transition duration-200">
                             + Ajouter
                         </button>
                     </div>
                 </div>
 
-                <!-- Filtres et recherche PC -->
                 <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                     <div class="relative w-full sm:max-w-xs">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
@@ -498,12 +451,10 @@
                         <span class="text-xs text-slate-500">Filtrer par véhicule :</span>
                         <select id="pcFilterTruckSelect" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white focus:outline-none">
                             <option value="all">🚚 Tous les camions</option>
-                            <!-- Populated in JS -->
-                        </select>
+                            </select>
                     </div>
                 </div>
 
-                <!-- Tableau du matériel -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-left text-xs text-slate-400">
                         <thead class="text-[10px] text-slate-500 uppercase bg-slate-900/50">
@@ -516,8 +467,7 @@
                             </tr>
                         </thead>
                         <tbody id="pcToolsTableBody" class="divide-y divide-slate-800/50">
-                            <!-- Populated in JS -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -525,7 +475,6 @@
         </div>
     </div>
 
-    <!-- MOCKUP DETAILS MODAL (Pour le simulateur mobile à gauche) -->
     <div id="detailsModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-end lg:items-center justify-center z-50 hidden transition-all duration-300">
         <div class="bg-white text-slate-850 rounded-t-3xl lg:rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] lg:max-h-[75vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center">
@@ -546,8 +495,7 @@
             </div>
 
             <div class="space-y-2 max-h-[35vh] overflow-y-auto pr-1 custom-scrollbar" id="modalEquipmentList">
-                <!-- Dynamique -->
-            </div>
+                </div>
 
             <div class="pt-2 flex space-x-2">
                 <button id="btnDetailsReport" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition">
@@ -557,7 +505,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE GESTION ADMINISTRATIVE MOBILE -->
     <div id="manageToolsModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-end justify-center z-50 hidden transition-all duration-300">
         <div class="bg-white text-slate-850 rounded-t-3xl max-w-md w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center">
@@ -573,21 +520,18 @@
                 </button>
             </div>
 
-            <!-- Formulaire d'ajout rapide mobile -->
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
                 <h4 class="text-[10px] font-bold text-slate-500 uppercase">Nouvel Outil</h4>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[9px] text-slate-400 font-bold uppercase mb-1">Camion cible</label>
                         <select id="addToolTruck" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-700">
-                            <!-- Populated in JS -->
-                        </select>
+                            </select>
                     </div>
                     <div>
                         <label class="block text-[9px] text-slate-400 font-bold uppercase mb-1">Catégorie</label>
                         <select id="addToolCategory" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold text-slate-700">
-                            <!-- Populated in JS dynamically -->
-                        </select>
+                            </select>
                     </div>
                 </div>
                 <div>
@@ -611,31 +555,27 @@
             <div class="space-y-3">
                 <h4 class="text-[10px] font-bold text-slate-500 uppercase">Équipements par Camion</h4>
                 <div class="flex space-x-1 p-1 bg-slate-100 rounded-xl" id="manageTruckTabsContainer">
-                    <!-- Populated dynamically -->
-                </div>
+                    </div>
                 <div class="max-h-[220px] overflow-y-auto space-y-1.5" id="manageToolsList">
-                    <!-- Populated dynamically -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- BOUTON FLOTTANT DE PERMUTATION INTELLIGENTE (Visible uniquement sur ordinateur avec fenêtre étroite) -->
     <button id="floatViewToggleBtn" class="fixed bottom-6 right-6 z-50 bg-amber-500 text-slate-950 font-extrabold px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-amber-600 active:scale-95 transition lg:hidden hidden">
         💻 <span class="text-xs">Voir la Console PC</span>
     </button>
 
-    <!-- TOAST NOTIFICATION UNIQUE -->
     <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-[11px] font-semibold py-2 px-4 rounded-xl shadow-lg flex items-center space-x-2 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800">
         <span id="toastIcon">✨</span>
         <span id="toastText">Action enregistrée !</span>
     </div>
 
-    <!-- MODULE FIREBASE ET SYNCHRONISATION EN DIRECT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // NOUVEAU : Import de la persistance locale de Firestore (fondamental pour les zones blanches)
+        import { getFirestore, doc, setDoc, onSnapshot, initializeFirestore, persistentLocalCache } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAPp_Pl5NF57qGc39KANx2-aPNlG5UBvSA",
@@ -647,11 +587,10 @@
         };
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'camioncheck-app';
-        let isOnline = false;
+        let isOnline = navigator.onLine; // NOUVEAU : Lecture de l'état réseau initial natif
         let userId = null;
         let db, auth;
 
-        // Variables globales d'état de l'application
         let currentUser = "Moi (Chef)";
         let activeTab = "dashboard";
         let currentReportTruck = 0;
@@ -659,13 +598,11 @@
         let activeCategoryFilter = "All";
         let currentManageTruck = 0;
         let selectedTruckIndexForDetails = 0;
-        let editingCategoryIndex = null; // Suivi de l'index de la catégorie en cours d'édition inline
-        let manualViewOverride = null; // 'mobile' ou 'pc' (Permet d'outrepasser la détection automatique)
+        let editingCategoryIndex = null; 
+        let manualViewOverride = null; 
 
-        // Liste dynamique des catégories
         let categories = ["Outillage", "Sécurité", "Consommables", "Matériel Électrique", "Logistique"];
 
-        // Données d'équipements par défaut
         const initialEquipment = [
             [
                 { id: "a1", name: "Perforeuse sans fil", category: "Outillage", present: true, emoji: "🛠️" },
@@ -718,12 +655,17 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             setupEventListeners();
-            applyLayout(); // Premier calcul dynamique d'orientation d'interface
+            applyLayout(); 
             
             try {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
-                db = getFirestore(app);
+                
+                // NOUVEAU : Initialisation robuste de Firestore avec mise en cache locale
+                // Cela permet aux requêtes onSnapshot de fonctionner même en l'absence de réseau (zones blanches)
+                db = initializeFirestore(app, {
+                    localCache: persistentLocalCache()
+                });
 
                 await signInAnonymously(auth);
 
@@ -731,9 +673,7 @@
                     if (user) {
                         userId = user.uid;
                         document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
-                        document.getElementById('cloudStatusIndicator').innerHTML = '🟢 Partagé';
-                        document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
-                        isOnline = true;
+                        updateNetworkIndicator(); // Mise à jour de l'UI selon l'état du réseau
                         
                         // Écouteur Firestore Temps Réel
                         const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
@@ -762,6 +702,31 @@
             }
         });
 
+        // NOUVEAU : Écouteurs de connexion du navigateur pour mettre l'interface à jour en temps réel
+        window.addEventListener('online', () => {
+            isOnline = true;
+            updateNetworkIndicator();
+            if (userId) pushStateToCloud(); // Synchronisation des modifications faites hors-ligne
+        });
+        
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateNetworkIndicator();
+            showToast("📡 Réseau perdu. Sauvegarde locale active.");
+        });
+
+        // NOUVEAU : Fonction de mise à jour visuelle de la connexion
+        function updateNetworkIndicator() {
+            const indicator = document.getElementById('cloudStatusIndicator');
+            if (isOnline) {
+                indicator.innerHTML = '🟢 Partagé';
+                indicator.className = "text-[8px] font-bold bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
+            } else {
+                indicator.innerHTML = '🔴 Hors-ligne';
+                indicator.className = "text-[8px] font-bold bg-rose-950 text-rose-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-rose-500/30";
+            }
+        }
+
         function setupLocalFallback() {
             document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
             document.getElementById('cloudStatusIndicator').className = "text-[8px] font-bold bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30";
@@ -771,7 +736,8 @@
         }
 
         async function pushStateToCloud() {
-            if (!isOnline || !userId) return;
+            // Même hors-ligne, on écrit dans Firebase pour que le cache local enregistre les modifications
+            if (!userId) return; 
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
                 await setDoc(docRef, {
@@ -787,12 +753,10 @@
             }
         }
 
-        // --- ALGORITHME DE DÉTECTION ET DE RENDU INTÉLLIGENT DU CANVAS ---
         function applyLayout() {
-            // Détection de la nature physique de l'appareil (Mobile vs Desktop)
             const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isLowResScreen = window.screen.width < 1024;
-            const isDesktop = !isMobileUA && !isLowResScreen; // Un vrai ordinateur de bureau ou laptop
+            const isDesktop = !isMobileUA && !isLowResScreen;
             
             const viewportWidth = window.innerWidth;
             
@@ -800,7 +764,6 @@
             const colRightPc = document.getElementById('col-right-pc');
             const floatToggleBtn = document.getElementById('floatViewToggleBtn');
             
-            // Cas 1 : Vrai ordinateur avec fenêtre très large (affichage côte à côte dual-screen)
             if (isDesktop && viewportWidth >= 1200) {
                 colLeftMobile.className = "w-full lg:max-w-md lg:w-[450px] flex-shrink-0 flex items-center justify-center p-0 sm:p-4 lg:p-8 bg-slate-950";
                 colRightPc.className = "flex flex-1 flex-col p-8 bg-slate-900 border-l border-slate-800 h-screen overflow-y-auto space-y-6 custom-scrollbar flex";
@@ -808,13 +771,9 @@
                 return;
             }
             
-            // Cas 2 : L'écran est étroit (ex : Iframe d'aperçu d'ordinateur, ou tablette)
             if (isDesktop) {
-                // On affiche le bouton de bascule manuel car l'écran physique est un PC mais la fenêtre d'aperçu est étroite
                 if (floatToggleBtn) floatToggleBtn.classList.remove('hidden');
-                
-                let activeView = manualViewOverride || 'pc'; // Par défaut sur PC, on affiche la console PC complète !
-                
+                let activeView = manualViewOverride || 'pc'; 
                 if (activeView === 'pc') {
                     colLeftMobile.className = "hidden";
                     colRightPc.className = "flex flex-1 flex-col p-8 bg-slate-900 border-l border-slate-800 h-screen overflow-y-auto space-y-6 custom-scrollbar flex";
@@ -829,7 +788,6 @@
                     }
                 }
             } else {
-                // Cas 3 : Vrai smartphone, on force à 100 % l'interface mobile simplifiée
                 colLeftMobile.className = "w-full flex-1 flex items-center justify-center p-0 sm:p-4 bg-slate-950";
                 colRightPc.className = "hidden";
                 if (floatToggleBtn) floatToggleBtn.classList.add('hidden');
@@ -837,48 +795,39 @@
         }
 
         function setupEventListeners() {
-            // Réactivité dynamique au redimensionnement de la fenêtre
             window.addEventListener('resize', applyLayout);
 
-            // Clic sur le bouton de permutation flottant
             document.getElementById('floatViewToggleBtn').addEventListener('click', () => {
                 playSound('pop');
                 manualViewOverride = (manualViewOverride === 'pc' || (!manualViewOverride && window.innerWidth < 1200)) ? 'mobile' : 'pc';
                 applyLayout();
             });
 
-            // Sélecteur d'utilisateur mobile
             document.getElementById('userSelector').addEventListener('change', (e) => {
                 currentUser = e.target.value;
                 showToast(`👤 Session : ${currentUser}`);
             });
 
-            // Navigation Mobile
             const navTabs = ['dashboard', 'report', 'inventory', 'team'];
             navTabs.forEach(tab => {
                 document.getElementById('navBtn-' + tab).addEventListener('click', () => switchTab(tab));
             });
 
-            // Modale de détails
             document.getElementById('btnCloseDetails').addEventListener('click', () => closeTruckDetails());
             document.getElementById('btnDetailsReport').addEventListener('click', () => {
                 closeTruckDetails();
                 switchTab('report');
             });
 
-            // Boutons d'état dans le signalement rapide mobile
             document.getElementById('btnSubmitMissing').addEventListener('click', () => submitReport('missing'));
             document.getElementById('btnSubmitPresent').addEventListener('click', () => submitReport('present'));
 
-            // Validation finale inventaire
             document.getElementById('btnFinishMonthly').addEventListener('click', () => finishMonthlyInventory());
 
-            // Modale de gestion d'équipements mobile
             document.getElementById('btnOpenManageTools').addEventListener('click', () => openManageToolsModal());
             document.getElementById('btnCloseManageTools').addEventListener('click', () => closeManageToolsModal());
             document.getElementById('btnSaveNewTool').addEventListener('click', () => addNewToolMobile());
 
-            // --- LISTENERS DE LA CONSOLE PC ---
             document.getElementById('pcBtnSaveTruck').addEventListener('click', () => addNewTruckPC());
             document.getElementById('pcBtnSaveMember').addEventListener('click', () => addNewMemberPC());
             document.getElementById('pcBtnFastSaveTool').addEventListener('click', () => addNewToolPC());
@@ -887,7 +836,6 @@
                 addCategoryAction(name);
             });
             
-            // Recherche et filtres d'outils PC
             document.getElementById('pcSearchTools').addEventListener('input', () => renderPCToolsTable());
             document.getElementById('pcFilterTruckSelect').addEventListener('change', () => renderPCToolsTable());
         }
@@ -919,7 +867,6 @@
             renderCategoryFilters();
             renderPCCategoriesList();
 
-            // Rendu de l'interface PC
             updatePCKPIs();
             renderPCTrucksGrid();
             renderPCTeamTable();
@@ -1149,7 +1096,6 @@
             if (!container) return;
             container.innerHTML = '';
 
-            // Render first option: "Tout"
             const btnAll = document.createElement('button');
             btnAll.id = 'catFilter-All';
             btnAll.className = activeCategoryFilter === 'All'
@@ -1159,7 +1105,6 @@
             btnAll.addEventListener('click', () => filterInventoryCategory('All'));
             container.appendChild(btnAll);
 
-            // Render other dynamic categories
             categories.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.id = 'catFilter-' + cat;
@@ -1292,7 +1237,6 @@
                 return;
             }
 
-            // Cascade Category rename down to all matching tools in every truck
             trucks.forEach(truck => {
                 truck.equipment.forEach(item => {
                     if (item.category === oldName) {
@@ -1319,7 +1263,6 @@
             categories.splice(idx, 1);
             const fallbackCat = categories[0];
 
-            // Cascade Category deletion: Remap any orphaned tools to the first remaining category
             let updatedToolsCount = 0;
             trucks.forEach(truck => {
                 truck.equipment.forEach(item => {
@@ -1553,7 +1496,6 @@
             renderManageToolsList();
         }
 
-        // PC ONLY ADMINISTRATIVE AND KPIs ENGINE
         function updatePCKPIs() {
             const pcTrucksKpi = document.getElementById('pc-kpi-trucks');
             if (pcTrucksKpi) pcTrucksKpi.innerText = trucks.length;

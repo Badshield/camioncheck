@@ -1,23 +1,23 @@
 {
-"name": "CamionCheck", // Nom complet de l'application PWA qui s'affichera sur l'appareil de l'utilisateur
-"short_name": "CamionCheck", // Nom court utilisé sur l'écran d'accueil du smartphone
-"description": "L'inventaire ludique de nos camions de chantier", // Description textuelle de l'utilité de la PWA
-"start_url": "index.html", // URL de démarrage corrigée pour correspondre au fichier index.html présent sur GitHub Pages
-"display": "standalone", // Mode d'affichage autonome qui masque la barre d'adresse du navigateur comme une vraie app
-"background_color": "#0f172a", // Couleur de fond affichée lors du chargement de l'application sur mobile
-"theme_color": "#0f172a", // Couleur de la barre d'état système du smartphone
-"orientation": "portrait-primary", // Force l'orientation de l'application en mode portrait
-"icons": [ // Liste des icônes de l'application pour les différents formats d'écrans
-{
-"src": "https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=192&h=192&q=80", // URL de l'icône de taille moyenne
-"type": "image/png", // Format d'image spécifié au format PNG
-"sizes": "192x192", // Dimensions de l'icône moyenne
-"purpose": "any maskable" // Permet d'adapter l'icône aux formes imposées par le système d'exploitation mobile (ex: Android)
-},
-{
-"src": "https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=512&h=512&q=80", // URL de l'icône de grande taille
-"type": "image/png", // Format d'image spécifié au format PNG
-"sizes": "512x512" // Dimensions de l'icône large pour les tablettes ou écrans haute densité
-}
-]
+  "name": "CamionCheck", 
+  "short_name": "CamionCheck", 
+  "description": "L'inventaire ludique de nos camions de chantier", 
+  "start_url": "index.html", 
+  "display": "standalone", 
+  "background_color": "#0f172a", 
+  "theme_color": "#0f172a", 
+  "orientation": "portrait-primary", 
+  "icons": [ 
+    {
+      "src": "https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=192&h=192&q=80", 
+      "type": "image/png", 
+      "sizes": "192x192", 
+      "purpose": "any maskable" 
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?auto=format&fit=crop&w=512&h=512&q=80", 
+      "type": "image/png", 
+      "sizes": "512x512" 
+    }
+  ]
 }

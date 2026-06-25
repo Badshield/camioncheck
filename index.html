@@ -111,7 +111,7 @@
                             </button>
                         </div>
                         
-                        <!-- Injection des cartes de camions avec barres de chargement et indicateurs de sécurité -->
+                        <!-- Injection des cartes de camions -->
                         <div id="trucksListContainer" class="space-y-3.5">
                             <!-- Rempli de façon asynchrone et locale -->
                         </div>
@@ -171,35 +171,59 @@
                         </div>
                     </div>
 
-                    <!-- ================= ONGLET MOBILE : INVENTAIRE MENSUEL CHRONO ================= -->
+                    <!-- ================= ONGLET MOBILE : INVENTAIRE MENSUEL CHRONO (COMPLET) ================= -->
                     <div id="page-inventory" class="space-y-4 hidden">
                         <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
-                            <div class="text-center pb-3 border-b border-slate-100">
-                                <span class="text-xs font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Mode Terrain 🕹️</span>
-                                <h3 class="font-extrabold text-slate-900 text-base mt-2">Vérification de Flotte</h3>
+                            <div class="text-center pb-1 border-b border-slate-100">
+                                <span class="text-xs font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">Inventaire Réel de Terrain 🔍</span>
+                                <h3 class="font-extrabold text-slate-900 text-base mt-2.5">Audit &amp; Conformité Véhicule</h3>
+                                <p class="text-[10px] text-slate-400 mt-1" id="currentInventoryMeta">Contrôleur : -- | Date : --</p>
                             </div>
 
+                            <!-- Sélection du camion pour contrôle -->
                             <div id="inventoryTruckButtonsContainer" class="flex space-x-1.5 p-1.5 bg-slate-100 rounded-2xl">
                                 <!-- Rempli en JS -->
                             </div>
 
-                            <div class="flex space-x-1.5 overflow-x-auto pb-1.5 custom-scrollbar" id="categoryFilters">
-                                <!-- Rempli par renderCategoryFilters() -->
+                            <!-- Filtres d'état pour isoler les anomalies -->
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Filtre d'état :</span>
+                                <div class="flex space-x-1" id="inventoryStateFilters">
+                                    <button id="btnInvState-all" class="px-2 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black">Tous</button>
+                                    <button id="btnInvState-anomalies" class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black">⚠️ Anomalies</button>
+                                </div>
                             </div>
 
-                            <div class="space-y-2.5 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
+                            <!-- Actions groupées -->
+                            <div class="flex gap-2">
+                                <button id="btnMarkAllOk" class="flex-1 py-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
+                                    <i class="fa-solid fa-check-double text-xs"></i> Tout Marquer "En Place"
+                                </button>
+                            </div>
+
+                            <!-- Liste dynamique des outils avec contrôle de quantité & de condition -->
+                            <div class="space-y-3 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
                                 <!-- Rempli en JS -->
                             </div>
 
-                            <div class="pt-4 border-t border-slate-100 space-y-2">
+                            <!-- Validation et statistiques -->
+                            <div class="pt-4 border-t border-slate-100 space-y-3">
                                 <div class="flex justify-between items-center text-xs text-slate-500 font-bold">
-                                    <span>État de l'inventaire :</span>
-                                    <span id="inventoryProgressText" class="text-slate-800 font-black">0 / 0</span>
+                                    <span>Conformité estimée :</span>
+                                    <span id="inventoryProgressText" class="text-emerald-600 font-black">0% (0 / 0)</span>
                                 </div>
                                 <button id="btnFinishMonthly" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black rounded-2xl text-xs shadow-sm active:scale-95 transition flex items-center justify-center space-x-2">
                                     <i class="fa-solid fa-clipboard-check text-sm"></i>
-                                    <span>VALIDER CETTE CHECKLIST</span>
+                                    <span>ENREGISTRER L'INVENTAIRE</span>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Mini Historique de Contrôle sur Mobile -->
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Derniers Contrôles Enregistrés</h4>
+                            <div class="space-y-2.5" id="mobileAuditsHistoryList">
+                                <!-- Rempli en JS -->
                             </div>
                         </div>
                     </div>
@@ -388,6 +412,19 @@
 
                 <div class="space-y-6 xl:col-span-2">
                     
+                    <!-- REGISTRE DE CONTRÔLES & HISTORIQUE DES AUDITS (PC) -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col h-[320px]">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3 flex-shrink-0">
+                            <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                                <span>📋</span> Registre d'Audits &amp; Historique d'Inventaires
+                            </h3>
+                            <span class="text-[10px] bg-amber-500/15 text-amber-400 font-black px-2 py-1 rounded">RAPPORTS VALIDES</span>
+                        </div>
+                        <div id="pcAuditsHistoryList" class="flex-1 overflow-y-auto text-xs space-y-3 pr-1 custom-scrollbar text-slate-300 pb-2">
+                            <!-- Rempli en JS -->
+                        </div>
+                    </div>
+
                     <!-- MA FLOTTE DE VÉHICULES ACTIFS -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
@@ -399,30 +436,30 @@
                         </div>
                     </div>
 
-                    <!-- LISTE DES COMPAGNONS DE CHANTIER -->
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
-                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
-                            <span>Tableau de la Tribu VETTER</span>
-                            <span class="text-xs text-slate-500 font-normal">Suivi de la diligence de chaque technicien</span>
-                        </h3>
-                        <div class="overflow-x-auto custom-scrollbar">
-                            <table class="w-full text-left text-xs text-slate-400">
-                                <thead class="text-[11px] text-slate-500 uppercase border-b border-slate-800">
-                                    <tr>
-                                        <th class="py-3 px-2">Équipier</th>
-                                        <th class="py-3 px-2">Implication</th>
-                                        <th class="py-3 px-2">Contrôles terminés</th>
-                                        <th class="py-3 px-2">Distinctions</th>
-                                        <th class="py-3 px-2 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pcTeamTableBody" class="divide-y divide-slate-800/50">
-                                    <!-- Rempli en JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                </div>
+            </div>
 
+            <!-- TABLEAU DES COMPAGNONS DE CHANTIER -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
+                    <span>Tableau de la Tribu VETTER</span>
+                    <span class="text-xs text-slate-500 font-normal">Suivi de la diligence de chaque technicien</span>
+                </h3>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs text-slate-400">
+                        <thead class="text-[11px] text-slate-500 uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-2">Équipier</th>
+                                <th class="py-3 px-2">Implication</th>
+                                <th class="py-3 px-2">Contrôles terminés</th>
+                                <th class="py-3 px-2">Distinctions</th>
+                                <th class="py-3 px-2 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pcTeamTableBody" class="divide-y divide-slate-800/50">
+                            <!-- Rempli en JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -433,7 +470,7 @@
                         <h3 class="text-base font-extrabold text-white flex items-center gap-2">
                             <span>🛠|️</span> Base de Données Globale du Matériel de Chantier
                         </h3>
-                        <p class="text-xs text-slate-500 mt-1">Créez du matériel, changez son statut, supprimez-le ou **transférez-le** instantanément entre les camions.</p>
+                        <p class="text-xs text-slate-500 mt-1">Créez du matériel, changez son statut, modifiez l'état de fonctionnement et transférez les outils entre camions.</p>
                     </div>
                     
                     <div class="flex items-center gap-2 flex-wrap">
@@ -487,16 +524,18 @@
                 <!-- Tableau principal du matériel répertorié -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-left text-xs text-slate-400">
+                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="py-3 px-4">Équipement</th>
+                                <th class="py-3 px-4">Catégorie</th>
+                                <th class="py-3 px-4">Quantité</th>
+                                <th class="py-3 px-4">Condition</th>
+                                <th class="py-3 px-4">Note / Alerte</th>
+                                <th class="py-3 px-4">Camion Affecté</th>
+                                <th class="py-3 px-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
                         <tbody id="pcToolsTableBody" class="divide-y divide-slate-800/50">
-                            <thead class="text-[11px] text-slate-500 uppercase bg-slate-900/50">
-                                <tr>
-                                    <th class="py-3 px-4">Équipement</th>
-                                    <th class="py-3 px-4">Catégorie</th>
-                                    <th class="py-3 px-4">Statut Actuel</th>
-                                    <th class="py-3 px-4">Camion Affecté</th>
-                                    <th class="py-3 px-4 text-center">Actions rapides</th>
-                                </tr>
-                            </thead>
                             <!-- Rempli en JS -->
                         </tbody>
                     </table>
@@ -577,6 +616,16 @@
                         <select id="addToolCategory" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700">
                             <!-- Rempli en JS -->
                         </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Quantité cible</label>
+                        <input type="number" id="addToolTargetQty" min="1" value="1" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Quantité actuelle</label>
+                        <input type="number" id="addToolQty" min="0" value="1" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none font-bold">
                     </div>
                 </div>
                 <div>
@@ -725,28 +774,35 @@
         let selectedTruckIndexForDetails = 0;
         let editingCategoryIndex = null; 
         let manualViewOverride = null; 
+        
+        // Filtre d'état spécifique pour l'onglet d'inventaire
+        let inventoryStateFilter = "all"; // "all" | "anomalies"
 
         let categories = ["Outillage", "Sécurité", "Consommables", "Matériel Électrique", "Logistique"];
 
+        // Extension du modèle de matériel pour prendre en compte l'inventaire réel
+        // condition: "good" (En place) | "damaged" (Endommagé) | "missing" (Manquant)
+        // targetQty: Quantité cible nécessaire dans le camion
+        // qty: Quantité actuellement détectée
         const initialEquipment = [
             [
-                { id: "a1", name: "Perforeuse sans fil", category: "Outillage", present: true, emoji: "🛠️" },
-                { id: "a2", name: "Visseuse à chocs", category: "Outillage", present: true, emoji: "⚙️" },
-                { id: "a3", name: "Mallette de douilles", category: "Outillage", present: true, emoji: "🔧" },
-                { id: "a4", name: "Rallonge électrique 20m", category: "Matériel Électrique", present: true, emoji: "🔌" },
-                { id: "a5", name: "Extincteur à bord", category: "Sécurité", present: true, emoji: "🧯" },
-                { id: "a6", name: "Gilet & Casque de sécurité", category: "Sécurité", present: true, emoji: "🦺" },
-                { id: "a7", name: "Boite de vis Spax", category: "Consommables", present: false, emoji: "📦" },
-                { id: "a8", name: "Niveau à bulle", category: "Outillage", present: true, emoji: "📏" }
+                { id: "a1", name: "Perforeuse sans fil", category: "Outillage", present: true, emoji: "🛠️", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "a2", name: "Visseuse à chocs", category: "Outillage", present: true, emoji: "⚙️", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "a3", name: "Mallette de douilles", category: "Outillage", present: true, emoji: "🔧", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "a4", name: "Rallonge électrique 20m", category: "Matériel Électrique", present: true, emoji: "🔌", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "a5", name: "Extincteur à bord", category: "Sécurité", present: true, emoji: "🧯", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "a6", name: "Gilet de sécurité", category: "Sécurité", present: true, emoji: "🦺", condition: "good", qty: 2, targetQty: 2, note: "" },
+                { id: "a7", name: "Boite de vis Spax", category: "Consommables", present: false, emoji: "📦", condition: "missing", qty: 0, targetQty: 5, note: "Épuisé" },
+                { id: "a8", name: "Niveau à bulle", category: "Outillage", present: true, emoji: "📏", condition: "good", qty: 1, targetQty: 1, note: "" }
             ],
             [
-                { id: "b1", name: "Scie circulaire", category: "Outillage", present: true, emoji: "🪚" },
-                { id: "b2", name: "Ponceuse vibrante", category: "Outillage", present: true, emoji: "⚙️" },
-                { id: "b3", name: "Spot de chantier LED", category: "Matériel Électrique", present: false, emoji: "💡" },
-                { id: "b4", name: "Trousse de secours", category: "Sécurité", present: true, emoji: "🩹" },
-                { id: "b5", name: "Escabeau 5 marches", category: "Logistique", present: true, emoji: "🪜" },
-                { id: "b6", name: "Cartouches de Silicone (x3)", category: "Consommables", present: false, emoji: "🧴" },
-                { id: "b7", name: "Boite de chevilles Nylon", category: "Consommables", present: true, emoji: "📦" }
+                { id: "b1", name: "Scie circulaire", category: "Outillage", present: true, emoji: "🪚", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "b2", name: "Ponceuse vibrante", category: "Outillage", present: true, emoji: "⚙️", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "b3", name: "Spot de chantier LED", category: "Matériel Électrique", present: false, emoji: "💡", condition: "missing", qty: 0, targetQty: 1, note: "Laissé au dépôt" },
+                { id: "b4", name: "Trousse de secours", category: "Sécurité", present: true, emoji: "🩹", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "b5", name: "Escabeau 5 marches", category: "Logistique", present: true, emoji: "🪜", condition: "good", qty: 1, targetQty: 1, note: "" },
+                { id: "b6", name: "Cartouches Silicone", category: "Consommables", present: false, emoji: "🧴", condition: "missing", qty: 0, targetQty: 3, note: "À recommander" },
+                { id: "b7", name: "Boite de chevilles Nylon", category: "Consommables", present: true, emoji: "📦", condition: "good", qty: 2, targetQty: 2, note: "" }
             ]
         ];
 
@@ -766,9 +822,15 @@
         ];
 
         let feed = [
-            { user: "Angelo", action: "missing", reason: "Emprunté pour le chantier", item: "Gaine Boudin", truck: "Camion Blanc", time: "À l'instant" },
+            { user: "Angelo", action: "missing", reason: "Emprunté pour le chantier", item: "Niveau à bulle", truck: "Camion Blanc", time: "À l'instant" },
             { user: "Thomas", action: "missing", reason: "Consommé / Vide", item: "Boite de vis Spax", truck: "Camion Blanc", time: "Hier à 17:30" },
             { user: "Lucas", action: "present", reason: "", item: "Visseuse à chocs", truck: "Camion Blanc", time: "Hier à 14:15" }
+        ];
+
+        // Base de données d'historique des audits d'inventaire
+        let audits = [
+            { id: "aud-1", date: "24/06/2026", auditor: "Thomas", truck: "Camion Blanc", compliance: 87, anomalies: ["Boite de vis Spax épuisée"] },
+            { id: "aud-2", date: "23/06/2026", auditor: "Lucas", truck: "Camion Gris", compliance: 71, anomalies: ["Spot de chantier LED absent", "Cartouches silicone manquantes"] }
         ];
 
         let teamScores = {
@@ -777,16 +839,6 @@
             "Lucas": { score: 80, checks: 5, badges: ["🚀 Express"], avatar: "👦" },
             "Yann": { score: 45, checks: 2, badges: [], avatar: "👨" }
         };
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then((reg) => {
-                    console.log('Service Worker enregistré avec succès :', reg.scope);
-                }).catch((err) => {
-                    console.warn('Échec d\'enregistrement du Service Worker :', err);
-                });
-            });
-        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             setupEventListeners();
@@ -817,6 +869,7 @@
                                 const data = docSnap.data();
                                 if (data.trucks) trucks = data.trucks;
                                 if (data.feed) feed = data.feed;
+                                if (data.audits) audits = data.audits;
                                 if (data.teamScores) teamScores = data.teamScores;
                                 if (data.categories) categories = data.categories;
                                 updateUI();
@@ -897,6 +950,7 @@
                 await setDoc(docRef, {
                     trucks,
                     feed,
+                    audits,
                     teamScores,
                     categories,
                     lastUpdated: new Date().toISOString(),
@@ -959,6 +1013,7 @@
             document.getElementById('userSelector').addEventListener('change', (e) => {
                 currentUser = e.target.value;
                 showToast(`👤 Session : ${currentUser}`);
+                if (activeTab === 'inventory') renderInventoryPage();
             });
 
             const navTabs = ['dashboard', 'report', 'inventory', 'team'];
@@ -1007,6 +1062,11 @@
             document.getElementById('pcBtnUpdateTruckSubmit').addEventListener('click', () => {
                 updateTruckPC();
             });
+
+            // Boutons de filtres d'inventaire rapide
+            document.getElementById('btnInvState-all').addEventListener('click', () => setInventoryStateFilter('all'));
+            document.getElementById('btnInvState-anomalies').addEventListener('click', () => setInventoryStateFilter('anomalies'));
+            document.getElementById('btnMarkAllOk').addEventListener('click', () => markAllInventoryToolsOk());
 
             const btnAcceptInstall = document.getElementById('btnAcceptAndroidInstall');
             if (btnAcceptInstall) {
@@ -1073,6 +1133,7 @@
             renderPCToolsTable();
             populatePCToolDropdowns();
             populateCategoryDropdowns();
+            renderPCAndMobileAuditsHistory();
         }
 
         function renderMobileHeaderAndSelectors() {
@@ -1101,15 +1162,25 @@
             trucks.forEach((truck, index) => {
                 const equipmentList = truck.equipment || [];
                 const total = equipmentList.length;
-                const present = equipmentList.filter(e => e.present).length;
-                const score = total > 0 ? Math.round((present / total) * 100) : 100;
                 
-                // Détection de matériel de sécurité manquant
-                const hasMissingSecurity = equipmentList.some(e => e.category === 'Sécurité' && !e.present);
+                // Calcul du taux de conformité basé sur l'état réel de chaque matériel
+                let compliantCount = 0;
+                equipmentList.forEach(item => {
+                    if (item.condition === 'good' && item.qty >= item.targetQty) {
+                        compliantCount++;
+                    } else if (item.condition === 'damaged' && item.qty > 0) {
+                        compliantCount += 0.5; // Compte à moitié si endommagé mais présent
+                    }
+                });
+                
+                const score = total > 0 ? Math.round((compliantCount / total) * 100) : 100;
+                
+                // Détection de matériel de sécurité défectueux ou manquant
+                const hasMissingSecurity = equipmentList.some(e => e.category === 'Sécurité' && (e.condition === 'missing' || e.qty === 0 || e.condition === 'damaged'));
 
                 let badgeClass = "bg-rose-50 text-rose-700 border border-rose-100";
                 let barClass = "bg-rose-500";
-                let summary = `🚨 ${total - present} matériel(s) manquant(s) !`;
+                let summary = `🚨 Anomalies à corriger !`;
 
                 if (score === 100) {
                     badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-100";
@@ -1118,14 +1189,13 @@
                 } else if (score >= 80) {
                     badgeClass = "bg-amber-50 text-amber-700 border border-amber-100";
                     barClass = "bg-amber-500";
-                    summary = `⚠️ Uniquement ${total - present} manquant(s)`;
+                    summary = `⚠️ Quelques anomalies mineures`;
                 }
 
-                // Construction de l'alerte de sécurité clignotante
                 const alertSecurityHTML = hasMissingSecurity 
                     ? `<div class="mt-2.5 bg-rose-600 text-white text-[10px] font-black tracking-wider px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 animate-pulse-subtle">
                          <i class="fa-solid fa-triangle-exclamation text-xs"></i>
-                         <span>ALERTE : MATÉRIEL DE SÉCURITÉ MANQUANT !</span>
+                         <span>ANOMALIE DE SÉCURITÉ MAJEURE !</span>
                        </div>` 
                     : '';
 
@@ -1227,6 +1297,23 @@
             });
         }
 
+        function setInventoryStateFilter(state) {
+            playSound('pop');
+            inventoryStateFilter = state;
+            
+            const btnAll = document.getElementById('btnInvState-all');
+            const btnAnom = document.getElementById('btnInvState-anomalies');
+            
+            if (state === 'all') {
+                btnAll.className = "px-2.5 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black";
+                btnAnom.className = "px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black";
+            } else {
+                btnAll.className = "px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black";
+                btnAnom.className = "px-2.5 py-1 bg-rose-600 text-white rounded-lg text-[10px] font-black";
+            }
+            renderInventoryPage();
+        }
+
         function selectReportTruck(index) {
             playSound('pop');
             currentReportTruck = index;
@@ -1280,6 +1367,10 @@
             }
 
             item.present = isPresent;
+            // Aligner les structures de données
+            item.condition = isPresent ? 'good' : 'missing';
+            item.qty = isPresent ? item.targetQty : 0;
+
             let reason = isPresent ? "" : document.getElementById('reportReason').value;
 
             feed.unshift({
@@ -1504,11 +1595,63 @@
             await pushStateToCloud();
         }
 
-        async function toggleItemStatus(id) {
+        async function updateInventoryItemCondition(id, cond) {
             playSound('pop');
             const equipmentList = trucks[currentInventoryTruck].equipment || [];
             const item = equipmentList.find(e => e.id === id);
-            item.present = !item.present;
+            
+            item.condition = cond;
+            if (cond === 'missing') {
+                item.qty = 0;
+                item.present = false;
+            } else {
+                if (item.qty === 0) item.qty = item.targetQty; // Repousser à nominal
+                item.present = true;
+            }
+            
+            renderInventoryPage();
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function changeInventoryItemQty(id, increment) {
+            playSound('pop');
+            const equipmentList = trucks[currentInventoryTruck].equipment || [];
+            const item = equipmentList.find(e => e.id === id);
+            
+            const newQty = Math.max(0, item.qty + increment);
+            item.qty = newQty;
+            
+            if (newQty === 0) {
+                item.condition = 'missing';
+                item.present = false;
+            } else if (item.condition === 'missing') {
+                item.condition = 'good';
+                item.present = true;
+            }
+            
+            renderInventoryPage();
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function updateInventoryItemNote(id, noteText) {
+            const equipmentList = trucks[currentInventoryTruck].equipment || [];
+            const item = equipmentList.find(e => e.id === id);
+            item.note = noteText;
+            // Ne pas push en direct pour éviter de couper la saisie, seulement locale, sauvée sur validation ou changement de tab
+        }
+
+        async function markAllInventoryToolsOk() {
+            playSound('success');
+            const equipmentList = trucks[currentInventoryTruck].equipment || [];
+            equipmentList.forEach(item => {
+                item.condition = 'good';
+                item.qty = item.targetQty;
+                item.present = true;
+                item.note = "";
+            });
+            showToast("✨ Tous les outils du camion marqués 'En Place'");
             renderInventoryPage();
             updateUI();
             await pushStateToCloud();
@@ -1530,6 +1673,10 @@
                 tabContainer.appendChild(btn);
             });
 
+            // Afficher le contrôleur & date du jour
+            const todayStr = new Date().toLocaleDateString('fr-FR');
+            document.getElementById('currentInventoryMeta').innerText = `Contrôleur : ${currentUser} | Date de l'audit : ${todayStr}`;
+
             const container = document.getElementById('inventoryItemsList');
             if (!container) return;
             container.innerHTML = '';
@@ -1538,31 +1685,108 @@
 
             const truck = trucks[currentInventoryTruck];
             const equipmentList = truck.equipment || [];
+            
+            // Appliquer les filtres combinés (Catégorie + État d'anomalie)
             const filtered = equipmentList.filter(e => {
-                if (activeCategoryFilter === 'All') return true;
-                return e.category === activeCategoryFilter;
+                const matchCat = (activeCategoryFilter === 'All' || e.category === activeCategoryFilter);
+                if (!matchCat) return false;
+                
+                if (inventoryStateFilter === 'anomalies') {
+                    // Est considéré comme anomalie : absent, endommagé, ou quantité inférieure à la cible
+                    return e.condition === 'missing' || e.condition === 'damaged' || e.qty < e.targetQty;
+                }
+                return true;
+            });
+
+            // Calcul du taux de conformité
+            let compliantCount = 0;
+            equipmentList.forEach(item => {
+                if (item.condition === 'good' && item.qty >= item.targetQty) {
+                    compliantCount++;
+                } else if (item.condition === 'damaged' && item.qty > 0) {
+                    compliantCount += 0.5;
+                }
             });
 
             const total = equipmentList.length;
-            const checked = equipmentList.filter(e => e.present).length;
-            document.getElementById('inventoryProgressText').innerText = `${checked} / ${total} présents`;
+            const score = total > 0 ? Math.round((compliantCount / total) * 100) : 100;
+            document.getElementById('inventoryProgressText').innerText = `${score}% (${Math.round(compliantCount)} / ${total} conformes)`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">Aucun outil ne correspond aux filtres actuels.</div>`;
+                return;
+            }
 
             filtered.forEach(item => {
+                const isConsumable = item.targetQty > 1;
+                
+                // Détermination de la couleur de bordure de l'élément d'inventaire
+                let borderTheme = "bg-white border-slate-100";
+                if (item.condition === 'missing') borderTheme = "bg-rose-50/60 border-rose-200";
+                else if (item.condition === 'damaged') borderTheme = "bg-amber-50/60 border-amber-200";
+                else if (item.qty < item.targetQty) borderTheme = "bg-amber-50/40 border-amber-100";
+
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-3 rounded-2xl border transition-all " + (item.present ? "bg-emerald-50/40 border-emerald-100" : "bg-rose-50/40 border-rose-100");
-                row.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xl">${item.emoji}</span>
-                        <div>
-                            <span class="text-xs font-bold block text-slate-900">${item.name}</span>
-                            <span class="text-[10px] uppercase text-slate-400 font-extrabold tracking-wider">${item.category}</span>
-                        </div>
+                row.className = `p-3 rounded-2xl border transition-all space-y-3.5 ${borderTheme}`;
+                
+                // Constructeur du sélecteur d'état à 3 boutons
+                const activeCond = item.condition || (item.present ? 'good' : 'missing');
+                const condSelectorHTML = `
+                    <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-[10px] font-extrabold">
+                        <button class="cond-btn-good py-1.5 rounded-lg transition ${activeCond === 'good' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:bg-white/50'}" data-id="${item.id}">
+                            En Place
+                        </button>
+                        <button class="cond-btn-damaged py-1.5 rounded-lg transition ${activeCond === 'damaged' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-500 hover:bg-white/50'}" data-id="${item.id}">
+                            Endommagé
+                        </button>
+                        <button class="cond-btn-missing py-1.5 rounded-lg transition ${activeCond === 'missing' ? 'bg-rose-500 text-white shadow-sm' : 'text-slate-500 hover:bg-white/50'}" data-id="${item.id}">
+                            Manquant
+                        </button>
                     </div>
-                    <button class="toggle-status-btn px-3 py-2 rounded-xl text-[10px] font-black uppercase text-white shadow-sm active:scale-95 transition ${item.present ? 'bg-emerald-500' : 'bg-rose-500'}">
-                        ${item.present ? 'À Bord' : 'Absent'}
-                    </button>
                 `;
-                row.querySelector('.toggle-status-btn').addEventListener('click', () => toggleItemStatus(item.id));
+
+                // Constructeur du widget de quantité si l'outil supporte plusieurs unités
+                const qtyWidgetHTML = isConsumable 
+                    ? `<div class="flex items-center space-x-2 bg-slate-100 rounded-xl px-2.5 py-1 flex-shrink-0">
+                         <button class="btn-qty-minus text-slate-600 hover:text-slate-950 font-black text-sm px-1" data-id="${item.id}">-</button>
+                         <span class="text-xs font-black text-slate-800 w-10 text-center">${item.qty} / ${item.targetQty}</span>
+                         <button class="btn-qty-plus text-slate-600 hover:text-slate-950 font-black text-xs px-1" data-id="${item.id}">+</button>
+                       </div>`
+                    : '';
+
+                row.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center space-x-2.5">
+                            <span class="text-xl bg-slate-100 p-1.5 rounded-lg">${item.emoji}</span>
+                            <div>
+                                <span class="text-xs font-extrabold block text-slate-900 leading-snug">${item.name}</span>
+                                <span class="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider">${item.category}</span>
+                            </div>
+                        </div>
+                        ${qtyWidgetHTML}
+                    </div>
+
+                    ${condSelectorHTML}
+
+                    <div>
+                        <input type="text" value="${item.note || ''}" placeholder="Ajouter une remarque de contrôle..." class="input-item-note w-full bg-slate-50 border border-slate-100 rounded-xl p-2 text-[10.5px] text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-400" data-id="${item.id}">
+                    </div>
+                `;
+
+                // Attacher les écouteurs d'événements
+                row.querySelector('.cond-btn-good').addEventListener('click', () => updateInventoryItemCondition(item.id, 'good'));
+                row.querySelector('.cond-btn-damaged').addEventListener('click', () => updateInventoryItemCondition(item.id, 'damaged'));
+                row.querySelector('.cond-btn-missing').addEventListener('click', () => updateInventoryItemCondition(item.id, 'missing'));
+                
+                if (isConsumable) {
+                    row.querySelector('.btn-qty-minus').addEventListener('click', () => changeInventoryItemQty(item.id, -1));
+                    row.querySelector('.btn-qty-plus').addEventListener('click', () => changeInventoryItemQty(item.id, 1));
+                }
+
+                row.querySelector('.input-item-note').addEventListener('input', (e) => {
+                    updateInventoryItemNote(item.id, e.target.value);
+                });
+
                 container.appendChild(row);
             });
         }
@@ -1571,26 +1795,124 @@
             playSound('success');
             const truck = trucks[currentInventoryTruck];
             const equipmentList = truck.equipment || [];
-            const missing = equipmentList.filter(e => !e.present).length;
+            
+            // Calcul final de la conformité
+            let compliantCount = 0;
+            let anomaliesList = [];
 
+            equipmentList.forEach(item => {
+                if (item.condition === 'good' && item.qty >= item.targetQty) {
+                    compliantCount++;
+                } else {
+                    if (item.condition === 'damaged') {
+                        compliantCount += 0.5;
+                        anomaliesList.push(`${item.emoji} ${item.name} endommagé (${item.note || 'Pas de note'})`);
+                    } else if (item.condition === 'missing') {
+                        anomaliesList.push(`${item.emoji} ${item.name} manquant (${item.note || 'Pas de note'})`);
+                    } else if (item.qty < item.targetQty) {
+                        anomaliesList.push(`${item.emoji} ${item.name} en quantité insuffisante : ${item.qty}/${item.targetQty}`);
+                    }
+                }
+            });
+
+            const finalCompliance = equipmentList.length > 0 ? Math.round((compliantCount / equipmentList.length) * 100) : 100;
+            const auditDate = new Date().toLocaleDateString('fr-FR');
+
+            // Enregistrer l'audit dans l'historique
+            const newAudit = {
+                id: 'aud-' + Date.now(),
+                date: auditDate,
+                auditor: currentUser,
+                truck: truck.name.split(' - ')[0],
+                compliance: finalCompliance,
+                anomalies: anomaliesList
+            };
+
+            audits.unshift(newAudit);
+
+            // Mettre à jour le flux collaboratif général
             feed.unshift({
                 user: currentUser,
                 action: 'present',
                 reason: '',
-                item: `📋 INVENTAIRE DE FLOTTE (${missing === 0 ? 'Camion 100% OK' : missing + ' manquant(s)'})`,
+                item: `📋 INVENTAIRE DU CAMION VALIDE (Conformité : ${finalCompliance}%)`,
                 truck: truck.name.split(' - ')[0],
                 time: "À l'instant"
             });
 
             if (teamScores[currentUser]) {
-                teamScores[currentUser].score += 25;
+                teamScores[currentUser].score += 30; // +30 points pour un inventaire complet !
                 teamScores[currentUser].checks += 1;
             }
 
-            showToast(`🏆 Contrôle de flotte validé ! (+25 pts)`);
+            showToast(`🏆 Contrôle d'inventaire enregistré avec succès ! (+30 pts)`);
             updateUI();
             await pushStateToCloud();
             setTimeout(() => switchTab('dashboard'), 800);
+        }
+
+        function renderPCAndMobileAuditsHistory() {
+            // Vue mobile (Sous-partie de l'inventaire)
+            const mobileContainer = document.getElementById('mobileAuditsHistoryList');
+            if (mobileContainer) {
+                mobileContainer.innerHTML = '';
+                if (audits.length === 0) {
+                    mobileContainer.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">Aucun audit historique.</p>`;
+                } else {
+                    audits.slice(0, 3).forEach(aud => {
+                        const row = document.createElement('div');
+                        row.className = "p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex justify-between items-center";
+                        row.innerHTML = `
+                            <div>
+                                <span class="font-bold text-slate-900 block">${aud.truck}</span>
+                                <span class="text-slate-400 text-[10px]">Par ${aud.auditor} le ${aud.date}</span>
+                            </div>
+                            <span class="font-extrabold px-2 py-1 rounded-lg ${aud.compliance >= 80 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">${aud.compliance}%</span>
+                        `;
+                        mobileContainer.appendChild(row);
+                    });
+                }
+            }
+
+            // Console d'administration PC (Remplace le widget d'intelligence artificielle)
+            const pcContainer = document.getElementById('pcAuditsHistoryList');
+            if (pcContainer) {
+                pcContainer.innerHTML = '';
+                if (audits.length === 0) {
+                    pcContainer.innerHTML = `
+                        <div class="text-center py-8 text-slate-500">
+                            <i class="fa-solid fa-clipboard-list text-3xl opacity-30 mb-2 block"></i>
+                            Aucun inventaire n'a encore été validé pour le moment.
+                        </div>
+                    `;
+                } else {
+                    audits.forEach(aud => {
+                        const rawAnomalies = aud.anomalies || [];
+                        let anomaliesHTML = '';
+                        if (rawAnomalies.length > 0) {
+                            anomaliesHTML = `
+                                <div class="mt-2 pl-3 border-l-2 border-rose-500/50 space-y-1">
+                                    ${rawAnomalies.map(anom => `<p class="text-rose-400 text-[10.5px]">• ${anom}</p>`).join('')}
+                                </div>
+                            `;
+                        } else {
+                            anomaliesHTML = `<p class="text-emerald-400 text-[10.5px] mt-1.5"><i class="fa-solid fa-circle-check"></i> Aucun défaut ni outil manquant ! Camion parfait.</p>`;
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = "bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-1";
+                        card.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <span class="font-extrabold text-white text-xs">${aud.truck}</span>
+                                <span class="font-extrabold text-xs px-2.5 py-0.5 rounded ${aud.compliance >= 90 ? 'bg-emerald-500/15 text-emerald-400' : (aud.compliance >= 70 ? 'bg-amber-500/15 text-amber-400' : 'bg-rose-500/15 text-rose-400')}">${aud.compliance}% Conforme</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 font-bold">Validé par ${aud.auditor} le ${aud.date}</p>
+                            ${anomaliesHTML}
+                        `;
+                        pcContainer.appendChild(card);
+                    });
+                }
+            }
         }
 
         function openTruckDetails(idx, playPopSound = true) {
@@ -1604,15 +1926,23 @@
 
             const equipmentList = truck.equipment || [];
             const total = equipmentList.length;
-            const present = equipmentList.filter(e => e.present).length;
-            const score = total > 0 ? Math.round((present / total) * 100) : 100;
+            
+            let compliantCount = 0;
+            equipmentList.forEach(item => {
+                if (item.condition === 'good' && item.qty >= item.targetQty) {
+                    compliantCount++;
+                } else if (item.condition === 'damaged' && item.qty > 0) {
+                    compliantCount += 0.5;
+                }
+            });
+
+            const score = total > 0 ? Math.round((compliantCount / total) * 100) : 100;
             const progress = document.getElementById('modalTruckProgress');
             progress.style.width = `${score}%`;
 
             const list = document.getElementById('modalEquipmentList');
             list.innerHTML = '';
 
-            // Lecture de la barre de recherche mobile
             const searchVal = document.getElementById('mobileSearchTools').value.toLowerCase().trim();
 
             const filteredEquipment = equipmentList.filter(item => {
@@ -1625,26 +1955,42 @@
             } else {
                 filteredEquipment.forEach(item => {
                     const row = document.createElement('div');
-                    row.className = "flex items-center justify-between p-3.5 border-b border-slate-50 " + (item.present ? "bg-white" : "bg-rose-50/50");
                     
-                    // Alerte de sécurité spécifique à un outil critique manquant
-                    const isSecurityMissing = item.category === 'Sécurité' && !item.present;
+                    // Alerte de couleur et bordure selon l'état réel
+                    let rowBg = "bg-white";
+                    let stateBadge = `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">À bord (${item.qty}/${item.targetQty})</span>`;
+                    
+                    if (item.condition === 'missing' || item.qty === 0) {
+                        rowBg = "bg-rose-50/50";
+                        stateBadge = `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700">Manquant</span>`;
+                    } else if (item.condition === 'damaged') {
+                        rowBg = "bg-amber-50/50";
+                        stateBadge = `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">Endommagé</span>`;
+                    } else if (item.qty < item.targetQty) {
+                        rowBg = "bg-amber-50/20";
+                        stateBadge = `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">Insuffisant (${item.qty}/${item.targetQty})</span>`;
+                    }
+
+                    const isSecurityMissing = item.category === 'Sécurité' && (item.condition === 'missing' || item.condition === 'damaged' || item.qty === 0);
                     const borderStyle = isSecurityMissing ? 'border-l-4 border-l-rose-500 pl-2' : '';
                     const alertBadge = isSecurityMissing ? `<span class="text-[9px] bg-rose-600 text-white font-extrabold px-1.5 py-0.5 rounded ml-1.5 animate-pulse-subtle">SÉCURITÉ !</span>` : '';
+                    const noteHTML = item.note ? `<p class="text-[10px] text-amber-600 font-bold mt-1">⚠️ Note : ${item.note}</p>` : '';
 
+                    row.className = `flex flex-col p-3.5 border-b border-slate-50 ${rowBg}`;
                     row.innerHTML = `
-                        <div class="flex items-center space-x-3 ${borderStyle}">
-                            <span class="text-xl">${item.emoji}</span>
-                            <div>
-                                <span class="text-xs font-bold flex items-center ${item.present ? 'text-slate-800' : 'text-slate-400 line-through'}">
-                                    ${item.name} ${alertBadge}
-                                </span>
-                                <p class="text-[10px] text-slate-400 font-extrabold uppercase">${item.category}</p>
+                        <div class="flex items-center justify-between w-full">
+                            <div class="flex items-center space-x-3 ${borderStyle}">
+                                <span class="text-xl">${item.emoji}</span>
+                                <div>
+                                    <span class="text-xs font-bold flex items-center ${item.condition !== 'missing' ? 'text-slate-800' : 'text-slate-400 line-through'}">
+                                        ${item.name} ${alertBadge}
+                                    </span>
+                                    <p class="text-[10px] text-slate-400 font-extrabold uppercase">${item.category}</p>
+                                </div>
                             </div>
+                            ${stateBadge}
                         </div>
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-full ${item.present ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
-                            ${item.present ? 'À bord' : 'Absent'}
-                        </span>
+                        ${noteHTML}
                     `;
                     list.appendChild(row);
                 });
@@ -1654,7 +2000,7 @@
         }
 
         function closeTruckDetails() {
-            document.getElementById('mobileSearchTools').value = ''; // Réinitialisation de la recherche
+            document.getElementById('mobileSearchTools').value = ''; 
             document.getElementById('detailsModal').classList.add('hidden');
         }
 
@@ -1698,7 +2044,7 @@
                 row.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <span class="text-lg">${item.emoji}</span>
-                        <span class="text-xs font-bold text-slate-800">${item.name}</span>
+                        <span class="text-xs font-bold text-slate-800">${item.name} (${item.qty}/${item.targetQty})</span>
                     </div>
                     <button class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash-can text-sm"></i></button>
                 `;
@@ -1715,13 +2061,29 @@
             const cat = document.getElementById('addToolCategory').value;
             const name = document.getElementById('addToolName').value.trim();
             const emoji = document.getElementById('addToolEmoji').value;
+            const targetQty = parseInt(document.getElementById('addToolTargetQty').value) || 1;
+            const qty = parseInt(document.getElementById('addToolQty').value) || 0;
 
             if (!name) return;
             const newId = (target === 0 ? 'a' : 'b') + Date.now();
 
             if (!trucks[target].equipment) trucks[target].equipment = [];
-            trucks[target].equipment.push({ id: newId, name, category: cat, present: true, emoji });
+            
+            trucks[target].equipment.push({ 
+                id: newId, 
+                name, 
+                category: cat, 
+                present: qty > 0, 
+                emoji,
+                qty,
+                targetQty,
+                condition: qty === 0 ? "missing" : "good",
+                note: ""
+            });
+            
             document.getElementById('addToolName').value = '';
+            document.getElementById('addToolTargetQty').value = '1';
+            document.getElementById('addToolQty').value = '1';
 
             playSound('success');
             showToast(`⚙️ "${name}" ajouté !`);
@@ -1751,11 +2113,17 @@
             if (pcTrucksKpi) pcTrucksKpi.innerText = trucks.length;
             
             let totalTools = 0;
-            let presentTools = 0;
+            let compliantTools = 0;
             trucks.forEach(t => {
                 const equipmentList = t.equipment || [];
-                totalTools += equipmentList.length;
-                presentTools += equipmentList.filter(e => e.present).length;
+                equipmentList.forEach(item => {
+                    totalTools++;
+                    if (item.condition === 'good' && item.qty >= item.targetQty) {
+                        compliantTools++;
+                    } else if (item.condition === 'damaged' && item.qty > 0) {
+                        compliantTools += 0.5;
+                    }
+                });
             });
 
             const pcToolsKpi = document.getElementById('pc-kpi-tools');
@@ -1763,7 +2131,7 @@
             const pcMembersKpi = document.getElementById('pc-kpi-members');
             if (pcMembersKpi) pcMembersKpi.innerText = Object.keys(teamScores).length;
 
-            const globalAvail = totalTools > 0 ? Math.round((presentTools / totalTools) * 100) : 100;
+            const globalAvail = totalTools > 0 ? Math.round((compliantTools / totalTools) * 100) : 100;
             const kpiAvail = document.getElementById('pc-kpi-avail');
             if (kpiAvail) {
                 kpiAvail.innerText = `${globalAvail}%`;
@@ -1821,16 +2189,25 @@
             trucks.forEach((truck, index) => {
                 const equipmentList = truck.equipment || [];
                 const total = equipmentList.length;
-                const present = equipmentList.filter(e => e.present).length;
-                const score = total > 0 ? Math.round((present / total) * 100) : 100;
+                
+                let compliantCount = 0;
+                equipmentList.forEach(item => {
+                    if (item.condition === 'good' && item.qty >= item.targetQty) {
+                        compliantCount++;
+                    } else if (item.condition === 'damaged' && item.qty > 0) {
+                        compliantCount += 0.5;
+                    }
+                });
+
+                const score = total > 0 ? Math.round((compliantCount / total) * 100) : 100;
 
                 // Alerte Sécurité
-                const hasMissingSecurity = equipmentList.some(e => e.category === 'Sécurité' && !e.present);
+                const hasMissingSecurity = equipmentList.some(e => e.category === 'Sécurité' && (e.condition === 'missing' || e.qty === 0 || e.condition === 'damaged'));
                 const borderClass = hasMissingSecurity ? 'border-rose-600/65 shadow-[0_0_15px_rgba(220,38,38,0.15)]' : 'border-slate-800';
 
                 const alertSecurityHTML = hasMissingSecurity 
                     ? `<div class="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-black tracking-wider px-2.5 py-1.5 rounded-xl flex items-center justify-center gap-1.5 mt-2 animate-pulse-subtle">
-                         <i class="fa-solid fa-circle-exclamation"></i> MATÉRIEL SÉCURITÉ MANQUANT !
+                         <i class="fa-solid fa-circle-exclamation"></i> MATÉRIEL SÉCURITÉ DÉFECTUEUX / ABSENT !
                        </div>` 
                     : '';
 
@@ -1859,7 +2236,7 @@
                     
                     <div class="space-y-1.5 mt-4">
                         <div class="flex justify-between items-center text-[10px]">
-                            <span class="text-slate-400 font-bold">${present} / ${total} outils présents</span>
+                            <span class="text-slate-400 font-bold">${Math.round(compliantCount)} / ${total} conformes</span>
                             <span class="font-extrabold ${score >= 80 ? 'text-emerald-400' : 'text-rose-400'}">${score}%</span>
                         </div>
                         <div class="w-full bg-slate-900 rounded-full h-1.5">
@@ -1906,7 +2283,6 @@
             await pushStateToCloud();
         }
 
-        // Edition véhicule
         function openEditTruckPC(index) {
             playSound('pop');
             const truck = trucks[index];
@@ -2056,68 +2432,121 @@
 
                     rowCount++;
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-900/30 transition";
+                    tr.className = "hover:bg-slate-900/30 transition text-xs";
 
+                    // Selecteur de camion pour le transfert
                     let transferOptions = '';
                     trucks.forEach((targetTruck, targetIdx) => {
                         const isCurrent = targetIdx === truckIndex;
-                        transferOptions += `<option value="${targetIdx}" ${isCurrent ? 'selected disabled' : ''}>${isCurrent ? '📍 Rattaché à :' : '🔄 Transférer vers :'} ${targetTruck.name.split(' - ')[0]}</option>`;
+                        transferOptions += `<option value="${targetIdx}" ${isCurrent ? 'selected disabled' : ''}>${isCurrent ? '📍 ' : '🔄 '} ${targetTruck.name.split(' - ')[0]}</option>`;
                     });
 
-                    // Alerte de sécurité pour le matériel de sécurité absent
-                    const isSecurityMissing = item.category === 'Sécurité' && !item.present;
-                    const alertBadge = isSecurityMissing ? `<span class="bg-rose-500/25 border border-rose-500/40 text-rose-400 text-[9px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse-subtle">🚨 SÉCURITÉ !</span>` : '';
+                    // Formatage du badge de condition globale
+                    let conditionBadgeHTML = '';
+                    if (item.condition === 'good' && item.qty >= item.targetQty) {
+                        conditionBadgeHTML = `<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded font-black uppercase">En Place</span>`;
+                    } else if (item.condition === 'damaged') {
+                        conditionBadgeHTML = `<span class="bg-amber-500/15 text-amber-400 border border-amber-500/30 px-2 py-1 rounded font-black uppercase">Endommagé</span>`;
+                    } else {
+                        conditionBadgeHTML = `<span class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2 py-1 rounded font-black uppercase">Manquant</span>`;
+                    }
+
+                    // Formatage de l'alerte de sécurité critique
+                    const isSecurityAnomaly = item.category === 'Sécurité' && (item.condition === 'missing' || item.condition === 'damaged' || item.qty === 0);
+                    const alertBadge = isSecurityAnomaly ? `<span class="bg-rose-500/20 text-rose-400 text-[9px] font-black px-1.5 py-0.5 rounded ml-1.5 animate-pulse-subtle border border-rose-500/40">🚨 HORS-CONFORMITÉ</span>` : '';
 
                     tr.innerHTML = `
-                        <td class="py-3 px-4 flex items-center gap-2">
+                        <td class="py-3.5 px-4 flex items-center gap-2">
                             <span class="text-base">${item.emoji}</span>
-                            <span class="font-extrabold text-white text-xs flex items-center gap-1">${item.name} ${alertBadge}</span>
+                            <span class="font-extrabold text-white flex items-center gap-1">${item.name} ${alertBadge}</span>
                         </td>
-                        <td class="py-3 px-4 font-bold text-slate-500">${item.category}</td>
-                        <td class="py-3 px-4">
-                            <button class="pc-toggle-tool-btn px-2.5 py-1 text-[11px] font-black uppercase rounded-lg shadow-sm transition ${item.present ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'}">
-                                ${item.present ? '✅ Présent à bord' : '❌ Absent / Manquant'}
-                            </button>
+                        <td class="py-3.5 px-4 font-bold text-slate-500">${item.category}</td>
+                        <td class="py-3.5 px-4">
+                            <div class="flex items-center gap-1.5">
+                                <button class="pc-qty-minus bg-slate-900 hover:bg-slate-800 text-slate-400 p-1 rounded font-black text-xs" data-truck="${truckIndex}" data-id="${item.id}">-</button>
+                                <span class="font-bold text-white w-12 text-center">${item.qty} / ${item.targetQty}</span>
+                                <button class="pc-qty-plus bg-slate-900 hover:bg-slate-800 text-slate-400 p-1 rounded font-black text-xs" data-truck="${truckIndex}" data-id="${item.id}">+</button>
+                            </div>
                         </td>
-                        <td class="py-3 px-4">
+                        <td class="py-3.5 px-4">
+                            <select class="pc-condition-select bg-slate-900 border border-slate-800 rounded px-2 py-1 text-[11px] font-bold text-slate-300">
+                                <option value="good" ${item.condition === 'good' ? 'selected' : ''}>✅ En Place</option>
+                                <option value="damaged" ${item.condition === 'damaged' ? 'selected' : ''}>⚠️ Endommagé</option>
+                                <option value="missing" ${item.condition === 'missing' ? 'selected' : ''}>❌ Manquant</option>
+                            </select>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <input type="text" value="${item.note || ''}" placeholder="Ajouter note..." class="pc-item-note-input bg-slate-900 border border-slate-800 text-[11px] px-2 py-1 rounded text-slate-300 w-36 focus:outline-none focus:border-amber-500" data-truck="${truckIndex}" data-id="${item.id}">
+                        </td>
+                        <td class="py-3.5 px-4">
                             <select class="pc-transfer-select bg-slate-900 border border-slate-800 text-[11px] font-bold p-1 rounded-lg text-slate-300 focus:outline-none">
                                 ${transferOptions}
                             </select>
                         </td>
-                        <td class="py-3 px-4 text-center">
-                            <button class="pc-delete-tool-btn text-rose-500 hover:text-rose-400 p-1 font-bold"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+                        <td class="py-3.5 px-4 text-center">
+                            <button class="pc-delete-tool-btn text-rose-500 hover:text-rose-400 p-1 font-bold text-xs"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
                         </td>
                     `;
 
-                    tr.querySelector('.pc-toggle-tool-btn').addEventListener('click', () => togglePCToolStatus(truckIndex, item.id));
-                    tr.querySelector('.pc-delete-tool-btn').addEventListener('click', () => deletePCTool(truckIndex, item.id));
+                    // Écouteurs d'événements PC
+                    tr.querySelector('.pc-condition-select').addEventListener('change', (e) => updatePCToolCondition(truckIndex, item.id, e.target.value));
+                    tr.querySelector('.pc-qty-minus').addEventListener('click', () => changePCToolQty(truckIndex, item.id, -1));
+                    tr.querySelector('.pc-qty-plus').addEventListener('click', () => changePCToolQty(truckIndex, item.id, 1));
                     tr.querySelector('.pc-transfer-select').addEventListener('change', (e) => transferToolPC(truckIndex, item.id, parseInt(e.target.value)));
+                    tr.querySelector('.pc-delete-tool-btn').addEventListener('click', () => deletePCTool(truckIndex, item.id));
+                    
+                    // Enregistrer la note sur perte de focus
+                    tr.querySelector('.pc-item-note-input').addEventListener('blur', (e) => updatePCToolNote(truckIndex, item.id, e.target.value));
 
                     tbody.appendChild(tr);
                 });
             });
 
             if (rowCount === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-500">Aucun outil ne correspond à vos filtres de recherche.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-500">Aucun outil ne correspond à vos filtres de recherche.</td></tr>';
             }
         }
 
-        async function togglePCToolStatus(truckIdx, itemId) {
+        async function updatePCToolCondition(truckIdx, itemId, newCond) {
             playSound('pop');
-            const equipmentList = trucks[truckIdx].equipment || [];
-            const item = equipmentList.find(e => e.id === itemId);
-            item.present = !item.present;
+            const item = trucks[truckIdx].equipment.find(e => e.id === itemId);
+            item.condition = newCond;
+            
+            if (newCond === 'missing') {
+                item.qty = 0;
+                item.present = false;
+            } else {
+                if (item.qty === 0) item.qty = item.targetQty;
+                item.present = true;
+            }
+            
+            showToast(`🔄 État de "${item.name}" mis à jour : ${newCond === 'good' ? 'En place' : (newCond === 'damaged' ? 'Endommagé' : 'Manquant')}`);
+            updateUI();
+            await pushStateToCloud();
+        }
 
-            feed.unshift({
-                user: currentUser,
-                action: item.present ? 'present' : 'missing',
-                reason: "Ajusté via la console d'administration PC",
-                item: item.name,
-                truck: trucks[truckIdx].name.split(' - ')[0],
-                time: "À l'instant"
-            });
+        async function changePCToolQty(truckIdx, itemId, increment) {
+            playSound('pop');
+            const item = trucks[truckIdx].equipment.find(e => e.id === itemId);
+            const newQty = Math.max(0, item.qty + increment);
+            item.qty = newQty;
 
-            showToast(`⚙️ Statut de "${item.name}" modifié.`);
+            if (newQty === 0) {
+                item.condition = 'missing';
+                item.present = false;
+            } else if (item.condition === 'missing') {
+                item.condition = 'good';
+                item.present = true;
+            }
+
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        async function updatePCToolNote(truckIdx, itemId, noteText) {
+            const item = trucks[truckIdx].equipment.find(e => e.id === itemId);
+            item.note = noteText;
+            showToast(`📝 Note enregistrée pour "${item.name}"`);
             updateUI();
             await pushStateToCloud();
         }
@@ -2172,6 +2601,10 @@
                 name,
                 category: cat,
                 present: true,
+                qty: 1,
+                targetQty: 1,
+                condition: "good",
+                note: "",
                 emoji
             });
 
@@ -2183,33 +2616,32 @@
             await pushStateToCloud();
         }
 
-        // Fonction d'exportation de l'inventaire complet en CSV
         function exportToCSV() {
             playSound('success');
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Camion;Equipement;Categorie;Statut\n";
+            csvContent += "Camion;Equipement;Categorie;Quantite Actuelle;Quantite Reclamee;Etat Global;Remarque\n";
 
             trucks.forEach(truck => {
                 const equipmentList = truck.equipment || [];
                 equipmentList.forEach(item => {
-                    const statusText = item.present ? "Present a bord" : "Absent / Manquant";
-                    // Nettoyage des chaînes pour éviter de casser le format CSV
                     const cleanTruckName = truck.name.replace(/;/g, ",").replace(/[\r\n]+/g, " ");
                     const cleanItemName = item.name.replace(/;/g, ",").replace(/[\r\n]+/g, " ");
                     const cleanCategory = item.category.replace(/;/g, ",").replace(/[\r\n]+/g, " ");
+                    const conditionText = item.condition === 'good' ? 'En Place' : (item.condition === 'damaged' ? 'Endommagé' : 'Manquant');
+                    const cleanNote = (item.note || "").replace(/;/g, ",").replace(/[\r\n]+/g, " ");
 
-                    csvContent += `"${cleanTruckName}";"${item.emoji} ${cleanItemName}";"${cleanCategory}";"${statusText}"\n`;
+                    csvContent += `"${cleanTruckName}";"${item.emoji} ${cleanItemName}";"${cleanCategory}";"${item.qty}";"${item.targetQty}";"${conditionText}";"${cleanNote}"\n`;
                 });
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `camioncheck_inventaire_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `camioncheck_inventaire_reel_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast("📥 Fichier CSV généré et téléchargé !");
+            showToast("📥 Base d'inventaire exportée en CSV !");
         }
 
         let toastTimeout;

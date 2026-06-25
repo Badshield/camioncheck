@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
     <meta name="apple-mobile-web-app-title" content="CamionCheck"> 
     <link rel="manifest" href="manifest.json"> 
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/020617/f59e0b.png?text=CC"> 
+    <link rel="apple-touch-icon" href="icon.svg"> 
 
     <!-- Tailwind CSS pour un design moderne de chantier --> 
     <script src="https://cdn.tailwindcss.com"></script> 
@@ -49,6 +49,13 @@
             from { opacity: 0; transform: translateY(6px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
+        .animate-pulse-subtle {
+            animation: pulseSubtle 2s infinite ease-in-out;
+        }
+        @keyframes pulseSubtle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.98); }
+        }
     </style>
 </head>
 <body class="h-full min-h-screen text-slate-100 antialiased overflow-x-hidden select-none">
@@ -74,7 +81,7 @@
                         </div>
                         
                         <div class="flex flex-col items-end space-y-1.5">
-                            <!-- Sélecteur d'utilisateur simplifié et agrandi -->
+                            <!-- Sélecteur d'utilisateur simplifié -->
                             <div class="relative inline-block">
                                 <select id="userSelector" class="bg-slate-800 text-xs text-amber-400 font-bold py-1.5 px-3 pr-7 rounded-xl border border-slate-700 appearance-none focus:outline-none">
                                     <!-- Rempli en JS -->
@@ -104,7 +111,7 @@
                             </button>
                         </div>
                         
-                        <!-- Injection des cartes de camions avec barres de chargement -->
+                        <!-- Injection des cartes de camions avec barres de chargement et indicateurs de sécurité -->
                         <div id="trucksListContainer" class="space-y-3.5">
                             <!-- Rempli de façon asynchrone et locale -->
                         </div>
@@ -419,34 +426,44 @@
                 </div>
             </div>
 
+            <!-- SECTION BASE DE DONNÉES GLOBALE -->
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                     <div>
                         <h3 class="text-base font-extrabold text-white flex items-center gap-2">
-                            <span>🛠️</span> Base de Données Globale du Matériel de Chantier
+                            <span>🛠|️</span> Base de Données Globale du Matériel de Chantier
                         </h3>
                         <p class="text-xs text-slate-500 mt-1">Créez du matériel, changez son statut, supprimez-le ou **transférez-le** instantanément entre les camions.</p>
                     </div>
-                    <!-- Formulaire d'ajout rapide d'outil PC -->
-                    <div class="flex flex-wrap items-center gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
-                        <input type="text" id="pcFastToolName" placeholder="Nom de l'outil..." class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
-                        <select id="pcFastToolEmoji" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <option value="🛠️">🛠️ Outil</option>
-                            <option value="🔧">🔧 Clé</option>
-                            <option value="🪚">🪚 Scie</option>
-                            <option value="🔌">🔌 Élec</option>
-                            <option value="🧯">🧯 Secu</option>
-                            <option value="🦺">🦺 Vêtement</option>
-                        </select>
-                        <select id="pcFastToolCategory" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <!-- Rempli dynamiquement -->
-                        </select>
-                        <select id="pcFastToolTruck" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <!-- Rempli dynamiquement -->
-                        </select>
-                        <button id="pcBtnFastSaveTool" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-lg transition duration-200">
-                            + Ajouter l'outil
+                    
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- BOUTON EXPORT CSV INTEGRÉ -->
+                        <button id="pcBtnExportCSV" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-3 py-2.5 rounded-xl text-xs transition duration-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-csv text-sm"></i>
+                            <span>Exporter CSV</span>
                         </button>
+                        
+                        <!-- Formulaire d'ajout rapide d'outil PC -->
+                        <div class="flex flex-wrap items-center gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <input type="text" id="pcFastToolName" placeholder="Nom de l'outil..." class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
+                            <select id="pcFastToolEmoji" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+                                <option value="🛠️">🛠️ Outil</option>
+                                <option value="🔧">🔧 Clé</option>
+                                <option value="🪚">🪚 Scie</option>
+                                <option value="🔌">🔌 Élec</option>
+                                <option value="🧯">🧯 Secu</option>
+                                <option value="🦺">🦺 Vêtement</option>
+                            </select>
+                            <select id="pcFastToolCategory" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+                                <!-- Rempli dynamiquement -->
+                            </select>
+                            <select id="pcFastToolTruck" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+                                <!-- Rempli dynamiquement -->
+                            </select>
+                            <button id="pcBtnFastSaveTool" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-lg transition duration-200">
+                                + Ajouter l'outil
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -470,16 +487,16 @@
                 <!-- Tableau principal du matériel répertorié -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-left text-xs text-slate-400">
-                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-900/50">
-                            <tr>
-                                <th class="py-3 px-4">Équipement</th>
-                                <th class="py-3 px-4">Catégorie</th>
-                                <th class="py-3 px-4">Statut Actuel</th>
-                                <th class="py-3 px-4">Camion Affecté</th>
-                                <th class="py-3 px-4 text-center">Actions rapides</th>
-                            </tr>
-                        </thead>
                         <tbody id="pcToolsTableBody" class="divide-y divide-slate-800/50">
+                            <thead class="text-[11px] text-slate-500 uppercase bg-slate-900/50">
+                                <tr>
+                                    <th class="py-3 px-4">Équipement</th>
+                                    <th class="py-3 px-4">Catégorie</th>
+                                    <th class="py-3 px-4">Statut Actuel</th>
+                                    <th class="py-3 px-4">Camion Affecté</th>
+                                    <th class="py-3 px-4 text-center">Actions rapides</th>
+                                </tr>
+                            </thead>
                             <!-- Rempli en JS -->
                         </tbody>
                     </table>
@@ -503,6 +520,14 @@
                 <button id="btnCloseDetails" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2.5 rounded-full transition w-9 h-9 flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
+            </div>
+
+            <!-- BARRE DE RECHERCHE MOBILE INTÉGRÉE DANS LE MODAL -->
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <i class="fa-solid fa-search text-xs"></i>
+                </span>
+                <input type="text" id="mobileSearchTools" placeholder="Rechercher un outil dans ce camion..." class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
             </div>
 
             <div class="w-full bg-slate-100 rounded-full h-2.5">
@@ -584,6 +609,42 @@
         </div>
     </div>
 
+    <!-- MODAL POPUP : MODIFIER UN VEHICULE (Console PC uniquement) -->
+    <div id="pcEditTruckModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 hidden transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="font-extrabold text-white text-base">✏️ Modifier le véhicule</h3>
+                <button id="btnCloseEditTruck" class="bg-slate-800 text-slate-400 hover:text-white p-1 rounded-full transition w-8 h-8 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <input type="hidden" id="pcEditTruckIndex">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Désignation du Camion</label>
+                    <input type="text" id="pcEditTruckNameInput" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Émoji</label>
+                    <select id="pcEditTruckEmojiInput" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                        <option value="🚛">🚛 Poids lourd</option>
+                        <option value="🚐">🚐 Fourgonnette</option>
+                        <option value="🚚">🚚 Plateau</option>
+                        <option value="🚜">🚜 Tracteur</option>
+                        <option value="🚗">🚗 Voiture service</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Description / Activité</label>
+                    <input type="text" id="pcEditTruckDescInput" class="w-full bg-slate-950 border border-slate-850 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <button id="pcBtnUpdateTruckSubmit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-xl text-xs transition duration-200">
+                    Enregistrer les modifications
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MOCKUP D'INSTALLATION : BANDEAU PWA AUTOMATIQUE ANDROID -->
     <div id="pwaAndroidInstallBanner" class="fixed top-4 left-4 right-4 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 p-4 rounded-2xl shadow-2xl flex items-center justify-between z-50 hidden transition-all duration-300">
         <div class="flex items-center gap-3">
@@ -653,7 +714,7 @@
         let isOnline = navigator.onLine; 
         let userId = null;
         let db, auth;
-        let deferredPrompt = null; // Cache l'invitation d'installation PWA
+        let deferredPrompt = null; 
 
         let currentUser = "Moi (Chef)";
         let activeTab = "dashboard";
@@ -731,8 +792,6 @@
             setupEventListeners();
             applyLayout(); 
             
-            // RENDU INSTANTANÉ : On force l'affichage immédiat dès le chargement du DOM.
-            // Cela empêche l'onglet "Ma Flotte" de s'afficher vide le temps que Firestore charge
             updateUI();
             changeReportTruckDropdown();
             
@@ -740,8 +799,6 @@
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 
-                // INITIALISATION AVEC CACHE LOCAL :
-                // Les requêtes Firestore fonctionnent même hors-ligne (zones blanches)
                 db = initializeFirestore(app, {
                     localCache: persistentLocalCache()
                 });
@@ -754,7 +811,6 @@
                         document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
                         updateNetworkIndicator(); 
                         
-                        // Écouteur Firestore Temps Réel
                         const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
                         onSnapshot(docRef, (docSnap) => {
                             if (docSnap.exists()) {
@@ -766,6 +822,11 @@
                                 updateUI();
                                 changeReportTruckDropdown();
                                 if (activeTab === 'inventory') renderInventoryPage();
+                                // Si le modal de détail est ouvert, on rafraîchit son contenu
+                                const detailsModal = document.getElementById('detailsModal');
+                                if (detailsModal && !detailsModal.classList.contains('hidden')) {
+                                    openTruckDetails(selectedTruckIndexForDetails, false); // ne pas rejouer le son
+                                }
                             } else {
                                 pushStateToCloud();
                             }
@@ -780,20 +841,16 @@
                 setupLocalFallback();
             }
 
-            // GESTION DU DECLENCHEMENT AUTOMATIQUE DU BANDEAU D'INSTALLATION PWA (ANDROID)
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                // Affiche la proposition d'installation PWA si sur Android
                 const banner = document.getElementById('pwaAndroidInstallBanner');
                 if (banner) banner.classList.remove('hidden');
             });
 
-            // GESTION SPECIALE D'INSTALLATION POUR IPHONE (IOS / SAFARI)
             const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.navigator.standalone === true;
             if (isIos && !isStandalone) {
-                // Propose l'installation après 5 secondes si pas encore installée
                 setTimeout(() => {
                     const iosModal = document.getElementById('pwaIosInstallModal');
                     if (iosModal) iosModal.classList.remove('hidden');
@@ -801,7 +858,6 @@
             }
         });
 
-        // Écouteurs de connexion du navigateur pour mettre l'interface à jour en temps réel
         window.addEventListener('online', () => {
             isOnline = true;
             updateNetworkIndicator();
@@ -857,7 +913,6 @@
             const isDesktop = !isMobileUA && !isLowResScreen;
             
             const viewportWidth = window.innerWidth;
-            
             const colLeftMobile = document.getElementById('col-left-mobile');
             const colRightPc = document.getElementById('col-right-pc');
             const floatToggleBtn = document.getElementById('floatViewToggleBtn');
@@ -917,6 +972,11 @@
                 switchTab('report');
             });
 
+            // Barre de recherche dans le modal mobile
+            document.getElementById('mobileSearchTools').addEventListener('input', () => {
+                openTruckDetails(selectedTruckIndexForDetails, false); // rafraîchir sans jouer de son
+            });
+
             document.getElementById('btnSubmitMissing').addEventListener('click', () => submitReport('missing'));
             document.getElementById('btnSubmitPresent').addEventListener('click', () => submitReport('present'));
 
@@ -937,7 +997,17 @@
             document.getElementById('pcSearchTools').addEventListener('input', () => renderPCToolsTable());
             document.getElementById('pcFilterTruckSelect').addEventListener('change', () => renderPCToolsTable());
 
-            // GESTION DU DECLENCHEMENT MANUEL DU BANDEAU D'INSTALLATION PWA
+            // Export CSV
+            document.getElementById('pcBtnExportCSV').addEventListener('click', () => exportToCSV());
+
+            // Modal d'édition d'un véhicule (PC)
+            document.getElementById('btnCloseEditTruck').addEventListener('click', () => {
+                document.getElementById('pcEditTruckModal').classList.add('hidden');
+            });
+            document.getElementById('pcBtnUpdateTruckSubmit').addEventListener('click', () => {
+                updateTruckPC();
+            });
+
             const btnAcceptInstall = document.getElementById('btnAcceptAndroidInstall');
             if (btnAcceptInstall) {
                 btnAcceptInstall.addEventListener('click', async () => {
@@ -986,6 +1056,7 @@
 
             if (tabId === 'inventory') renderInventoryPage();
             if (tabId === 'team') renderTeamPage();
+            if (tabId === 'report') renderReportTruckButtons();
         }
 
         function updateUI() {
@@ -1033,6 +1104,9 @@
                 const present = equipmentList.filter(e => e.present).length;
                 const score = total > 0 ? Math.round((present / total) * 100) : 100;
                 
+                // Détection de matériel de sécurité manquant
+                const hasMissingSecurity = equipmentList.some(e => e.category === 'Sécurité' && !e.present);
+
                 let badgeClass = "bg-rose-50 text-rose-700 border border-rose-100";
                 let barClass = "bg-rose-500";
                 let summary = `🚨 ${total - present} matériel(s) manquant(s) !`;
@@ -1047,8 +1121,15 @@
                     summary = `⚠️ Uniquement ${total - present} manquant(s)`;
                 }
 
+                // Construction de l'alerte de sécurité clignotante
+                const alertSecurityHTML = hasMissingSecurity 
+                    ? `<div class="mt-2.5 bg-rose-600 text-white text-[10px] font-black tracking-wider px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 animate-pulse-subtle">
+                         <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                         <span>ALERTE : MATÉRIEL DE SÉCURITÉ MANQUANT !</span>
+                       </div>` 
+                    : '';
+
                 const card = document.createElement('div');
-                // Augmentation de la taille globale des cartes et des textes
                 card.className = "bg-white border border-slate-100 rounded-3xl p-4.5 shadow-sm hover:shadow-md transition cursor-pointer";
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-3">
@@ -1064,6 +1145,7 @@
                     <div class="w-full bg-slate-100 rounded-full h-2">
                         <div class="h-2 rounded-full transition-all duration-500 ${barClass}" style="width: ${score}%;"></div>
                     </div>
+                    ${alertSecurityHTML}
                     <div class="mt-3 flex justify-between items-center text-xs text-slate-500">
                         <span class="font-bold text-slate-600">${summary}</span>
                         <span class="text-amber-600 font-extrabold flex items-center gap-1">Inspecter <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
@@ -1442,7 +1524,9 @@
                     ? "flex-1 py-2 text-[10px] font-bold rounded-xl bg-white text-slate-950 shadow-sm transition"
                     : "flex-1 py-2 text-[10px] font-bold text-slate-600 hover:bg-white/50 transition";
                 btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
-                btn.addEventListener('click', () => selectInventoryTruck(idx));
+                btn.addEventListener('click', () => {
+                    selectInventoryTruck(idx);
+                });
                 tabContainer.appendChild(btn);
             });
 
@@ -1509,8 +1593,8 @@
             setTimeout(() => switchTab('dashboard'), 800);
         }
 
-        function openTruckDetails(idx) {
-            playSound('pop');
+        function openTruckDetails(idx, playPopSound = true) {
+            if (playPopSound) playSound('pop');
             selectedTruckIndexForDetails = idx;
             const truck = trucks[idx];
 
@@ -1528,28 +1612,49 @@
             const list = document.getElementById('modalEquipmentList');
             list.innerHTML = '';
 
-            equipmentList.forEach(item => {
-                const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-3.5 border-b border-slate-50 " + (item.present ? "bg-white" : "bg-rose-50/50");
-                row.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xl">${item.emoji}</span>
-                        <div>
-                            <span class="text-xs font-bold ${item.present ? 'text-slate-800' : 'text-slate-400 line-through'}">${item.name}</span>
-                            <p class="text-[10px] text-slate-400 font-extrabold uppercase">${item.category}</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-full ${item.present ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
-                        ${item.present ? 'À bord' : 'Absent'}
-                    </span>
-                `;
-                list.appendChild(row);
+            // Lecture de la barre de recherche mobile
+            const searchVal = document.getElementById('mobileSearchTools').value.toLowerCase().trim();
+
+            const filteredEquipment = equipmentList.filter(item => {
+                if (!searchVal) return true;
+                return item.name.toLowerCase().includes(searchVal) || item.category.toLowerCase().includes(searchVal);
             });
+
+            if (filteredEquipment.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Aucun outil trouvé pour "${searchVal}"</p>`;
+            } else {
+                filteredEquipment.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-between p-3.5 border-b border-slate-50 " + (item.present ? "bg-white" : "bg-rose-50/50");
+                    
+                    // Alerte de sécurité spécifique à un outil critique manquant
+                    const isSecurityMissing = item.category === 'Sécurité' && !item.present;
+                    const borderStyle = isSecurityMissing ? 'border-l-4 border-l-rose-500 pl-2' : '';
+                    const alertBadge = isSecurityMissing ? `<span class="text-[9px] bg-rose-600 text-white font-extrabold px-1.5 py-0.5 rounded ml-1.5 animate-pulse-subtle">SÉCURITÉ !</span>` : '';
+
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-3 ${borderStyle}">
+                            <span class="text-xl">${item.emoji}</span>
+                            <div>
+                                <span class="text-xs font-bold flex items-center ${item.present ? 'text-slate-800' : 'text-slate-400 line-through'}">
+                                    ${item.name} ${alertBadge}
+                                </span>
+                                <p class="text-[10px] text-slate-400 font-extrabold uppercase">${item.category}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full ${item.present ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+                            ${item.present ? 'À bord' : 'Absent'}
+                        </span>
+                    `;
+                    list.appendChild(row);
+                });
+            }
 
             document.getElementById('detailsModal').classList.remove('hidden');
         }
 
         function closeTruckDetails() {
+            document.getElementById('mobileSearchTools').value = ''; // Réinitialisation de la recherche
             document.getElementById('detailsModal').classList.add('hidden');
         }
 
@@ -1573,7 +1678,10 @@
                     ? "flex-1 py-2 text-[10px] font-bold bg-white text-slate-950 rounded-xl shadow-sm"
                     : "flex-1 py-2 text-[10px] font-bold text-slate-500 rounded-xl";
                 btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
-                btn.addEventListener('click', () => { currentManageTruck = idx; renderManageToolsList(); });
+                btn.addEventListener('click', () => { 
+                    currentManageTruck = idx; 
+                    renderManageToolsList(); 
+                });
                 tabs.appendChild(btn);
             });
 
@@ -1716,8 +1824,18 @@
                 const present = equipmentList.filter(e => e.present).length;
                 const score = total > 0 ? Math.round((present / total) * 100) : 100;
 
+                // Alerte Sécurité
+                const hasMissingSecurity = equipmentList.some(e => e.category === 'Sécurité' && !e.present);
+                const borderClass = hasMissingSecurity ? 'border-rose-600/65 shadow-[0_0_15px_rgba(220,38,38,0.15)]' : 'border-slate-800';
+
+                const alertSecurityHTML = hasMissingSecurity 
+                    ? `<div class="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-black tracking-wider px-2.5 py-1.5 rounded-xl flex items-center justify-center gap-1.5 mt-2 animate-pulse-subtle">
+                         <i class="fa-solid fa-circle-exclamation"></i> MATÉRIEL SÉCURITÉ MANQUANT !
+                       </div>` 
+                    : '';
+
                 const card = document.createElement('div');
-                card.className = "bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition duration-200 group";
+                card.className = `bg-slate-950/80 border ${borderClass} rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition duration-200 group`;
                 card.innerHTML = `
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-3">
@@ -1727,10 +1845,17 @@
                                 <p class="text-[11px] text-slate-500">${truck.desc}</p>
                             </div>
                         </div>
-                        <button class="delete-truck-btn opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-400 p-1 text-xs transition duration-200">
-                            <i class="fa-solid fa-trash-can"></i> Supprimer
-                        </button>
+                        <div class="flex flex-col items-end gap-1">
+                            <button class="edit-truck-btn text-amber-500 hover:text-amber-400 p-1 text-xs transition duration-200">
+                                <i class="fa-solid fa-pen"></i> Modifier
+                            </button>
+                            <button class="delete-truck-btn opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-400 p-1 text-xs transition duration-200">
+                                <i class="fa-solid fa-trash-can"></i> Supprimer
+                            </button>
+                        </div>
                     </div>
+                    
+                    ${alertSecurityHTML}
                     
                     <div class="space-y-1.5 mt-4">
                         <div class="flex justify-between items-center text-[10px]">
@@ -1746,6 +1871,10 @@
                 card.querySelector('.delete-truck-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     deleteTruckPC(index);
+                });
+                card.querySelector('.edit-truck-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openEditTruckPC(index);
                 });
                 grid.appendChild(card);
             });
@@ -1773,6 +1902,40 @@
 
             playSound('success');
             showToast(`🚛 Camion "${name}" créé !`);
+            updateUI();
+            await pushStateToCloud();
+        }
+
+        // Edition véhicule
+        function openEditTruckPC(index) {
+            playSound('pop');
+            const truck = trucks[index];
+            document.getElementById('pcEditTruckIndex').value = index;
+            document.getElementById('pcEditTruckNameInput').value = truck.name.substring(truck.emoji.length + 1) || truck.name;
+            document.getElementById('pcEditTruckEmojiInput').value = truck.emoji;
+            document.getElementById('pcEditTruckDescInput').value = truck.desc;
+            
+            document.getElementById('pcEditTruckModal').classList.remove('hidden');
+        }
+
+        async function updateTruckPC() {
+            const index = parseInt(document.getElementById('pcEditTruckIndex').value);
+            const name = document.getElementById('pcEditTruckNameInput').value.trim();
+            const emoji = document.getElementById('pcEditTruckEmojiInput').value;
+            const desc = document.getElementById('pcEditTruckDescInput').value.trim();
+
+            if (!name) {
+                showToast("⚠️ Le nom est requis !");
+                return;
+            }
+
+            trucks[index].name = `${emoji} ${name}`;
+            trucks[index].emoji = emoji;
+            trucks[index].desc = desc || "Sans description";
+
+            document.getElementById('pcEditTruckModal').classList.add('hidden');
+            playSound('success');
+            showToast(`🚛 Camion mis à jour !`);
             updateUI();
             await pushStateToCloud();
         }
@@ -1901,10 +2064,14 @@
                         transferOptions += `<option value="${targetIdx}" ${isCurrent ? 'selected disabled' : ''}>${isCurrent ? '📍 Rattaché à :' : '🔄 Transférer vers :'} ${targetTruck.name.split(' - ')[0]}</option>`;
                     });
 
+                    // Alerte de sécurité pour le matériel de sécurité absent
+                    const isSecurityMissing = item.category === 'Sécurité' && !item.present;
+                    const alertBadge = isSecurityMissing ? `<span class="bg-rose-500/25 border border-rose-500/40 text-rose-400 text-[9px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse-subtle">🚨 SÉCURITÉ !</span>` : '';
+
                     tr.innerHTML = `
                         <td class="py-3 px-4 flex items-center gap-2">
                             <span class="text-base">${item.emoji}</span>
-                            <span class="font-extrabold text-white text-xs">${item.name}</span>
+                            <span class="font-extrabold text-white text-xs flex items-center gap-1">${item.name} ${alertBadge}</span>
                         </td>
                         <td class="py-3 px-4 font-bold text-slate-500">${item.category}</td>
                         <td class="py-3 px-4">
@@ -2014,6 +2181,35 @@
             showToast(`⚙️ Outil "${name}" enregistré !`);
             updateUI();
             await pushStateToCloud();
+        }
+
+        // Fonction d'exportation de l'inventaire complet en CSV
+        function exportToCSV() {
+            playSound('success');
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Camion;Equipement;Categorie;Statut\n";
+
+            trucks.forEach(truck => {
+                const equipmentList = truck.equipment || [];
+                equipmentList.forEach(item => {
+                    const statusText = item.present ? "Present a bord" : "Absent / Manquant";
+                    // Nettoyage des chaînes pour éviter de casser le format CSV
+                    const cleanTruckName = truck.name.replace(/;/g, ",").replace(/[\r\n]+/g, " ");
+                    const cleanItemName = item.name.replace(/;/g, ",").replace(/[\r\n]+/g, " ");
+                    const cleanCategory = item.category.replace(/;/g, ",").replace(/[\r\n]+/g, " ");
+
+                    csvContent += `"${cleanTruckName}";"${item.emoji} ${cleanItemName}";"${cleanCategory}";"${statusText}"\n`;
+                });
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `camioncheck_inventaire_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("📥 Fichier CSV généré et téléchargé !");
         }
 
         let toastTimeout;

@@ -1,5 +1,0 @@
-<!-- Cercle intérieur de contraste (amber-500) -->
-<circle cx="256" cy="256" r="180" fill="#f59e0b"/>
-
-<!-- Émoji Camion centré -->
-<text x="50%" y="54%" font-size="200" text-anchor="middle" dominant-baseline="middle">🚚</text>

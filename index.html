@@ -2,19 +2,19 @@
 <html lang="fr" class="h-full bg-slate-950">
 <head> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>CamionCheck Pro - Gestion de Flotte de Chantier</title> 
     
-    <!-- PWA Meta Tags -->
+    <!-- Configuration de l'application Web progressive (PWA) -->
     <meta name="apple-mobile-web-app-capable" content="yes"> 
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
     <meta name="apple-mobile-web-app-title" content="CamionCheck"> 
     <link rel="manifest" href="manifest.json"> 
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/020617/f59e0b.png?text=CC"> 
 
-    <!-- Tailwind CSS --> 
+    <!-- Tailwind CSS pour un design moderne de chantier --> 
     <script src="https://cdn.tailwindcss.com"></script> 
-    <!-- FontAwesome -->
+    <!-- Icônes FontAwesome pour une signalétique claire -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
     
     <style> 
@@ -24,6 +24,7 @@
             -webkit-tap-highlight-color: transparent; 
             background-color: #020617; 
         }
+        /* Style des barres de défilement pour la console PC */
         .custom-scrollbar::-webkit-scrollbar { 
             width: 6px; 
             height: 6px; 
@@ -52,132 +53,96 @@
 </head>
 <body class="h-full min-h-screen text-slate-100 antialiased overflow-x-hidden select-none">
 
-    <!-- BANDEAU D'INSTALLATION SUR-MESURE (ANDROID) -->
-    <div id="pwa-install-banner" class="fixed top-0 left-0 right-0 bg-amber-500 text-slate-950 p-4 z-[100] shadow-2xl transition-transform duration-500 transform -translate-y-full flex justify-between items-center hidden">
-        <div class="flex items-center gap-3">
-            <span class="text-3xl bg-white/30 p-2 rounded-xl shadow-sm">📲</span>
-            <div>
-                <h4 class="font-extrabold text-sm tracking-tight">Installer CamionCheck</h4>
-                <p class="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Accès rapide sur chantier</p>
-            </div>
-        </div>
-        <button id="btn-install-pwa" class="bg-slate-900 text-amber-400 px-5 py-3 rounded-xl text-xs font-black active:scale-95 transition shadow-lg uppercase tracking-widest border border-slate-800">
-            Installer
-        </button>
-    </div>
-
-    <!-- MODAL TUTORIEL D'INSTALLATION (iOS / APPLE) -->
-    <div id="ios-install-modal" class="fixed bottom-4 left-4 right-4 bg-slate-900 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] border border-slate-700 transition-transform duration-500 transform translate-y-full hidden">
-        <div class="flex justify-between items-start mb-4">
-            <h4 class="font-extrabold text-sm flex items-center gap-2 text-amber-400">
-                <span class="text-xl">🍏</span> Installer sur iPhone
-            </h4>
-            <button id="btn-close-ios" class="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full w-8 h-8 flex items-center justify-center transition">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <p class="text-xs text-slate-300 mb-4 font-medium">Apple bloque l'installation automatique. Suivez ces 2 étapes pour mettre l'app sur votre écran d'accueil :</p>
-        <div class="bg-slate-800 rounded-xl p-4 space-y-4 border border-slate-700">
-            <div class="flex items-center gap-3">
-                <span class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-blue-400 flex items-center justify-center shadow-inner"><i class="fa-solid fa-arrow-up-from-bracket text-lg"></i></span>
-                <span class="text-xs font-semibold text-slate-200">1. Appuyez sur le bouton <strong>Partager</strong> au centre en bas de votre écran.</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-slate-300 flex items-center justify-center shadow-inner"><i class="fa-solid fa-plus-square text-lg"></i></span>
-                <span class="text-xs font-semibold text-slate-200">2. Défilez vers le bas et choisissez <strong>"Sur l'écran d'accueil"</strong>.</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONTENEUR GLOBAL SPLIT (Mobile Simulator Left, PC Control Center Right) -->
+    <!-- CONTENEUR GLOBAL SPLIT (Simulateur mobile à gauche, Console PC à droite) -->
     <div class="min-h-screen w-full flex flex-col lg:flex-row bg-slate-950">
 
-        <!-- ================= COLONNE GAUCHE : LE SIMULATEUR MOBILE ================= -->
+        <!-- ================= COLONNE GAUCHE : INTERFACE CHANTIER (MOBILE) ================= -->
         <div id="col-left-mobile" class="w-full lg:max-w-md lg:w-[450px] flex-shrink-0 flex items-center justify-center p-0 sm:p-4 lg:p-8 bg-slate-950">
+            <!-- Cadre de smartphone factice sur PC, s'adapte en plein écran sur smartphone -->
             <div class="relative w-full h-screen lg:h-[88vh] lg:aspect-[9/19.5] bg-slate-50 text-slate-800 lg:rounded-[40px] lg:border-[12px] lg:border-slate-800 lg:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col">
                 
-                <!-- TOP HEADER MOBILE -->
                 <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 pt-safe flex-shrink-0">
-                    <div class="px-4 py-4 flex items-center justify-between border-b border-slate-800">
+                    <div class="px-4 py-4 flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="bg-amber-500 text-slate-950 p-2.5 rounded-xl flex items-center justify-center font-black text-xl shadow-inner animate-bounce">
+                            <div class="bg-amber-500 text-slate-950 p-2.5 rounded-xl flex items-center justify-center font-black text-xl shadow-inner">
                                 🚚
                             </div>
                             <div>
                                 <h1 class="text-base font-extrabold tracking-tight">CamionCheck</h1>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Application Chantier</p>
+                                <p class="text-xs text-slate-400">Suivi matériel de chantier</p>
                             </div>
                         </div>
                         
                         <div class="flex flex-col items-end space-y-1.5">
+                            <!-- Sélecteur d'utilisateur simplifié et agrandi -->
                             <div class="relative inline-block">
-                                <select id="userSelector" class="bg-slate-800 text-xs text-amber-400 font-bold py-1.5 px-3 pr-8 rounded-lg border border-slate-700 appearance-none focus:outline-none shadow-sm">
-                                    <!-- Rempli dynamiquement en JS -->
+                                <select id="userSelector" class="bg-slate-800 text-xs text-amber-400 font-bold py-1.5 px-3 pr-7 rounded-xl border border-slate-700 appearance-none focus:outline-none">
+                                    <!-- Rempli en JS -->
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-amber-400">
                                     <i class="fa-solid fa-chevron-down text-[10px]"></i>
                                 </div>
                             </div>
-                            <span id="cloudStatusIndicator" class="text-[9px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-inner">
+                            <!-- Indicateur d'état du réseau pour l'usage déconnecté -->
+                            <span id="cloudStatusIndicator" class="text-[10px] font-extrabold bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full flex items-center gap-1.5">
                                 ☁️ Connexion...
                             </span>
                         </div>
                     </div>
                 </header>
 
-                <!-- PORT DE VUE MOBILE DEFILABLE -->
-                <main class="flex-1 p-4 pb-28 overflow-y-auto space-y-6 relative bg-slate-50">
+                <!-- ZONE DE CONTENU DÉFILANT MOBILE -->
+                <main class="flex-1 p-4 pb-28 overflow-y-auto space-y-5 relative bg-slate-50">
 
-                    <!-- ================= PAGE 1 MOBILE : TABLEAU DE BORD ================= -->
-                    <div id="page-dashboard" class="space-y-5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-l-4 border-amber-500 pl-2">Ma Flotte</h3>
-                            <button id="btnOpenManageTools" class="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center space-x-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 active:scale-95 transition">
-                                <i class="fa-solid fa-plus-circle"></i>
+                    <!-- ================= ONGLET GAUCHE : MA FLOTTE (TABLEAU DE BORD) ================= -->
+                    <div id="page-dashboard" class="space-y-4">
+                        <div class="flex justify-between items-center py-1">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">État global de la flotte</h3>
+                            <button id="btnOpenManageTools" class="text-xs font-extrabold text-amber-600 hover:text-amber-700 flex items-center space-x-1.5">
+                                <i class="fa-solid fa-plus-circle text-sm"></i>
                                 <span>Gérer le matériel</span>
                             </button>
                         </div>
                         
-                        <!-- Conteneur d'injection des cartes de camions -->
-                        <div id="trucksListContainer" class="space-y-3">
-                            <!-- Rempli en JS -->
+                        <!-- Injection des cartes de camions avec barres de chargement -->
+                        <div id="trucksListContainer" class="space-y-3.5">
+                            <!-- Rempli de façon asynchrone et locale -->
                         </div>
 
                         <!-- FIL D'ACTUALITÉ COLLABORATIF -->
-                        <div class="space-y-3 mt-6 pt-4 border-t border-slate-200">
-                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-l-4 border-slate-400 pl-2">Activité récente</h3>
-                            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar" id="activityFeed">
-                                <!-- Injecté en JS -->
+                        <div class="space-y-2.5 pt-2">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Flux d'activité de l'équipe</h3>
+                            <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3.5 max-h-[220px] overflow-y-auto custom-scrollbar" id="activityFeed">
+                                <!-- Rempli en JS -->
                             </div>
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 2 MOBILE : NOTIFIER UN MANQUE ================= -->
+                    <!-- ================= ONGLET MOBILE : SIGNALER UN LOGICIEL / OUTIL ================= -->
                     <div id="page-report" class="space-y-4 hidden">
-                        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-5">
-                            <div class="text-center pb-4 border-b border-slate-100">
-                                <span class="bg-rose-100 text-rose-600 text-2xl p-3 rounded-full inline-block mb-3 shadow-inner">⚡</span>
-                                <h3 class="font-extrabold text-slate-900 text-lg">Signalement</h3>
-                                <p class="text-xs text-slate-500 mt-1 font-medium">Déclarez un état instantanément.</p>
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
+                            <div class="text-center pb-3 border-b border-slate-100">
+                                <h3 class="font-extrabold text-slate-900 text-base">Signalement de matériel ⚡</h3>
+                                <p class="text-xs text-slate-500">Mettez à jour la disponibilité d'une pièce d'équipement.</p>
                             </div>
 
-                            <div class="space-y-2.5">
-                                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-wider">1. Véhicule concerné</label>
-                                <div id="reportTruckButtonsContainer" class="grid grid-cols-2 gap-3">
-                                    <!-- Populated in JS -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">1. Sélectionnez le véhicule</label>
+                                <div id="reportTruckButtonsContainer" class="grid grid-cols-2 gap-2.5">
+                                    <!-- Rempli dynamiquement -->
                                 </div>
                             </div>
 
-                            <div class="space-y-2.5">
-                                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-wider">2. Outil ciblé</label>
-                                <select id="reportItemSelect" class="w-full bg-slate-50 border border-slate-300 text-sm font-bold text-slate-800 py-3.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm appearance-none">
-                                    <!-- Dynamique -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">2. Choisissez l'outil en question</label>
+                                <select id="reportItemSelect" class="w-full bg-slate-50 border border-slate-200 text-xs py-3 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <!-- Rempli dynamiquement -->
                                 </select>
                             </div>
 
-                            <div class="space-y-2.5" id="reasonContainer">
-                                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-wider">3. Motif (Optionnel)</label>
-                                <select id="reportReason" class="w-full bg-slate-50 border border-slate-300 text-sm font-bold text-slate-800 py-3.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm appearance-none">
+                            <div class="space-y-2" id="reasonContainer">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">3. Motif de l'absence (si manquant)</label>
+                                <select id="reportReason" class="w-full bg-slate-50 border border-slate-200 text-xs py-3 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
                                     <option value="Emprunté pour le chantier">👤 Emprunté pour le chantier</option>
                                     <option value="Perdu / Introuvable">🔍 Perdu / Introuvable</option>
                                     <option value="Cassé / À remplacer">💥 Cassé / À remplacer</option>
@@ -185,92 +150,88 @@
                                 </select>
                             </div>
 
-                            <div class="space-y-2.5 pt-3">
-                                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-wider text-center mb-2">4. Validation de l'état</label>
+                            <div class="space-y-2 pt-2">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">4. Quel est le statut ?</label>
                                 <div class="grid grid-cols-2 gap-3">
-                                    <button id="btnSubmitMissing" class="py-4 px-2 bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 text-rose-700 rounded-xl text-xs font-black flex flex-col items-center justify-center space-y-1 active:scale-95 transition shadow-sm">
-                                        <span class="text-2xl">❌</span>
-                                        <span class="uppercase tracking-widest">Manquant</span>
+                                    <button id="btnSubmitMissing" class="py-3.5 px-3 bg-rose-50 border border-rose-100 text-rose-700 rounded-2xl text-xs font-black flex items-center justify-center space-x-1.5 active:scale-95 transition">
+                                        <span>MANQUANT ❌</span>
                                     </button>
-                                    <button id="btnSubmitPresent" class="py-4 px-2 bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 text-emerald-700 rounded-xl text-xs font-black flex flex-col items-center justify-center space-y-1 active:scale-95 transition shadow-sm">
-                                        <span class="text-2xl">✅</span>
-                                        <span class="uppercase tracking-widest">Remis à bord</span>
+                                    <button id="btnSubmitPresent" class="py-3.5 px-3 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-2xl text-xs font-black flex items-center justify-center space-x-1.5 active:scale-95 transition">
+                                        <span>À BORD ✅</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 3 MOBILE : INVENTAIRE MENSUEL ================= -->
+                    <!-- ================= ONGLET MOBILE : INVENTAIRE MENSUEL CHRONO ================= -->
                     <div id="page-inventory" class="space-y-4 hidden">
-                        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-                            <div class="text-center pb-4 border-b border-slate-100">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Mode Check-list 📋</span>
-                                <h3 class="font-extrabold text-slate-900 text-lg mt-3">Inventaire Complet</h3>
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
+                            <div class="text-center pb-3 border-b border-slate-100">
+                                <span class="text-xs font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Mode Terrain 🕹️</span>
+                                <h3 class="font-extrabold text-slate-900 text-base mt-2">Vérification de Flotte</h3>
                             </div>
 
-                            <div id="inventoryTruckButtonsContainer" class="flex space-x-2 p-1.5 bg-slate-100 rounded-xl shadow-inner">
+                            <div id="inventoryTruckButtonsContainer" class="flex space-x-1.5 p-1.5 bg-slate-100 rounded-2xl">
                                 <!-- Rempli en JS -->
                             </div>
 
-                            <div class="flex space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="categoryFilters">
-                                <!-- Rempli de façon dynamique avec renderCategoryFilters() -->
+                            <div class="flex space-x-1.5 overflow-x-auto pb-1.5 custom-scrollbar" id="categoryFilters">
+                                <!-- Rempli par renderCategoryFilters() -->
                             </div>
 
-                            <div class="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
+                            <div class="space-y-2.5 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar" id="inventoryItemsList">
                                 <!-- Rempli en JS -->
                             </div>
 
-                            <div class="pt-5 border-t border-slate-100 space-y-4">
-                                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                    <span class="text-xs text-slate-600 font-bold uppercase tracking-wider">Avancement</span>
-                                    <span id="inventoryProgressText" class="bg-slate-900 text-amber-400 px-3 py-1.5 rounded-lg text-sm font-black shadow-inner">0 / 0</span>
+                            <div class="pt-4 border-t border-slate-100 space-y-2">
+                                <div class="flex justify-between items-center text-xs text-slate-500 font-bold">
+                                    <span>État de l'inventaire :</span>
+                                    <span id="inventoryProgressText" class="text-slate-800 font-black">0 / 0</span>
                                 </div>
-                                <button id="btnFinishMonthly" class="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black rounded-xl text-sm shadow-md hover:shadow-lg active:scale-95 transition flex items-center justify-center space-x-2 border border-orange-600">
-                                    <i class="fa-solid fa-clipboard-check text-xl"></i>
-                                    <span class="uppercase tracking-widest">Valider l'inventaire</span>
+                                <button id="btnFinishMonthly" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black rounded-2xl text-xs shadow-sm active:scale-95 transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-clipboard-check text-sm"></i>
+                                    <span>VALIDER CETTE CHECKLIST</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ================= PAGE 4 MOBILE : CLASSEMENT TEAM ================= -->
+                    <!-- ================= ONGLET MOBILE : CLASSEMENT TEAM ================= -->
                     <div id="page-team" class="space-y-4 hidden">
-                        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-5">
-                            <div class="text-center pb-4 border-b border-slate-100">
-                                <span class="bg-amber-100 text-amber-600 text-3xl p-4 rounded-full inline-block mb-3 shadow-inner">🏆</span>
-                                <h3 class="font-extrabold text-slate-900 text-lg">La Tribu des Camions</h3>
-                                <p class="text-xs text-slate-500 mt-1 font-medium">Classement de l'équipe de chantier</p>
+                        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
+                            <div class="text-center pb-3 border-b border-slate-100">
+                                <h3 class="font-extrabold text-slate-900 text-base">La Tribu des Camions 🏆</h3>
+                                <p class="text-xs text-slate-400">Contributeurs actifs au maintien du matériel de chantier.</p>
                             </div>
-                            <div class="space-y-3" id="teamList">
+                            <div class="space-y-3.5" id="teamList">
                                 <!-- Rempli en JS -->
                             </div>
-                            <div class="pt-5 border-t border-slate-100 text-center">
-                                <p class="text-[9px] text-slate-400 font-mono font-bold" id="myFirebaseUid">ID : Connexion...</p>
+                            <div class="pt-4 border-t border-slate-100 text-center">
+                                <p class="text-xs text-slate-400 font-mono" id="myFirebaseUid">ID : Synchronisation...</p>
                             </div>
                         </div>
                     </div>
 
                 </main>
 
-                <!-- NAV FOOTER MOBILE PREMIUM -->
-                <nav class="absolute bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200 z-35 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] pb-safe pt-2 px-3 flex-shrink-0">
-                    <div class="flex space-x-1.5 bg-slate-200/80 p-1.5 rounded-2xl shadow-inner mb-2">
-                        <button id="navBtn-dashboard" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1.5 bg-white text-slate-900 shadow border border-slate-100">
-                            <i class="fa-solid fa-truck text-lg"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Flotte</span>
+                <nav class="absolute bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200/80 z-35 shadow-lg pb-safe pt-2.5 px-3 flex-shrink-0">
+                    <div class="flex space-x-1.5 bg-slate-200/85 p-1 rounded-2xl shadow-inner">
+                        <button id="navBtn-dashboard" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 bg-white text-slate-900 shadow-sm">
+                            <i class="fa-solid fa-truck text-sm"></i>
+                            <span class="text-[10px] font-extrabold">Flotte</span>
                         </button>
-                        <button id="navBtn-report" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1.5 text-slate-500 hover:text-slate-900 hover:bg-white/50">
-                            <i class="fa-solid fa-bolt text-lg"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Signaler</span>
+                        <button id="navBtn-report" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 text-slate-600 hover:text-slate-950">
+                            <i class="fa-solid fa-bolt text-sm"></i>
+                            <span class="text-[10px] font-extrabold">Signaler</span>
                         </button>
-                        <button id="navBtn-inventory" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1.5 text-slate-500 hover:text-slate-900 hover:bg-white/50">
-                            <i class="fa-solid fa-calendar-check text-lg"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Inventaire</span>
+                        <button id="navBtn-inventory" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 text-slate-600 hover:text-slate-950">
+                            <i class="fa-solid fa-calendar-check text-sm"></i>
+                            <span class="text-[10px] font-extrabold">Contrôle</span>
                         </button>
-                        <button id="navBtn-team" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1.5 text-slate-500 hover:text-slate-900 hover:bg-white/50">
-                            <i class="fa-solid fa-award text-lg"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Équipe</span>
+                        <button id="navBtn-team" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 text-slate-600 hover:text-slate-950">
+                            <i class="fa-solid fa-award text-sm"></i>
+                            <span class="text-[10px] font-extrabold">Tribus</span>
                         </button>
                     </div>
                 </nav>
@@ -278,25 +239,24 @@
             </div>
         </div>
 
-        <!-- ================= COLONNE DROITE : L'INTERFACE DE GESTION PC GÉANTE ================= -->
+        <!-- ================= COLONNE DROITE : LE MODULE PC ADMINISTRATEUR GÉANT ================= -->
         <div id="col-right-pc" class="hidden lg:flex flex-1 flex-col p-8 bg-slate-900 border-l border-slate-800 h-screen overflow-y-auto space-y-6 custom-scrollbar">
             
-            <!-- EN-TÊTE PC -->
             <div class="flex justify-between items-center pb-4 border-b border-slate-800">
                 <div>
                     <h2 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                         <span>💻</span> CamionCheck Pro — Console de Supervision PC
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">Supervisez la flotte, attribuez le matériel et organisez votre équipe de chantier.</p>
+                    <p class="text-sm text-slate-400 mt-1">Supervisez la flotte de chantier VETTER, gérez la répartition du matériel et analysez vos compagnons.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                    <span class="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
                         🔑 Administrateur Général
                     </span>
                 </div>
             </div>
 
-            <!-- ENCART DES STATISTIQUES EN TEMPS RÉEL (KPI) -->
+            <!-- ENCART INDICATEURS DE PERFORMANCE (KPI) -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
                     <div>
@@ -307,14 +267,14 @@
                 </div>
                 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
                     <div>
-                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Matériels Suivis</span>
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Matériels répertoriés</span>
                         <h4 class="text-2xl font-black text-white mt-1" id="pc-kpi-tools">0</h4>
                     </div>
                     <span class="text-3xl bg-slate-900 p-2.5 rounded-xl">🛠️</span>
                 </div>
                 <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-md">
                     <div>
-                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Disponibilité Moyenne</span>
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Disponibilité globale</span>
                         <h4 class="text-2xl font-black text-amber-500 mt-1" id="pc-kpi-avail">--%</h4>
                     </div>
                     <span class="text-3xl bg-slate-900 p-2.5 rounded-xl">📈</span>
@@ -328,34 +288,34 @@
                 </div>
             </div>
 
-            <!-- SECTION PRINCIPALE PC DIVISÉE -->
+            <!-- SECTION PRINCIPALE PC -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                <!-- COLONNE 1 PC : CRÉATION ET GESTION -->
                 <div class="space-y-6">
-                    <!-- AJOUT CAMION FORM -->
+                    
+                    <!-- CREER UN CAMION -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                            <span>🚛</span> Ajouter un nouveau véhicule
+                            <span>🚛</span> Ajouter un véhicule à la flotte
                         </h3>
                         <div class="space-y-3">
                             <div>
-                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Nom du camion</label>
-                                <input type="text" id="pcAddTruckName" placeholder="Ex: Fourgon C - Chef d'équipe" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Nom du camion</label>
+                                <input type="text" id="pcAddTruckName" placeholder="Ex: Master G - Plomberie" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Émoji</label>
+                                    <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Émoji représentatif</label>
                                     <select id="pcAddTruckEmoji" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                                        <option value="🚛">🚛 Gros Porteur</option>
+                                        <option value="🚛">🚛 Poids lourd</option>
                                         <option value="🚐">🚐 Fourgonnette</option>
-                                        <option value="🚚">🚚 Camion Plat</option>
-                                        <option value="🚜">🚜 Tractopelle</option>
-                                        <option value="🚗">🚗 Utilitaire</option>
+                                        <option value="🚚">🚚 Plateau</option>
+                                        <option value="🚜">🚜 Tracteur</option>
+                                        <option value="🚗">🚗 Voiture service</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Activité cible</label>
+                                    <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Activité ou Lot</label>
                                     <input type="text" id="pcAddTruckDesc" placeholder="Ex: Électricité" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                                 </div>
                             </div>
@@ -365,24 +325,24 @@
                         </div>
                     </div>
 
-                    <!-- AJOUT ÉQUIPIER FORM -->
+                    <!-- AJOUTER UN COMPAGNON -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                            <span>👥</span> Ajouter un équipier
+                            <span>👥</span> Ajouter un équipier à la tribu
                         </h3>
                         <div class="space-y-3">
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="col-span-2">
-                                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Nom de l'équipier</label>
+                                    <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Nom complet</label>
                                     <input type="text" id="pcAddMemberName" placeholder="Ex: Bastien" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Avatar Émoji</label>
+                                <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Avatar de chantier</label>
                                 <select id="pcAddMemberAvatar" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                                     <option value="👨">👨 Ouvrier</option>
                                     <option value="👩">👩 Ouvrière</option>
-                                    <option value="🧔">🧔 Maçon</option>
+                                    <option value="🧔">🧔 Charpentier</option>
                                     <option value="😎">😎 Chef de chantier</option>
                                     <option value="👦">👦 Apprenti</option>
                                 </select>
@@ -393,246 +353,288 @@
                         </div>
                     </div>
 
-                    <!-- GESTION DES CATEGORIES FORM -->
+                    <!-- GESTION CATEGORIES -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                            <span>🏷️</span> Gérer les Catégories
+                            <span>🏷️</span> Gérer les catégories de matériels
                         </h3>
                         <div class="space-y-3">
                             <div>
-                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Nouvelle catégorie</label>
+                                <label class="block text-xs text-slate-400 font-bold uppercase mb-1">Nouveau type de matériel</label>
                                 <div class="flex gap-2">
-                                    <input type="text" id="pcAddCatName" placeholder="Ex: Matériel Électrique" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                    <input type="text" id="pcAddCatName" placeholder="Ex: Consommables bois" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                                     <button id="pcBtnSaveCat" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-4 rounded-xl text-xs transition duration-200">
                                         +
                                     </button>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-2">Catégories Actives</label>
-                                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar" id="pcCategoriesList">
-                                    <!-- Populated in JS with edit/delete buttons -->
+                                <label class="block text-xs text-slate-400 font-bold uppercase mb-2">Liste des types de matériels</label>
+                                <div class="space-y-2 max-h-[180px] overflow-y-auto custom-scrollbar" id="pcCategoriesList">
+                                    <!-- Rempli en JS -->
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- COLONNE 2 PC : SUPERVISION & SUPPRESSION -->
                 <div class="space-y-6 xl:col-span-2">
-                    <!-- SUPERVISION DE LA FLOTTE -->
+                    
+                    <!-- MA FLOTTE DE VÉHICULES ACTIFS -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
-                            <span>🚛 Ma Flotte de Véhicules Actifs</span>
-                            <span class="text-xs text-slate-500 font-normal">Cliquez sur un camion pour le supprimer</span>
+                            <span>Ma Flotte Actuelle</span>
+                            <span class="text-xs text-slate-500 font-normal">Supervisez l'état général des véhicules de chantier</span>
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="pcTrucksGrid">
-                            <!-- Populated in JS -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5" id="pcTrucksGrid">
+                            <!-- Rempli en JS -->
                         </div>
                     </div>
 
-                    <!-- GESTION DE LA TRIBU DE CHANTIER -->
+                    <!-- LISTE DES COMPAGNONS DE CHANTIER -->
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
                         <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-between">
-                            <span>👥 Ma Tribu de Compagnons</span>
-                            <span class="text-xs text-slate-500 font-normal">Consultez l'implication en temps réel</span>
+                            <span>Tableau de la Tribu VETTER</span>
+                            <span class="text-xs text-slate-500 font-normal">Suivi de la diligence de chaque technicien</span>
                         </h3>
                         <div class="overflow-x-auto custom-scrollbar">
                             <table class="w-full text-left text-xs text-slate-400">
-                                <thead class="text-[10px] text-slate-500 uppercase border-b border-slate-800">
+                                <thead class="text-[11px] text-slate-500 uppercase border-b border-slate-800">
                                     <tr>
                                         <th class="py-3 px-2">Équipier</th>
-                                        <th class="py-3 px-2">Score d'implication</th>
-                                        <th class="py-3 px-2">Inventaires terminés</th>
-                                        <th class="py-3 px-2">Badges accumulés</th>
+                                        <th class="py-3 px-2">Implication</th>
+                                        <th class="py-3 px-2">Contrôles terminés</th>
+                                        <th class="py-3 px-2">Distinctions</th>
                                         <th class="py-3 px-2 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="pcTeamTableBody" class="divide-y divide-slate-800/50">
-                                    <!-- Populated in JS -->
+                                    <!-- Rempli en JS -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- GESTION ET CATALOGUE TOTAL DU MATÉRIEL DES CAMIONS (PC TABLE) -->
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                     <div>
                         <h3 class="text-base font-extrabold text-white flex items-center gap-2">
                             <span>🛠️</span> Base de Données Globale du Matériel de Chantier
                         </h3>
-                        <p class="text-xs text-slate-500 mt-1">Gérez, modifiez le statut, supprimez ou **transférez instantanément** des outils d'un camion à un autre.</p>
+                        <p class="text-xs text-slate-500 mt-1">Créez du matériel, changez son statut, supprimez-le ou **transférez-le** instantanément entre les camions.</p>
                     </div>
-                    <!-- Formulaire d'ajout rapide d'outil intégré -->
+                    <!-- Formulaire d'ajout rapide d'outil PC -->
                     <div class="flex flex-wrap items-center gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
-                        <input type="text" id="pcFastToolName" placeholder="Nouveau matériel..." class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
+                        <input type="text" id="pcFastToolName" placeholder="Nom de l'outil..." class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
                         <select id="pcFastToolEmoji" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <option value="🛠️">🛠️</option>
-                            <option value="🔧">🔧</option>
-                            <option value="🪚">🪚</option>
-                            <option value="🔌">🔌</option>
-                            <option value="🧯">🧯</option>
-                            <option value="🦺">🦺</option>
+                            <option value="🛠️">🛠️ Outil</option>
+                            <option value="🔧">🔧 Clé</option>
+                            <option value="🪚">🪚 Scie</option>
+                            <option value="🔌">🔌 Élec</option>
+                            <option value="🧯">🧯 Secu</option>
+                            <option value="🦺">🦺 Vêtement</option>
                         </select>
                         <select id="pcFastToolCategory" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <!-- Populated in JS dynamically -->
+                            <!-- Rempli dynamiquement -->
                         </select>
                         <select id="pcFastToolTruck" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
-                            <!-- Populated in JS -->
+                            <!-- Rempli dynamiquement -->
                         </select>
                         <button id="pcBtnFastSaveTool" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-lg transition duration-200">
-                            + Ajouter
+                            + Ajouter l'outil
                         </button>
                     </div>
                 </div>
 
-                <!-- Filtres et recherche PC -->
+                <!-- Filtres et recherche du tableau de bord -->
                 <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                     <div class="relative w-full sm:max-w-xs">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
                             <i class="fa-solid fa-magnifying-glass text-xs"></i>
                         </span>
-                        <input type="text" id="pcSearchTools" placeholder="Rechercher un matériel..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <input type="text" id="pcSearchTools" placeholder="Rechercher un matériel..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs text-slate-500">Filtrer par véhicule :</span>
-                        <select id="pcFilterTruckSelect" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white focus:outline-none">
+                        <span class="text-xs text-slate-500">Filtrer par camion :</span>
+                        <select id="pcFilterTruckSelect" class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                             <option value="all">🚚 Tous les camions</option>
-                            <!-- Populated in JS -->
+                            <!-- Rempli en JS -->
                         </select>
                     </div>
                 </div>
 
-                <!-- Tableau du matériel -->
+                <!-- Tableau principal du matériel répertorié -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-left text-xs text-slate-400">
-                        <thead class="text-[10px] text-slate-500 uppercase bg-slate-900/50">
+                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-900/50">
                             <tr>
                                 <th class="py-3 px-4">Équipement</th>
                                 <th class="py-3 px-4">Catégorie</th>
-                                <th class="py-3 px-4">État Actuel</th>
-                                <th class="py-3 px-4">Camion d'Affectation</th>
+                                <th class="py-3 px-4">Statut Actuel</th>
+                                <th class="py-3 px-4">Camion Affecté</th>
                                 <th class="py-3 px-4 text-center">Actions rapides</th>
                             </tr>
                         </thead>
                         <tbody id="pcToolsTableBody" class="divide-y divide-slate-800/50">
-                            <!-- Populated in JS -->
+                            <!-- Rempli en JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <!-- MOCKUP DETAILS MODAL (Pour le simulateur mobile à gauche) -->
+    <!-- MODAL POPUP : DETAIL DU CAMION (Vue mobile) -->
     <div id="detailsModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-end lg:items-center justify-center z-50 hidden transition-all duration-300">
-        <div class="bg-white text-slate-850 rounded-t-3xl lg:rounded-3xl max-w-md w-full p-6 space-y-5 max-h-[85vh] lg:max-h-[75vh] overflow-y-auto shadow-2xl">
-            <div class="flex justify-between items-center pb-2">
+        <div class="bg-white text-slate-850 rounded-t-3xl lg:rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] lg:max-h-[75vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <span id="modalTruckIcon" class="text-3xl">🚛</span>
                     <div>
-                        <h3 id="modalTruckName" class="font-black text-slate-900 text-lg">Détails Camion</h3>
-                        <p id="modalTruckDesc" class="text-xs text-slate-500 font-medium">Liste complète des équipements</p>
+                        <h3 id="modalTruckName" class="font-extrabold text-slate-900 text-base">Détails Véhicule</h3>
+                        <p id="modalTruckDesc" class="text-xs text-slate-400">Liste exhaustive des pièces à bord</p>
                     </div>
                 </div>
-                <button id="btnCloseDetails" class="bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 p-2.5 rounded-full transition w-10 h-10 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
+                <button id="btnCloseDetails" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2.5 rounded-full transition w-9 h-9 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
-            <div class="w-full bg-slate-100 rounded-full h-2.5 shadow-inner">
+            <div class="w-full bg-slate-100 rounded-full h-2.5">
                 <div id="modalTruckProgress" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
             </div>
 
-            <div class="space-y-2.5 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar" id="modalEquipmentList">
-                <!-- Dynamique -->
+            <div class="space-y-3 max-h-[40vh] overflow-y-auto pr-1" id="modalEquipmentList">
+                <!-- Rempli en JS -->
             </div>
 
-            <div class="pt-3 flex space-x-2">
-                <button id="btnDetailsReport" class="flex-1 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-black tracking-wide uppercase transition shadow-md active:scale-95">
-                    📝 Signaler un changement
+            <div class="pt-2 flex space-x-2">
+                <button id="btnDetailsReport" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold transition">
+                    📝 Signaler une anomalie / pièce remise à bord
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE GESTION ADMINISTRATIVE MOBILE -->
+    <!-- MODAL POPUP : GESTION RAPIDE DU MATERIEL (Vue mobile) -->
     <div id="manageToolsModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-end justify-center z-50 hidden transition-all duration-300">
-        <div class="bg-white text-slate-850 rounded-t-3xl max-w-md w-full p-6 space-y-5 max-h-[85vh] overflow-y-auto shadow-2xl">
-            <div class="flex justify-between items-center pb-2">
-                <div class="flex items-center space-x-3">
-                    <span class="text-3xl">⚙️</span>
+        <div class="bg-white text-slate-850 rounded-t-3xl max-w-md w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">⚙️</span>
                     <div>
-                        <h3 class="font-black text-slate-900 text-lg">Gestion Matériel</h3>
-                        <p class="text-xs text-slate-500 font-medium">Ajoutez de l'outillage à la volée</p>
+                        <h3 class="font-black text-slate-900 text-base">Édition Rapide de Flotte</h3>
+                        <p class="text-xs text-slate-400">Ajoutez de l'équipement directement sur place</p>
                     </div>
                 </div>
-                <button id="btnCloseManageTools" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2.5 rounded-full transition w-10 h-10 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
+                <button id="btnCloseManageTools" class="bg-slate-100 text-slate-500 hover:bg-slate-200 p-2.5 rounded-full transition w-9 h-9 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
-                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest border-l-4 border-slate-300 pl-2">Nouvel Outil</h4>
-                <div class="grid grid-cols-2 gap-3">
+            <!-- Formulaire d'ajout matériel en mode nomade -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3.5">
+                <h4 class="text-xs font-black text-slate-500 uppercase tracking-wider">Nouvel outil de chantier</h4>
+                <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-[11px] text-slate-500 font-bold uppercase mb-1.5">Camion</label>
-                        <select id="addToolTruck" class="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
-                            <!-- Populated in JS -->
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Camion Cible</label>
+                        <select id="addToolTruck" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700">
+                            <!-- Rempli en JS -->
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-500 font-bold uppercase mb-1.5">Catégorie</label>
-                        <select id="addToolCategory" class="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
-                            <!-- Populated in JS -->
+                        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Catégorie</label>
+                        <select id="addToolCategory" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700">
+                            <!-- Rempli en JS -->
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[11px] text-slate-500 font-bold uppercase mb-1.5">Désignation</label>
+                    <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Désignation du matériel</label>
                     <div class="flex space-x-2">
-                        <input type="text" id="addToolName" placeholder="Ex: Multimètre Fluke" class="flex-1 bg-white border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
-                        <select id="addToolEmoji" class="bg-white border border-slate-300 rounded-lg p-3 text-sm text-slate-800 shadow-sm">
-                            <option value="🛠️">🛠️</option>
-                            <option value="🔧">🔧</option>
-                            <option value="🪚">🪚</option>
-                            <option value="🔌">🔌</option>
-                            <option value="🧯">🧯</option>
+                        <input type="text" id="addToolName" placeholder="Ex: Détecteur tension" class="flex-1 bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none">
+                        <select id="addToolEmoji" class="bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700">
+                            <option value="🛠️">🛠️ Outil</option>
+                            <option value="🔧">🔧 Clé</option>
+                            <option value="🪚">🪚 Scie</option>
+                            <option value="🔌">🔌 Élec</option>
+                            <option value="🧯">🧯 Sécurité</option>
                         </select>
                     </div>
                 </div>
-                <button id="btnSaveNewTool" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black tracking-wider uppercase rounded-xl text-xs transition active:scale-95 shadow mt-2">
-                    Enregistrer le matériel
+                <button id="btnSaveNewTool" class="w-full py-3 bg-slate-900 text-white font-extrabold rounded-2xl text-xs transition active:scale-95">
+                    + Enregistrer le matériel à bord
                 </button>
             </div>
 
-            <div class="space-y-3 pt-2">
-                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest border-l-4 border-slate-300 pl-2">Inventaire par camion</h4>
-                <div class="flex space-x-2 p-1.5 bg-slate-100 rounded-xl overflow-x-auto custom-scrollbar shadow-inner" id="manageTruckTabsContainer">
-                    <!-- Populated dynamically -->
+            <div class="space-y-3.5">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Équipements déclarés actifs</h4>
+                <div class="flex space-x-1.5 p-1 bg-slate-100 rounded-2xl" id="manageTruckTabsContainer">
+                    <!-- Rempli en JS -->
                 </div>
-                <div class="max-h-[250px] overflow-y-auto space-y-2 pr-1 custom-scrollbar" id="manageToolsList">
-                    <!-- Populated dynamically -->
+                <div class="max-h-[220px] overflow-y-auto space-y-2" id="manageToolsList">
+                    <!-- Rempli en JS -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- BOUTON FLOTTANT DE PERMUTATION INTELLIGENTE (Visible uniquement sur ordinateur avec fenêtre étroite) -->
+    <!-- MOCKUP D'INSTALLATION : BANDEAU PWA AUTOMATIQUE ANDROID -->
+    <div id="pwaAndroidInstallBanner" class="fixed top-4 left-4 right-4 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 p-4 rounded-2xl shadow-2xl flex items-center justify-between z-50 hidden transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">⚡</span>
+            <div>
+                <h4 class="font-extrabold text-xs">Installer l'application terrain ?</h4>
+                <p class="text-[10px] font-bold text-amber-950">Accédez à vos camions depuis votre écran d'accueil.</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="btnDeclineAndroidInstall" class="px-2.5 py-1.5 text-[10px] font-extrabold border border-amber-800 rounded-xl">Non</button>
+            <button id="btnAcceptAndroidInstall" class="px-3.5 py-1.5 bg-slate-950 text-white text-[10px] font-extrabold rounded-xl shadow-md">Installer</button>
+        </div>
+    </div>
+
+    <!-- MOCKUP D'INSTALLATION : TUTO PWA IOS (IPHONE/SAFARI) -->
+    <div id="pwaIosInstallModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-end justify-center z-50 hidden transition-all duration-300">
+        <div class="bg-white text-slate-900 rounded-t-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-4xl">📱</div>
+                <h3 class="font-black text-base mt-2">Installer sur votre iPhone</h3>
+                <p class="text-xs text-slate-500 mt-1">Configurez l'accès direct aux camions VETTER sur votre téléphone.</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-2xl space-y-3.5 text-xs text-slate-700">
+                <div class="flex items-center gap-3">
+                    <span class="bg-slate-200 text-slate-800 p-2 rounded-xl font-bold flex items-center justify-center w-8 h-8">1</span>
+                    <p class="leading-snug">Appuyez sur le bouton de <strong>partage Safari</strong> en bas <i class="fa-solid fa-arrow-up-from-bracket text-blue-500 text-sm ml-1"></i>.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-slate-200 text-slate-800 p-2 rounded-xl font-bold flex items-center justify-center w-8 h-8">2</span>
+                    <p class="leading-snug">Sélectionnez <strong>« Sur l'écran d'accueil »</strong> dans la liste.</p>
+                </div>
+            </div>
+            <button id="btnCloseIosInstall" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-2xl text-xs transition">
+                D'accord, j'ai compris
+            </button>
+        </div>
+    </div>
+
+    <!-- BOUTON D'ONGLET FLOTTANT SANS GRANDEUR DE FENÊTRE -->
     <button id="floatViewToggleBtn" class="fixed bottom-6 right-6 z-50 bg-amber-500 text-slate-950 font-extrabold px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-amber-600 active:scale-95 transition lg:hidden hidden">
-        💻 <span class="text-xs">Voir la Console PC</span>
+        💻 <span class="text-xs">Console PC</span>
     </button>
 
-    <!-- TOAST NOTIFICATION UNIQUE -->
-    <div id="toast" class="fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-sm font-bold py-3 px-5 rounded-xl shadow-2xl flex items-center space-x-3 z-[200] transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800 w-max max-w-[90vw]">
-        <span id="toastIcon" class="text-xl">✨</span>
+    <!-- TOAST UNIQUE POUR LES MESSAGES DE RETOUR -->
+    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-3 px-4 rounded-2xl shadow-lg flex items-center space-x-2.5 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800">
+        <span id="toastIcon">✨</span>
         <span id="toastText">Action enregistrée !</span>
     </div>
 
-    <!-- MODULE FIREBASE ET LOGIQUE GLOBALE -->
+    <!-- MODULE FIREBASE ET SYNCHRONISATION EN DIRECT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -651,6 +653,7 @@
         let isOnline = navigator.onLine; 
         let userId = null;
         let db, auth;
+        let deferredPrompt = null; // Cache l'invitation d'installation PWA
 
         let currentUser = "Moi (Chef)";
         let activeTab = "dashboard";
@@ -714,15 +717,31 @@
             "Yann": { score: 45, checks: 2, badges: [], avatar: "👨" }
         };
 
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then((reg) => {
+                    console.log('Service Worker enregistré avec succès :', reg.scope);
+                }).catch((err) => {
+                    console.warn('Échec d\'enregistrement du Service Worker :', err);
+                });
+            });
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             setupEventListeners();
             applyLayout(); 
-            initPWAInstallation(); // Appel de la gestion d'installation PWA
+            
+            // RENDU INSTANTANÉ : On force l'affichage immédiat dès le chargement du DOM.
+            // Cela empêche l'onglet "Ma Flotte" de s'afficher vide le temps que Firestore charge
+            updateUI();
+            changeReportTruckDropdown();
             
             try {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 
+                // INITIALISATION AVEC CACHE LOCAL :
+                // Les requêtes Firestore fonctionnent même hors-ligne (zones blanches)
                 db = initializeFirestore(app, {
                     localCache: persistentLocalCache()
                 });
@@ -735,6 +754,7 @@
                         document.getElementById('myFirebaseUid').innerText = `ID Cloud : ${user.uid}`;
                         updateNetworkIndicator(); 
                         
+                        // Écouteur Firestore Temps Réel
                         const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'appState', 'current');
                         onSnapshot(docRef, (docSnap) => {
                             if (docSnap.exists()) {
@@ -759,68 +779,29 @@
                 console.warn("Utilisation autonome en local.", e);
                 setupLocalFallback();
             }
+
+            // GESTION DU DECLENCHEMENT AUTOMATIQUE DU BANDEAU D'INSTALLATION PWA (ANDROID)
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                // Affiche la proposition d'installation PWA si sur Android
+                const banner = document.getElementById('pwaAndroidInstallBanner');
+                if (banner) banner.classList.remove('hidden');
+            });
+
+            // GESTION SPECIALE D'INSTALLATION POUR IPHONE (IOS / SAFARI)
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone === true;
+            if (isIos && !isStandalone) {
+                // Propose l'installation après 5 secondes si pas encore installée
+                setTimeout(() => {
+                    const iosModal = document.getElementById('pwaIosInstallModal');
+                    if (iosModal) iosModal.classList.remove('hidden');
+                }, 5000);
+            }
         });
 
-        // ----------------------------------------------------------------------------------
-        // GESTION DE L'INSTALLATION PWA SUR-MESURE (ANDROID & iOS)
-        // ----------------------------------------------------------------------------------
-        function initPWAInstallation() {
-            let deferredPrompt;
-            const installBanner = document.getElementById('pwa-install-banner');
-            const btnInstall = document.getElementById('btn-install-pwa');
-            const iosModal = document.getElementById('ios-install-modal');
-            const btnCloseIos = document.getElementById('btn-close-ios');
-
-            // === 1. Logique pour Google Chrome (Android) ===
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // On empêche Chrome d'afficher son petit encart standard peu visible
-                e.preventDefault();
-                // On garde l'événement en mémoire
-                deferredPrompt = e;
-                // On affiche NOTRE beau bandeau
-                installBanner.classList.remove('hidden');
-                // Petit délai pour l'animation de descente (slide-down)
-                setTimeout(() => installBanner.classList.remove('-translate-y-full'), 100);
-            });
-
-            btnInstall.addEventListener('click', async () => {
-                // On cache notre bandeau
-                installBanner.classList.add('-translate-y-full');
-                setTimeout(() => installBanner.classList.add('hidden'), 500);
-                
-                if (deferredPrompt) {
-                    // On déclenche la vraie fenêtre système de Chrome
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`L'utilisateur a choisi : ${outcome}`);
-                    deferredPrompt = null;
-                }
-            });
-
-            // === 2. Logique pour Safari (iPhone / iPad) ===
-            const isIos = () => {
-                const userAgent = window.navigator.userAgent.toLowerCase();
-                return /iphone|ipad|ipod/.test(userAgent);
-            };
-            // Détermine si l'app est DÉJÀ installée (lancée depuis l'écran d'accueil)
-            const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
-
-            // Si le gars est sur iPhone, et qu'il est dans Safari (donc pas encore installé)
-            if (isIos() && !isInStandaloneMode()) {
-                // On attend 1 seconde pour ne pas l'agresser dès l'ouverture, puis on affiche le tuto iOS
-                setTimeout(() => {
-                    iosModal.classList.remove('hidden');
-                    setTimeout(() => iosModal.classList.remove('translate-y-full'), 100);
-                }, 1000);
-            }
-
-            btnCloseIos.addEventListener('click', () => {
-                iosModal.classList.add('translate-y-full');
-                setTimeout(() => iosModal.classList.add('hidden'), 500);
-            });
-        }
-        // ----------------------------------------------------------------------------------
-
+        // Écouteurs de connexion du navigateur pour mettre l'interface à jour en temps réel
         window.addEventListener('online', () => {
             isOnline = true;
             updateNetworkIndicator();
@@ -837,16 +818,17 @@
             const indicator = document.getElementById('cloudStatusIndicator');
             if (isOnline) {
                 indicator.innerHTML = '🟢 Partagé';
-                indicator.className = "text-[9px] font-bold bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30 shadow-inner";
+                indicator.className = "text-[10px] font-bold bg-emerald-950 text-emerald-400 px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-500/30";
             } else {
                 indicator.innerHTML = '🔴 Hors-ligne';
-                indicator.className = "text-[9px] font-bold bg-rose-950 text-rose-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-rose-500/30 shadow-inner";
+                indicator.className = "text-[10px] font-bold bg-rose-950 text-rose-400 px-2.5 py-1 rounded-full flex items-center gap-1 border border-rose-500/30";
             }
         }
 
         function setupLocalFallback() {
-            document.getElementById('cloudStatusIndicator').innerHTML = '🟡 Local';
-            document.getElementById('cloudStatusIndicator').className = "text-[9px] font-bold bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30 shadow-inner";
+            const ind = document.getElementById('cloudStatusIndicator');
+            ind.innerHTML = '🟡 Local';
+            ind.className = "text-[10px] font-bold bg-amber-950 text-amber-400 px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-500/30";
             document.getElementById('myFirebaseUid').innerText = `Sauvegarde locale active`;
             updateUI();
             changeReportTruckDropdown();
@@ -954,6 +936,37 @@
             
             document.getElementById('pcSearchTools').addEventListener('input', () => renderPCToolsTable());
             document.getElementById('pcFilterTruckSelect').addEventListener('change', () => renderPCToolsTable());
+
+            // GESTION DU DECLENCHEMENT MANUEL DU BANDEAU D'INSTALLATION PWA
+            const btnAcceptInstall = document.getElementById('btnAcceptAndroidInstall');
+            if (btnAcceptInstall) {
+                btnAcceptInstall.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`Résultat de l'installation : ${outcome}`);
+                        deferredPrompt = null;
+                        const banner = document.getElementById('pwaAndroidInstallBanner');
+                        if (banner) banner.classList.add('hidden');
+                    }
+                });
+            }
+
+            const btnDeclineInstall = document.getElementById('btnDeclineAndroidInstall');
+            if (btnDeclineInstall) {
+                btnDeclineInstall.addEventListener('click', () => {
+                    const banner = document.getElementById('pwaAndroidInstallBanner');
+                    if (banner) banner.classList.add('hidden');
+                });
+            }
+
+            const btnCloseIos = document.getElementById('btnCloseIosInstall');
+            if (btnCloseIos) {
+                btnCloseIos.addEventListener('click', () => {
+                    const modal = document.getElementById('pwaIosInstallModal');
+                    if (modal) modal.classList.add('hidden');
+                });
+            }
         }
 
         function switchTab(tabId) {
@@ -963,13 +976,13 @@
             ['dashboard', 'report', 'inventory', 'team'].forEach(t => {
                 document.getElementById('page-' + t).classList.add('hidden');
                 const btn = document.getElementById('navBtn-' + t);
-                btn.className = "flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1.5 text-slate-500 hover:text-slate-900 hover:bg-white/50";
+                btn.className = "flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 text-slate-600 hover:text-slate-950";
             });
             
             document.getElementById('page-' + tabId).classList.remove('hidden');
             document.getElementById('page-' + tabId).classList.add('animate-fade-in');
 
-            document.getElementById('navBtn-' + tabId).className = "flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1.5 bg-white text-slate-900 shadow border border-slate-100";
+            document.getElementById('navBtn-' + tabId).className = "flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 bg-white text-slate-900 shadow-sm";
 
             if (tabId === 'inventory') renderInventoryPage();
             if (tabId === 'team') renderTeamPage();
@@ -1010,48 +1023,50 @@
             container.innerHTML = '';
 
             if (trucks.length === 0) {
-                container.innerHTML = '<p class="text-sm text-slate-400 text-center py-6 font-medium">Aucun camion enregistré.</p>';
+                container.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Aucun camion enregistré.</p>';
                 return;
             }
 
             trucks.forEach((truck, index) => {
-                const total = truck.equipment.length;
-                const present = truck.equipment.filter(e => e.present).length;
+                const equipmentList = truck.equipment || [];
+                const total = equipmentList.length;
+                const present = equipmentList.filter(e => e.present).length;
                 const score = total > 0 ? Math.round((present / total) * 100) : 100;
                 
-                let badgeClass = "bg-rose-50 text-rose-700 border border-rose-200";
+                let badgeClass = "bg-rose-50 text-rose-700 border border-rose-100";
                 let barClass = "bg-rose-500";
-                let summary = `🚨 ${total - present} manquant(s) !`;
+                let summary = `🚨 ${total - present} matériel(s) manquant(s) !`;
 
                 if (score === 100) {
-                    badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+                    badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-100";
                     barClass = "bg-emerald-500";
-                    summary = "🏆 Camion 100% complet";
+                    summary = "🏆 Camion impeccable et complet !";
                 } else if (score >= 80) {
-                    badgeClass = "bg-amber-50 text-amber-700 border border-amber-200";
+                    badgeClass = "bg-amber-50 text-amber-700 border border-amber-100";
                     barClass = "bg-amber-500";
-                    summary = `⚠️ ${total - present} manquant(s)`;
+                    summary = `⚠️ Uniquement ${total - present} manquant(s)`;
                 }
 
                 const card = document.createElement('div');
-                card.className = "bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer relative overflow-hidden";
+                // Augmentation de la taille globale des cartes et des textes
+                card.className = "bg-white border border-slate-100 rounded-3xl p-4.5 shadow-sm hover:shadow-md transition cursor-pointer";
                 card.innerHTML = `
-                    <div class="flex items-center justify-between mb-3 relative z-10">
+                    <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center space-x-3">
-                            <span class="text-3xl bg-slate-50 p-2 rounded-xl border border-slate-100 shadow-sm">${truck.emoji}</span>
+                            <span class="text-3xl">${truck.emoji}</span>
                             <div>
                                 <h4 class="font-extrabold text-slate-900 text-sm">${truck.name.split(' - ')[0]}</h4>
-                                <p class="text-[11px] text-slate-500 font-medium mt-0.5">${truck.desc}</p>
+                                <p class="text-xs text-slate-400">${truck.desc}</p>
                             </div>
                         </div>
-                        <span class="text-xs font-black px-2.5 py-1 rounded-lg shadow-sm ${badgeClass}">${score}%</span>
+                        <span class="text-xs font-black px-2.5 py-1 rounded-xl ${badgeClass}">${score}%</span>
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 relative z-10 shadow-inner">
+                    <div class="w-full bg-slate-100 rounded-full h-2">
                         <div class="h-2 rounded-full transition-all duration-500 ${barClass}" style="width: ${score}%;"></div>
                     </div>
-                    <div class="mt-3.5 flex justify-between items-center text-[11px] text-slate-500 relative z-10">
-                        <span class="font-bold">${summary}</span>
-                        <span class="text-amber-600 font-extrabold uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">Ouvrir <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                    <div class="mt-3 flex justify-between items-center text-xs text-slate-500">
+                        <span class="font-bold text-slate-600">${summary}</span>
+                        <span class="text-amber-600 font-extrabold flex items-center gap-1">Inspecter <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
                     </div>
                 `;
                 card.addEventListener('click', () => openTruckDetails(index));
@@ -1064,33 +1079,33 @@
             feedEl.innerHTML = '';
 
             if (feed.length === 0) {
-                feedEl.innerHTML = '<p class="text-sm text-slate-400 text-center py-6 font-medium">Aucune activité récente.</p>';
+                feedEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucune activité récente.</p>';
                 return;
             }
 
             feed.forEach(item => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = "flex items-start space-x-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0";
+                itemDiv.className = "flex items-start space-x-3 border-b border-slate-50 pb-3 last:border-0 last:pb-0";
 
                 const isPresent = item.action === 'present';
                 const icon = isPresent ? '✅' : '❌';
-                const bg = isPresent ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+                const bg = isPresent ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100';
                 const status = isPresent ? 'a remis à bord' : 'signale qu\'il MANQUE';
-                const reason = (!isPresent && item.reason) ? `<span class="inline-block bg-rose-50 border border-rose-200 text-rose-700 rounded px-2 py-0.5 text-[10px] font-bold mt-1 mr-1">${item.reason}</span>` : '';
+                const reason = (!isPresent && item.reason) ? `<span class="inline-block bg-rose-50 border border-rose-150 text-rose-700 rounded-xl px-2 py-0.5 text-[10px] font-bold mt-1.5 mr-1">${item.reason}</span>` : '';
 
                 itemDiv.innerHTML = `
-                    <div class="p-2 rounded-xl text-center flex-shrink-0 border font-bold text-base shadow-sm ${bg}">
+                    <div class="p-2.5 rounded-xl text-center flex-shrink-0 border font-bold text-sm ${bg}">
                         ${icon}
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-center">
                             <span class="font-extrabold text-slate-900 text-xs">${item.user}</span>
-                            <span class="text-[10px] text-slate-400 font-bold">${item.time}</span>
+                            <span class="text-[10px] text-slate-400">${item.time}</span>
                         </div>
-                        <p class="text-slate-600 mt-1 text-xs font-medium leading-relaxed">${status} : <strong class="text-slate-900">${item.item}</strong></p>
+                        <p class="text-slate-600 mt-1 text-xs leading-relaxed">${status} : <strong class="text-slate-900">${item.item}</strong></p>
                         <div class="flex flex-wrap gap-1 mt-1.5">
                             ${reason}
-                            <span class="inline-block bg-slate-100 text-slate-500 rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-200">${item.truck}</span>
+                            <span class="inline-block bg-slate-100 text-slate-500 rounded-xl px-2 py-0.5 text-[10px] font-bold uppercase">${item.truck}</span>
                         </div>
                     </div>
                 `;
@@ -1107,23 +1122,23 @@
                 const data = teamScores[user];
                 const isMe = user === currentUser;
 
-                let badgesHTML = data.badges.map(b => `<span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-1 rounded-lg border border-amber-200 shadow-sm">${b}</span>`).join(' ');
-                if (!badgesHTML) badgesHTML = `<span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-1 rounded-lg border border-slate-200">Débutant</span>`;
+                let badgesHTML = data.badges.map(b => `<span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-xl border border-amber-200">${b}</span>`).join(' ');
+                if (!badgesHTML) badgesHTML = `<span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-xl">Débutant</span>`;
 
                 const memberDiv = document.createElement('div');
-                memberDiv.className = `flex items-center justify-between p-3 rounded-2xl transition ${isMe ? 'bg-amber-50 border-2 border-amber-200 shadow-sm' : 'border border-slate-100 bg-slate-50'}`;
+                memberDiv.className = `flex items-center justify-between p-3 rounded-2xl ${isMe ? 'bg-amber-50/20 border border-amber-100/30' : 'border border-slate-50'}`;
 
                 memberDiv.innerHTML = `
                     <div class="flex items-center space-x-3">
-                        <span class="text-3xl bg-white p-1.5 rounded-xl shadow-sm">${data.avatar || '👤'}</span>
+                        <span class="text-3xl">${data.avatar || '👤'}</span>
                         <div>
-                            <h4 class="font-extrabold text-slate-900 text-sm">${user} ${isMe ? '(Vous)' : ''}</h4>
-                            <div class="flex flex-wrap gap-1.5 mt-1.5">${badgesHTML}</div>
+                            <h4 class="font-extrabold text-slate-900 text-xs">${user} ${isMe ? '(Vous)' : ''}</h4>
+                            <div class="flex flex-wrap gap-1 mt-1">${badgesHTML}</div>
                         </div>
                     </div>
-                    <div class="text-right bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+                    <div class="text-right">
                         <span class="text-sm font-black text-amber-600 block">${data.score} pts</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">${data.checks} vérif.</span>
+                        <span class="text-[10px] text-slate-400">${data.checks} contrôles</span>
                     </div>
                 `;
                 container.appendChild(memberDiv);
@@ -1144,9 +1159,9 @@
                 const btn = document.createElement('button');
                 const isSelected = index === currentReportTruck;
                 btn.className = isSelected
-                    ? "py-3 px-3 border-2 border-amber-500 bg-amber-50 text-slate-900 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1.5 transition-all shadow-sm"
-                    : "py-3 px-3 border-2 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1.5 transition-all shadow-sm";
-                btn.innerHTML = `<span class="text-2xl">${truck.emoji}</span><span class="font-extrabold text-[11px] uppercase tracking-wider">${truck.name.split(' - ')[0]}</span>`;
+                    ? "py-3 px-3 border-2 border-amber-500 bg-amber-50/25 text-slate-900 rounded-2xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1.5 transition-all"
+                    : "py-3 px-3 border-2 border-slate-200 bg-white text-slate-600 rounded-2xl text-xs font-bold text-center flex flex-col items-center justify-center space-y-1.5 transition-all";
+                btn.innerHTML = `<span>${truck.emoji}</span><span class="font-extrabold text-[11px]">${truck.name.split(' - ')[0]}</span>`;
                 btn.addEventListener('click', () => selectReportTruck(index));
                 container.appendChild(btn);
             });
@@ -1159,7 +1174,8 @@
             if (trucks.length === 0 || currentReportTruck >= trucks.length) return;
 
             const truck = trucks[currentReportTruck];
-            truck.equipment.forEach(item => {
+            const equipmentList = truck.equipment || [];
+            equipmentList.forEach(item => {
                 const opt = document.createElement('option');
                 opt.value = item.id;
                 opt.innerText = `${item.emoji} ${item.name} (${item.present ? 'À bord' : 'Absent ❌'})`;
@@ -1172,7 +1188,8 @@
             if (!itemId) return;
 
             const truck = trucks[currentReportTruck];
-            const item = truck.equipment.find(e => e.id === itemId);
+            const equipmentList = truck.equipment || [];
+            const item = equipmentList.find(e => e.id === itemId);
             const isPresent = action === 'present';
 
             if (item.present === isPresent) {
@@ -1215,8 +1232,8 @@
             const btnAll = document.createElement('button');
             btnAll.id = 'catFilter-All';
             btnAll.className = activeCategoryFilter === 'All'
-                ? "px-4 py-2 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-wider whitespace-nowrap shadow-md"
-                : "px-4 py-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl text-[11px] font-bold uppercase tracking-wider whitespace-nowrap shadow-sm";
+                ? "px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold whitespace-nowrap"
+                : "px-3.5 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold whitespace-nowrap";
             btnAll.innerText = "Tout";
             btnAll.addEventListener('click', () => filterInventoryCategory('All'));
             container.appendChild(btnAll);
@@ -1225,8 +1242,8 @@
                 const btn = document.createElement('button');
                 btn.id = 'catFilter-' + cat;
                 btn.className = activeCategoryFilter === cat
-                    ? "px-4 py-2 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-wider whitespace-nowrap shadow-md"
-                    : "px-4 py-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-xl text-[11px] font-bold uppercase tracking-wider whitespace-nowrap shadow-sm";
+                    ? "px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold whitespace-nowrap"
+                    : "px-3.5 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold whitespace-nowrap";
                 btn.innerText = cat;
                 btn.addEventListener('click', () => filterInventoryCategory(cat));
                 container.appendChild(btn);
@@ -1275,17 +1292,17 @@
             listContainer.innerHTML = '';
 
             if (categories.length === 0) {
-                listContainer.innerHTML = '<p class="text-[10px] text-slate-500 text-center py-2">Aucune catégorie.</p>';
+                listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center py-2">Aucune catégorie.</p>';
                 return;
             }
 
             categories.forEach((cat, idx) => {
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs";
+                row.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs";
                 
                 if (editingCategoryIndex === idx) {
                     row.innerHTML = `
-                        <input type="text" id="pcEditCatInput-${idx}" value="${cat}" class="flex-1 bg-slate-950 border border-amber-500 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none">
+                        <input type="text" id="pcEditCatInput-${idx}" value="${cat}" class="flex-1 bg-slate-950 border border-amber-500 rounded-lg px-2 py-1 text-xs text-white focus:outline-none">
                         <div class="flex gap-1.5 ml-2">
                             <button class="save-cat-btn text-emerald-400 hover:text-emerald-300 p-1 font-bold"><i class="fa-solid fa-check"></i></button>
                             <button class="cancel-cat-btn text-slate-400 hover:text-slate-300 p-1 font-bold"><i class="fa-solid fa-xmark"></i></button>
@@ -1301,7 +1318,7 @@
                     });
                 } else {
                     row.innerHTML = `
-                        <span class="font-bold text-slate-300 text-[11px]">${cat}</span>
+                        <span class="font-bold text-slate-300 text-xs">${cat}</span>
                         <div class="flex gap-2">
                             <button class="edit-cat-btn text-amber-400 hover:text-amber-300 p-0.5"><i class="fa-solid fa-pen"></i></button>
                             <button class="delete-cat-btn text-rose-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can"></i></button>
@@ -1354,7 +1371,8 @@
             }
 
             trucks.forEach(truck => {
-                truck.equipment.forEach(item => {
+                const equipmentList = truck.equipment || [];
+                equipmentList.forEach(item => {
                     if (item.category === oldName) {
                         item.category = newName;
                     }
@@ -1381,7 +1399,8 @@
 
             let updatedToolsCount = 0;
             trucks.forEach(truck => {
-                truck.equipment.forEach(item => {
+                const equipmentList = truck.equipment || [];
+                equipmentList.forEach(item => {
                     if (item.category === catToDelete) {
                         item.category = fallbackCat;
                         updatedToolsCount++;
@@ -1405,7 +1424,8 @@
 
         async function toggleItemStatus(id) {
             playSound('pop');
-            const item = trucks[currentInventoryTruck].equipment.find(e => e.id === id);
+            const equipmentList = trucks[currentInventoryTruck].equipment || [];
+            const item = equipmentList.find(e => e.id === id);
             item.present = !item.present;
             renderInventoryPage();
             updateUI();
@@ -1419,8 +1439,8 @@
             trucks.forEach((truck, idx) => {
                 const btn = document.createElement('button');
                 btn.className = idx === currentInventoryTruck
-                    ? "flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-lg bg-white text-slate-950 shadow-md transition"
-                    : "flex-1 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-200 transition rounded-lg";
+                    ? "flex-1 py-2 text-[10px] font-bold rounded-xl bg-white text-slate-950 shadow-sm transition"
+                    : "flex-1 py-2 text-[10px] font-bold text-slate-600 hover:bg-white/50 transition";
                 btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
                 btn.addEventListener('click', () => selectInventoryTruck(idx));
                 tabContainer.appendChild(btn);
@@ -1433,27 +1453,28 @@
             if (trucks.length === 0 || currentInventoryTruck >= trucks.length) return;
 
             const truck = trucks[currentInventoryTruck];
-            const filtered = truck.equipment.filter(e => {
+            const equipmentList = truck.equipment || [];
+            const filtered = equipmentList.filter(e => {
                 if (activeCategoryFilter === 'All') return true;
                 return e.category === activeCategoryFilter;
             });
 
-            const total = truck.equipment.length;
-            const checked = truck.equipment.filter(e => e.present).length;
-            document.getElementById('inventoryProgressText').innerText = `${checked} / ${total} OK`;
+            const total = equipmentList.length;
+            const checked = equipmentList.filter(e => e.present).length;
+            document.getElementById('inventoryProgressText').innerText = `${checked} / ${total} présents`;
 
             filtered.forEach(item => {
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-3 rounded-xl border-2 transition-all shadow-sm " + (item.present ? "bg-emerald-50 border-emerald-200" : "bg-rose-50 border-rose-200");
+                row.className = "flex items-center justify-between p-3 rounded-2xl border transition-all " + (item.present ? "bg-emerald-50/40 border-emerald-100" : "bg-rose-50/40 border-rose-100");
                 row.innerHTML = `
                     <div class="flex items-center space-x-3">
-                        <span class="text-2xl bg-white p-1.5 rounded-lg shadow-sm">${item.emoji}</span>
+                        <span class="text-xl">${item.emoji}</span>
                         <div>
-                            <span class="text-sm font-extrabold block text-slate-900">${item.name}</span>
-                            <span class="text-[10px] uppercase text-slate-500 font-bold tracking-widest">${item.category}</span>
+                            <span class="text-xs font-bold block text-slate-900">${item.name}</span>
+                            <span class="text-[10px] uppercase text-slate-400 font-extrabold tracking-wider">${item.category}</span>
                         </div>
                     </div>
-                    <button class="toggle-status-btn px-3 py-2 rounded-xl text-[10px] font-black uppercase text-white shadow active:scale-95 transition ${item.present ? 'bg-emerald-500 border-b-4 border-emerald-700' : 'bg-rose-500 border-b-4 border-rose-700'}">
+                    <button class="toggle-status-btn px-3 py-2 rounded-xl text-[10px] font-black uppercase text-white shadow-sm active:scale-95 transition ${item.present ? 'bg-emerald-500' : 'bg-rose-500'}">
                         ${item.present ? 'À Bord' : 'Absent'}
                     </button>
                 `;
@@ -1465,13 +1486,14 @@
         async function finishMonthlyInventory() {
             playSound('success');
             const truck = trucks[currentInventoryTruck];
-            const missing = truck.equipment.filter(e => !e.present).length;
+            const equipmentList = truck.equipment || [];
+            const missing = equipmentList.filter(e => !e.present).length;
 
             feed.unshift({
                 user: currentUser,
                 action: 'present',
                 reason: '',
-                item: `📋 INVENTAIRE MENSUEL VALIDÉ (${missing === 0 ? 'Flotte 100% OK' : missing + ' manquant(s)'})`,
+                item: `📋 INVENTAIRE DE FLOTTE (${missing === 0 ? 'Camion 100% OK' : missing + ' manquant(s)'})`,
                 truck: truck.name.split(' - ')[0],
                 time: "À l'instant"
             });
@@ -1481,7 +1503,7 @@
                 teamScores[currentUser].checks += 1;
             }
 
-            showToast(`🏆 Inventaire validé ! (+25 pts)`);
+            showToast(`🏆 Contrôle de flotte validé ! (+25 pts)`);
             updateUI();
             await pushStateToCloud();
             setTimeout(() => switchTab('dashboard'), 800);
@@ -1496,8 +1518,9 @@
             document.getElementById('modalTruckDesc').innerText = truck.desc;
             document.getElementById('modalTruckIcon').innerText = truck.emoji;
 
-            const total = truck.equipment.length;
-            const present = truck.equipment.filter(e => e.present).length;
+            const equipmentList = truck.equipment || [];
+            const total = equipmentList.length;
+            const present = equipmentList.filter(e => e.present).length;
             const score = total > 0 ? Math.round((present / total) * 100) : 100;
             const progress = document.getElementById('modalTruckProgress');
             progress.style.width = `${score}%`;
@@ -1505,18 +1528,18 @@
             const list = document.getElementById('modalEquipmentList');
             list.innerHTML = '';
 
-            truck.equipment.forEach(item => {
+            equipmentList.forEach(item => {
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-3 border-b border-slate-100 " + (item.present ? "bg-white" : "bg-rose-50");
+                row.className = "flex items-center justify-between p-3.5 border-b border-slate-50 " + (item.present ? "bg-white" : "bg-rose-50/50");
                 row.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <span class="text-xl">${item.emoji}</span>
                         <div>
-                            <span class="text-sm font-bold ${item.present ? 'text-slate-900' : 'text-slate-400 line-through'}">${item.name}</span>
-                            <p class="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">${item.category}</p>
+                            <span class="text-xs font-bold ${item.present ? 'text-slate-800' : 'text-slate-400 line-through'}">${item.name}</span>
+                            <p class="text-[10px] text-slate-400 font-extrabold uppercase">${item.category}</p>
                         </div>
                     </div>
-                    <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${item.present ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full ${item.present ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
                         ${item.present ? 'À bord' : 'Absent'}
                     </span>
                 `;
@@ -1547,8 +1570,8 @@
             trucks.forEach((truck, idx) => {
                 const btn = document.createElement('button');
                 btn.className = idx === currentManageTruck
-                    ? "flex-1 py-2 text-[10px] font-black uppercase tracking-wider bg-white text-slate-950 rounded-lg shadow-sm"
-                    : "flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 rounded-lg";
+                    ? "flex-1 py-2 text-[10px] font-bold bg-white text-slate-950 rounded-xl shadow-sm"
+                    : "flex-1 py-2 text-[10px] font-bold text-slate-500 rounded-xl";
                 btn.innerText = `${truck.emoji} ${truck.name.split(' - ')[0]}`;
                 btn.addEventListener('click', () => { currentManageTruck = idx; renderManageToolsList(); });
                 tabs.appendChild(btn);
@@ -1560,15 +1583,16 @@
             if (trucks.length === 0 || currentManageTruck >= trucks.length) return;
 
             const truck = trucks[currentManageTruck];
-            truck.equipment.forEach((item, idx) => {
+            const equipmentList = truck.equipment || [];
+            equipmentList.forEach((item, idx) => {
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 transition cursor-pointer shadow-sm";
+                row.className = "flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-rose-200 hover:bg-rose-50/20 transition cursor-pointer";
                 row.innerHTML = `
                     <div class="flex items-center space-x-3">
-                        <span class="text-xl bg-slate-50 p-1 rounded">${item.emoji}</span>
-                        <span class="text-sm font-bold text-slate-800">${item.name}</span>
+                        <span class="text-lg">${item.emoji}</span>
+                        <span class="text-xs font-bold text-slate-800">${item.name}</span>
                     </div>
-                    <button class="text-rose-500 hover:text-rose-700 bg-rose-50 p-2 rounded-lg border border-rose-100 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <button class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash-can text-sm"></i></button>
                 `;
                 row.querySelector('button').addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1587,6 +1611,7 @@
             if (!name) return;
             const newId = (target === 0 ? 'a' : 'b') + Date.now();
 
+            if (!trucks[target].equipment) trucks[target].equipment = [];
             trucks[target].equipment.push({ id: newId, name, category: cat, present: true, emoji });
             document.getElementById('addToolName').value = '';
 
@@ -1599,11 +1624,12 @@
 
         async function deleteTool(truckIdx, id) {
             const truck = trucks[truckIdx];
-            const idx = truck.equipment.findIndex(e => e.id === id);
+            const equipmentList = truck.equipment || [];
+            const idx = equipmentList.findIndex(e => e.id === id);
             if (idx === -1) return;
 
-            const name = truck.equipment[idx].name;
-            truck.equipment.splice(idx, 1);
+            const name = equipmentList[idx].name;
+            equipmentList.splice(idx, 1);
 
             playSound('delete');
             showToast(`🗑️ "${name}" supprimé.`);
@@ -1619,8 +1645,9 @@
             let totalTools = 0;
             let presentTools = 0;
             trucks.forEach(t => {
-                totalTools += t.equipment.length;
-                presentTools += t.equipment.filter(e => e.present).length;
+                const equipmentList = t.equipment || [];
+                totalTools += equipmentList.length;
+                presentTools += equipmentList.filter(e => e.present).length;
             });
 
             const pcToolsKpi = document.getElementById('pc-kpi-tools');
@@ -1684,8 +1711,9 @@
             }
 
             trucks.forEach((truck, index) => {
-                const total = truck.equipment.length;
-                const present = truck.equipment.filter(e => e.present).length;
+                const equipmentList = truck.equipment || [];
+                const total = equipmentList.length;
+                const present = equipmentList.filter(e => e.present).length;
                 const score = total > 0 ? Math.round((present / total) * 100) : 100;
 
                 const card = document.createElement('div');
@@ -1773,8 +1801,8 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/30 transition";
 
-                let badges = member.badges.map(b => `<span class="bg-amber-500/10 border border-amber-500/20 text-[9px] font-black text-amber-400 px-2 py-0.5 rounded">${b}</span>`).join(' ');
-                if (!badges) badges = '<span class="text-slate-600 text-[10px]">Aucun badge</span>';
+                let badges = member.badges.map(b => `<span class="bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-400 px-2 py-0.5 rounded">${b}</span>`).join(' ');
+                if (!badges) badges = '<span class="text-slate-600 text-xs">Aucun badge</span>';
 
                 tr.innerHTML = `
                     <td class="py-3 px-2 flex items-center gap-2">
@@ -1859,7 +1887,8 @@
             trucks.forEach((truck, truckIndex) => {
                 if (filterValue !== 'all' && parseInt(filterValue) !== truckIndex) return;
 
-                truck.equipment.forEach(item => {
+                const equipmentList = truck.equipment || [];
+                equipmentList.forEach(item => {
                     if (searchValue && !item.name.toLowerCase().includes(searchValue) && !item.category.toLowerCase().includes(searchValue)) return;
 
                     rowCount++;
@@ -1879,7 +1908,7 @@
                         </td>
                         <td class="py-3 px-4 font-bold text-slate-500">${item.category}</td>
                         <td class="py-3 px-4">
-                            <button class="pc-toggle-tool-btn px-2.5 py-1 text-[10px] font-black uppercase rounded-lg shadow-sm transition ${item.present ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'}">
+                            <button class="pc-toggle-tool-btn px-2.5 py-1 text-[11px] font-black uppercase rounded-lg shadow-sm transition ${item.present ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'}">
                                 ${item.present ? '✅ Présent à bord' : '❌ Absent / Manquant'}
                             </button>
                         </td>
@@ -1908,7 +1937,8 @@
 
         async function togglePCToolStatus(truckIdx, itemId) {
             playSound('pop');
-            const item = trucks[truckIdx].equipment.find(e => e.id === itemId);
+            const equipmentList = trucks[truckIdx].equipment || [];
+            const item = equipmentList.find(e => e.id === itemId);
             item.present = !item.present;
 
             feed.unshift({
@@ -1927,10 +1957,11 @@
 
         async function deletePCTool(truckIdx, itemId) {
             const truck = trucks[truckIdx];
-            const idx = truck.equipment.findIndex(e => e.id === itemId);
-            const name = truck.equipment[idx].name;
+            const equipmentList = truck.equipment || [];
+            const idx = equipmentList.findIndex(e => e.id === itemId);
+            const name = equipmentList[idx].name;
 
-            truck.equipment.splice(idx, 1);
+            equipmentList.splice(idx, 1);
             playSound('delete');
             showToast(`🗑️ "${name}" supprimé définitivement.`);
             updateUI();
@@ -1941,11 +1972,14 @@
             const srcTruck = trucks[srcTruckIdx];
             const destTruck = trucks[destTruckIdx];
 
-            const itemIdx = srcTruck.equipment.findIndex(e => e.id === itemId);
+            const srcEquipment = srcTruck.equipment || [];
+            const destEquipment = destTruck.equipment || [];
+
+            const itemIdx = srcEquipment.findIndex(e => e.id === itemId);
             if (itemIdx === -1) return;
 
-            const item = srcTruck.equipment.splice(itemIdx, 1)[0];
-            destTruck.equipment.push(item);
+            const item = srcEquipment.splice(itemIdx, 1)[0];
+            destEquipment.push(item);
 
             playSound('success');
             showToast(`🔄 "${item.name}" transféré vers "${destTruck.name.split(' - ')[0]}" !`);
@@ -1965,6 +1999,7 @@
             }
 
             const newId = (targetIdx === 0 ? 'pc-a' : 'pc-b') + Date.now();
+            if (!trucks[targetIdx].equipment) trucks[targetIdx].equipment = [];
             trucks[targetIdx].equipment.push({
                 id: newId,
                 name,
@@ -1986,11 +2021,11 @@
             const toast = document.getElementById('toast');
             const toastText = document.getElementById('toastText');
             toastText.innerText = text;
-            toast.className = "fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-sm font-bold py-3 px-5 rounded-xl shadow-2xl flex items-center space-x-3 z-[200] transition-all duration-300 opacity-100 translate-y-0 border border-slate-800 w-max max-w-[90vw]";
+            toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-3 px-4 rounded-2xl shadow-lg flex items-center space-x-2.5 z-50 transition-all duration-300 opacity-100 translate-y-0 border border-slate-800";
             
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
-                toast.className = "fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-sm font-bold py-3 px-5 rounded-xl shadow-2xl flex items-center space-x-3 z-[200] transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800 w-max max-w-[90vw]";
+                toast.className = "fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold py-3 px-4 rounded-2xl shadow-lg flex items-center space-x-2.5 z-50 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none border border-slate-800";
             }, 3000);
         }
 
@@ -2038,20 +2073,6 @@
             } catch (e) {
                 // Silenced
             }
-        }
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('Service Worker enregistré avec succès:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Échec de l\'enregistrement du Service Worker:', error);
-                    });
-            });
         }
     </script>
 </body>

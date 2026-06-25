@@ -125,7 +125,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= ONGLET MOBILE : SIGNALER UN LOGICIEL / OUTIL ================= -->
+                    <!-- ================= ONGLET MOBILE : SIGNALER UN OUTIL ================= -->
                     <div id="page-report" class="space-y-4 hidden">
                         <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
                             <div class="text-center pb-3 border-b border-slate-100">
@@ -171,7 +171,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= ONGLET MOBILE : INVENTAIRE MENSUEL CHRONO (COMPLET) ================= -->
+                    <!-- ================= ONGLET MOBILE : INVENTAIRE DE TERRAIN ================= -->
                     <div id="page-inventory" class="space-y-4 hidden">
                         <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-4">
                             <div class="text-center pb-1 border-b border-slate-100">
@@ -182,6 +182,11 @@
 
                             <!-- Sélection du camion pour contrôle -->
                             <div id="inventoryTruckButtonsContainer" class="flex space-x-1.5 p-1.5 bg-slate-100 rounded-2xl">
+                                <!-- Rempli en JS -->
+                            </div>
+
+                            <!-- Filtres de catégories pour naviguer efficacement -->
+                            <div class="flex space-x-1.5 overflow-x-auto pb-1.5 custom-scrollbar" id="categoryFilters">
                                 <!-- Rempli en JS -->
                             </div>
 
@@ -246,6 +251,7 @@
 
                 </main>
 
+                <!-- Navigation de bas de page mobile -->
                 <nav class="absolute bottom-0 left-0 right-0 bg-slate-100/95 backdrop-blur-md border-t border-slate-200/80 z-35 shadow-lg pb-safe pt-2.5 px-3 flex-shrink-0">
                     <div class="flex space-x-1.5 bg-slate-200/85 p-1 rounded-2xl shadow-inner">
                         <button id="navBtn-dashboard" class="flex-1 py-3 px-1 rounded-xl text-xs font-bold transition-all duration-200 flex flex-col items-center space-y-1 bg-white text-slate-900 shadow-sm">
@@ -1639,7 +1645,6 @@
             const equipmentList = trucks[currentInventoryTruck].equipment || [];
             const item = equipmentList.find(e => e.id === id);
             item.note = noteText;
-            // Ne pas push en direct pour éviter de couper la saisie, seulement locale, sauvée sur validation ou changement de tab
         }
 
         async function markAllInventoryToolsOk() {
@@ -2441,16 +2446,6 @@
                         transferOptions += `<option value="${targetIdx}" ${isCurrent ? 'selected disabled' : ''}>${isCurrent ? '📍 ' : '🔄 '} ${targetTruck.name.split(' - ')[0]}</option>`;
                     });
 
-                    // Formatage du badge de condition globale
-                    let conditionBadgeHTML = '';
-                    if (item.condition === 'good' && item.qty >= item.targetQty) {
-                        conditionBadgeHTML = `<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded font-black uppercase">En Place</span>`;
-                    } else if (item.condition === 'damaged') {
-                        conditionBadgeHTML = `<span class="bg-amber-500/15 text-amber-400 border border-amber-500/30 px-2 py-1 rounded font-black uppercase">Endommagé</span>`;
-                    } else {
-                        conditionBadgeHTML = `<span class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-2 py-1 rounded font-black uppercase">Manquant</span>`;
-                    }
-
                     // Formatage de l'alerte de sécurité critique
                     const isSecurityAnomaly = item.category === 'Sécurité' && (item.condition === 'missing' || item.condition === 'damaged' || item.qty === 0);
                     const alertBadge = isSecurityAnomaly ? `<span class="bg-rose-500/20 text-rose-400 text-[9px] font-black px-1.5 py-0.5 rounded ml-1.5 animate-pulse-subtle border border-rose-500/40">🚨 HORS-CONFORMITÉ</span>` : '';
@@ -2463,13 +2458,13 @@
                         <td class="py-3.5 px-4 font-bold text-slate-500">${item.category}</td>
                         <td class="py-3.5 px-4">
                             <div class="flex items-center gap-1.5">
-                                <button class="pc-qty-minus bg-slate-900 hover:bg-slate-800 text-slate-400 p-1 rounded font-black text-xs" data-truck="${truckIndex}" data-id="${item.id}">-</button>
+                                <button class="pc-qty-minus bg-slate-900 hover:bg-slate-850 text-slate-400 p-1 rounded font-black text-xs" data-truck="${truckIndex}" data-id="${item.id}">-</button>
                                 <span class="font-bold text-white w-12 text-center">${item.qty} / ${item.targetQty}</span>
-                                <button class="pc-qty-plus bg-slate-900 hover:bg-slate-800 text-slate-400 p-1 rounded font-black text-xs" data-truck="${truckIndex}" data-id="${item.id}">+</button>
+                                <button class="pc-qty-plus bg-slate-900 hover:bg-slate-850 text-slate-400 p-1 rounded font-black text-xs" data-truck="${truckIndex}" data-id="${item.id}">+</button>
                             </div>
                         </td>
                         <td class="py-3.5 px-4">
-                            <select class="pc-condition-select bg-slate-900 border border-slate-800 rounded px-2 py-1 text-[11px] font-bold text-slate-300">
+                            <select class="pc-condition-select bg-slate-900 border border-slate-800 rounded px-2 py-1 text-[11px] font-bold text-slate-300 focus:outline-none">
                                 <option value="good" ${item.condition === 'good' ? 'selected' : ''}>✅ En Place</option>
                                 <option value="damaged" ${item.condition === 'damaged' ? 'selected' : ''}>⚠️ Endommagé</option>
                                 <option value="missing" ${item.condition === 'missing' ? 'selected' : ''}>❌ Manquant</option>

@@ -1,24 +1,30 @@
 {
-"name": "CamionCheck",
-"short_name": "CamionCheck",
-"description": "L'inventaire ludique de nos camions de chantier",
-"start_url": "index.html",
-"display": "standalone",
-"background_color": "#020617",
-"theme_color": "#020617",
-"orientation": "portrait-primary",
-"icons": [
-{
-"src": "https://placehold.co/192x192/020617/f59e0b.png?text=CC",
-"type": "image/png",
-"sizes": "192x192",
-"purpose": "any"
-},
-{
-"src": "https://placehold.co/512x512/020617/f59e0b.png?text=CC",
-"type": "image/png",
-"sizes": "512x512",
-"purpose": "any"
-}
-]
+  "name": "CamionCheck Pro",
+  "short_name": "CamionCheck",
+  "description": "L'inventaire ludique et le contrôle de conformité de nos camions de chantier",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/192x192/020617/f59e0b.png?text=CC",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "https://placehold.co/512x512/020617/f59e0b.png?text=CC",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ]
 }

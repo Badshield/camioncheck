@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Arrière-plan arrondi professionnel de chantier -->
+  <rect width="512" height="512" rx="112" fill="#020617"/>
+  
+  <!-- Motif de grille discrète en arrière-plan -->
+  <path d="M0 128h512M0 256h512M0 384h512M128 0v512M256 0v512M384 0v512" stroke="#1e293b" stroke-width="4" opacity="0.3"/>
+  
+  <!-- Silhouette de camion stylisé -->
+  <g transform="translate(48, 120)">
+    <!-- Cabine du camion -->
+    <path d="M256 80h60l60 60v100h-120V80z" fill="#f59e0b"/>
+    <path d="M280 96h30l26 28h-56V96z" fill="#020617"/>
+    
+    <!-- Benne de chargement de chantier -->
+    <path d="M20 60h220v140H20V60z" fill="#3b82f6"/>
+    <!-- Bandes de sécurité rétro-réfléchissantes -->
+    <path d="M20 90l30-30m30 60l30-30m30 60l30-30m30 60l30-30" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" opacity="0.8"/>
+    
+    <!-- Châssis métallique -->
+    <rect x="10" y="200" width="390" height="30" rx="10" fill="#64748b"/>
+    
+    <!-- Roues massives de camion tout-terrain -->
+    <circle cx="80" cy="240" r="42" fill="#0f172a" stroke="#475569" stroke-width="8"/>
+    <circle cx="80" cy="240" r="16" fill="#cbd5e1"/>
+    
+    <circle cx="180" cy="240" r="42" fill="#0f172a" stroke="#475569" stroke-width="8"/>
+    <circle cx="180" cy="240" r="16" fill="#cbd5e1"/>
+    
+    <circle cx="320" cy="240" r="42" fill="#0f172a" stroke="#475569" stroke-width="8"/>
+    <circle cx="320" cy="240" r="16" fill="#cbd5e1"/>
+  </g>
+  
+  <!-- Grande coche verte de conformité ("Check") -->
+  <circle cx="400" cy="120" r="64" fill="#10b981" stroke="#020617" stroke-width="12"/>
+  <path d="M372 120l18 18 36-36" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
